@@ -1,0 +1,43 @@
+{
+  "name": "powerforms",
+  "version": "0.0.1",
+  "description": "React powered forms generated from json.",
+  "author": {
+    "name": "Lasana Murray",
+    "email": "lmurray@trinistorm.org",
+    "url": "http://trinistorm.org"
+  },
+  "repository": "metasansana/powerforms",
+  "license": "Apache2",
+  "files": [
+    "index.js"
+  ],
+  "keywords": [
+    "powerforms"
+  ],
+  "devDependencies": {
+    "babel-jest": "*",
+    "babelify": "^6.0.2",
+    "jest-cli": "^0.4.1",
+    "moment": "^2.10.2",
+    "react": "^0.13.2"
+  },
+  "browser": "src/index.js",
+  "browserify": {
+    "transform": [
+      "babelify"
+    ]
+  },
+  "scripts": {
+    "test": "./node_modules/.bin/jest",
+    "build-example": "browserify -t babelify src/examples/index.js > examples/example.js"
+  },
+  "jest": {
+    "unmockedModulePathPatterns": ["react", "react/addons", "src/*", "dot-component"],
+    "scriptPreprocessor": "./node_modules/babel-jest/index.js"
+  },
+  "dependencies": {
+    "dot-component": "^0.1.1",
+    "merge": "^1.2.0"
+  }
+}

@@ -1,0 +1,121 @@
+{
+  "visual": [
+    {
+      "type": "panel",
+      "attributes": {
+        "title": "Contact Form"
+      },
+      "visual": [
+        {
+          "label": "Name",
+          "name": "name",
+          "type": "anyrange",
+          "defaultValue": {
+            "name": {
+              "first": "Lasana",
+              "last": "Murray"
+            }
+          },
+          "attributes": {
+            "lower": {
+              "type": "text",
+              "name": "name.first",
+              "attrs": {
+                "placeholder": "First"
+              }
+            },
+            "upper": {
+              "type": "text",
+              "name": "name.last",
+              "attrs": {
+                "placeholder": "Last"
+              }
+            }
+          }
+        },
+        {
+          "label": "When can we talk?",
+          "name": "proposedMeetingDate",
+          "type": "date"
+        },
+        {
+          "label": "Gender",
+          "name": "gender",
+          "type": "radio",
+          "attributes": {
+            "options": [
+              {
+                "label": "Male",
+                "value": "M"
+              },
+              {
+                "label": "Female",
+                "value": "F"
+              }
+            ]
+          }
+        },
+        {
+          "label": "What service are you interested in?",
+          "name": "service",
+          "type": "select",
+          "defaultValue": "E-Commerce",
+          "attributes": {
+            "options": [
+              {
+                "label": "Software Development",
+                "value": "Software Development"
+              },
+              {
+                "label": "IT Return On Investment Analysis",
+                "value": "ROI Analysis"
+              },
+              {
+                "label": "E-Commerce",
+                "value": "E-Commerce"
+              }
+            ]
+          }
+        },
+        {
+          "label": "About You",
+          "name": "aboutYou",
+          "type": "textarea",
+          "attrs": {
+            "rows": 6
+          }
+        }
+      ]
+    },
+    {
+      "type": "panel",
+      "attributes": {
+        "title": "Other"
+      },
+      "visual": [
+        {
+          "type": "definitionlist",
+          "composite": true,
+          "attributes": {
+            "labels": [
+              {
+                "label": "First Name",
+                "name": "name.first"
+              },
+              {
+                "label": "Last Name",
+                "name": "name.last"
+              }
+            ],
+            "data": {
+              "name": {
+                "first": "Serious",
+                "last": "Business"
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
