@@ -1,26 +1,22 @@
-import Form from './Form';
-import Processor from './Processor';
+import Context from './Context';
 import Types from './Types';
 import Filters from './Filters';
 
 
 export default {
 
-    parseDefault(json, defaults) {
+    getDefaultContext() {
 
-        return this.parse(json, defaults, new Processor(new Types()), new Filter());
+        var ctx = new Context();
+
+        return ctx.addFilters(Filters).
+        addHandlers({}).
+        addTypes(Types);
 
     },
-    parse(json, defaults, processor) {
+    getContext() {
 
-        var childs;
-
-        if(Array.isArray(json.visual))
-            childs = json.visual.map(function(schema) {
-                return processor.process(schema, defaults, processor);
-            });
-
-        return React.createElement(Form, json, childs);
+       return new Context();
 
     }
 }

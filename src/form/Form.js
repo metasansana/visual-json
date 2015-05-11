@@ -1,11 +1,15 @@
 import React from 'react';
 
-
-
 /**
  * Form turns json into a react powered form.
  */
 class Form extends React.Component {
+
+    constructor(props) {
+        super(props);
+        this.state = {};
+        this.state.model = this.props.defaultValue || {};
+    }
 
     clicked(name, control, e) {
 
@@ -33,9 +37,18 @@ class Form extends React.Component {
 
     render() {
 
+        var childs = this.props.controls;
+        var handler = this.props.handler || this;
+
+        if (Array.isArray(this.props.controls)) {
+            childs = this.props.controls.map(function (ele, i) {
+                    return React.cloneElement(ele, {key: i, handler: handler});
+            })
+        }
+
         return (
             <form name={this.props.name} className={this.props.className}>
-                {this.children}
+                {childs}
             </form>
         );
 
@@ -44,7 +57,6 @@ class Form extends React.Component {
 }
 
 Form.propTypes = {
-    schema: React.PropTypes.object.isRequired,
     handler: React.PropTypes.object,
     defaultValue: React.PropTypes.object
 };

@@ -13,8 +13,8 @@ describe('Panel', function () {
             '<div class="panel-heading">A Panel</div>'+
             '<div class="panel-body">Internal Content</div></div>';
 
-        var markup = React.renderToStaticMarkup(<Panel title="A Panel"
-                                                       bsStyle="warning">Internal Content</Panel>);
+        var markup = React.renderToStaticMarkup(<Panel heading="A Panel"
+                                                       className="panel-warning">Internal Content</Panel>);
         expect(markup).toBe(expected);
     });
 

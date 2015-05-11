@@ -18,12 +18,6 @@ class Input extends Control {
     }
 }
 
-Input.process = function(schema, process) {
-
-    return React.createElement(Input, schema);
-
-}
-
 Input.propTypes = {
     type: React.PropTypes.string,
     name: React.PropTypes.string.isRequired,

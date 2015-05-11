@@ -27,13 +27,24 @@ Option.propTypes = {
 
 class Select extends Control {
 
+    componentDidMount() {
+
+        if(this.props.defaultValue) {
+            React.findDOMNode(this.refs.select).dispatchEvent(new Event('change'));
+            console.log('Dispatched! ',React.findDOMNode(this.refs.select));
+        }
+
+    }
 
     renderComponent(callbacks) {
+
+
+
 
         var self = this;
         return (
 
-            <select className="form-control" {...this.props.attrs}
+            <select ref="select" className="form-control" {...this.props.attrs}
                     onChange={callbacks.onChange}
                     defaultValue={this.props.defaultValue}>
                 {

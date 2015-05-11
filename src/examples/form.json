@@ -1,121 +1,202 @@
 {
-  "visual": [
+  "type": "view",
+  "$$$content": [
     {
       "type": "panel",
-      "attributes": {
-        "title": "Contact Form"
-      },
-      "visual": [
-        {
-          "label": "Name",
-          "name": "name",
-          "type": "anyrange",
-          "defaultValue": {
-            "name": {
-              "first": "Lasana",
-              "last": "Murray"
-            }
-          },
-          "attributes": {
-            "lower": {
-              "type": "text",
-              "name": "name.first",
-              "attrs": {
-                "placeholder": "First"
-              }
+      "heading": "Contact Form",
+      "$$$body": {
+        "type": "form",
+        "className": "form-horizontal",
+        "$$$controls": [
+          {
+            "type": "formgroup",
+            "label": {
+              "value": "Name",
+              "className": "col-md-4"
             },
-            "upper": {
-              "type": "text",
+            "controls": [
+              {
+                "wrapClass": "col-md-4",
+                "$$$control": {
+                  "type": "text",
+                  "name": "name.first",
+                  "attrs": {
+                    "placeholder": "First"
+                  },
+                  "defaultValue": "Lasana"
+                }
+              },
+              {
+                "wrapClass": "col-md-4",
+                "$$$control": {
+                  "type": "text",
+                  "name": "name.last",
+                  "attrs": {
+                    "placeholder": "Last"
+                  },
+                  "defaultValue": "Murray"
+                }
+              }
+            ]
+          },
+          {
+            "type": "formgroup",
+            "label": {
+              "value": "When can we talk?",
+              "className": "col-md-4"
+            },
+            "controls": [
+              {
+                "wrapClass": "col-md-8",
+                "$$$control": {
+                  "type": "date",
+                  "name": "proposedMeetingDate"
+                }
+              }
+            ]
+          },
+          {
+            "type": "formgroup",
+            "label": {
+              "value": "Gender",
+              "className": "col-md-4"
+            },
+            "controls": [
+              {
+                "wrapClass": "col-md-8",
+                "$$$control": {
+                  "name": "gender",
+                  "type": "radio",
+                  "options": [
+                    {
+                      "label": "Male",
+                      "value": "M"
+                    },
+                    {
+                      "label": "Female",
+                      "value": "F"
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "type": "formgroup",
+            "label": {
+              "value": "What service are you interested in?",
+              "className": "col-md-4"
+            },
+            "controls": [
+              {
+                "wrapClass": "col-md-8",
+                "$$$control": {
+                  "type": "select",
+                  "name": "service",
+                  "options": [
+                    {
+                      "label": "Software Development",
+                      "value": "Software Development"
+                    },
+                    {
+                      "label": "IT Return On Investment Analysis",
+                      "value": "ROI Analysis"
+                    },
+                    {
+                      "label": "E-Commerce",
+                      "value": "E-Commerce"
+                    }
+                  ],
+                  "defaultValue": "E-Commerce"
+                }
+              }
+            ]
+          },
+          {
+            "type": "formgroup",
+            "label": {
+              "value": "About You",
+              "className": "col-md-4"
+            },
+            "controls": [
+              {
+                "wrapClass": "col-md-8",
+                "$$$control": {
+                  "type": "textarea",
+                  "name": "aboutYou",
+                  "attrs": {
+                    "rows": 6
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "type": "panel",
+      "heading": "A profile",
+      "$$$body": [
+        {
+          "type": "dl",
+          "labels": [
+            {
+              "label": "First Name",
+              "name": "name.first",
+              "$$filter": "uppercase"
+            },
+            {
+              "label": "Last Name",
               "name": "name.last",
-              "attrs": {
-                "placeholder": "Last"
-              }
+              "$$filter": "uppercase"
             }
-          }
-        },
-        {
-          "label": "When can we talk?",
-          "name": "proposedMeetingDate",
-          "type": "date"
-        },
-        {
-          "label": "Gender",
-          "name": "gender",
-          "type": "radio",
-          "attributes": {
-            "options": [
-              {
-                "label": "Male",
-                "value": "M"
-              },
-              {
-                "label": "Female",
-                "value": "F"
-              }
-            ]
-          }
-        },
-        {
-          "label": "What service are you interested in?",
-          "name": "service",
-          "type": "select",
-          "defaultValue": "E-Commerce",
-          "attributes": {
-            "options": [
-              {
-                "label": "Software Development",
-                "value": "Software Development"
-              },
-              {
-                "label": "IT Return On Investment Analysis",
-                "value": "ROI Analysis"
-              },
-              {
-                "label": "E-Commerce",
-                "value": "E-Commerce"
-              }
-            ]
-          }
-        },
-        {
-          "label": "About You",
-          "name": "aboutYou",
-          "type": "textarea",
-          "attrs": {
-            "rows": 6
+          ],
+          "data": {
+            "name": {
+              "first": "Serious",
+              "last": "Business"
+            }
           }
         }
       ]
     },
     {
       "type": "panel",
-      "attributes": {
-        "title": "Other"
-      },
-      "visual": [
+      "className":"panel-warning",
+      "heading": "A table in a panel",
+      "$$$table": [
         {
-          "type": "definitionlist",
-          "composite": true,
-          "attributes": {
-            "labels": [
-              {
-                "label": "First Name",
-                "name": "name.first"
-              },
-              {
-                "label": "Last Name",
-                "name": "name.last"
-              }
-            ],
-            "data": {
+          "type": "table",
+          "columns": [
+            {
+              "label": "First Name",
+              "name": "name.first",
+              "$$filter": "uppercase"
+            },
+            {
+              "label": "Last Name",
+              "name": "name.last",
+              "$$filter": "uppercase"
+            }
+          ],
+          "data": [
+            {
               "name": {
-                "first": "Serious",
-                "last": "Business"
+                "first": "mel",
+                "last": "lentils"
+              }
+            },
+            {
+              "name": {
+                "first": "reD",
+                "last": "Bean"
               }
             }
-          }
+          ]
         }
       ]
     }
   ]
 }
+
