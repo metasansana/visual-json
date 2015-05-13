@@ -1,5 +1,8 @@
 import merge from 'merge';
-import Processor from './Processor';
+
+import Parser from './Parser';
+import Compiler from './Compiler';
+
 /**
  * Context
  */
@@ -44,39 +47,14 @@ class Context {
     /**
      *
      * @param {Object} json
-     * @param {Object} defaults
+     * @param {Object} ctx
      * @returns {React.Element}
      */
-    parse(json:Object, defaults:Object) {
+    generate(json, ctx) {
 
-        json = JSON.parse(JSON.stringify(json));
-        var processor = new Processor(this.types, this.filters, this.handlers);
-        return processor.process(json, defaults);
+        var parser = new Parser();
+        return parser.parse(json, ctx, new Compiler(this.types));
 
-
-    }
-
-    /**
-     *
-     * @param {Array} json
-     * @param {Object} defaults
-     * @returns {Array}
-     */
-    parseMany(json:Array, defaults:Object) {
-
-        var processor = new Processor(this.types, this.filters, this.handlers);
-
-        return json.map(function(schema, i) {
-            schema = JSON.parse(JSON.stringify(schema));
-
-            if(schema.key)
-            throw new Error('The key property is restricted! Found key: '+i+'.');
-
-            schema.key = i;
-
-            return processor.process(schema, defaults);
-
-        })
 
     }
 

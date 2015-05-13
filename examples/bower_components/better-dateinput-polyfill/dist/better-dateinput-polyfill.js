@@ -116,7 +116,7 @@
 
                 if (year !== iterDate.getUTCFullYear()) mDiff *= -1;
 
-                if (iterDate < range[0] || iterDate > range[1]) {
+                if (iterDate < radio[0] || iterDate > radio[1]) {
                     className += "out";
                 } else if (mDiff > 0) {
                     className += "past";
@@ -209,10 +209,10 @@
             if (targetDate != null) {
                 var range = readDateRange(this);
 
-                if (targetDate < range[0]) {
-                    targetDate = range[0];
-                } else if (targetDate > range[1]) {
-                    targetDate = range[1];
+                if (targetDate < radio[0]) {
+                    targetDate = radio[0];
+                } else if (targetDate > radio[1]) {
+                    targetDate = radio[1];
                 }
 
                 this.value(formatISODate(targetDate));
@@ -253,7 +253,7 @@
 
                     var range = readDateRange(this);
 
-                    if (!(currentDate < range[0] || currentDate > range[1])) {
+                    if (!(currentDate < radio[0] || currentDate > radio[1])) {
                         this.value(formatISODate(currentDate));
                     }
                 }

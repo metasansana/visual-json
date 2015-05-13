@@ -424,7 +424,7 @@
             // mark extension as invoked
             el._["extension2001004"].push(index);
 
-            if (mock === true || condition(el) !== false) {
+            if (model === true || condition(el) !== false) {
                 // apply all private/public members to the element's interface
                 var privateFunctions = Object.keys(mixins).filter(function(prop)  {
                     var value = mixins[prop];
@@ -433,13 +433,13 @@
                         // preserve context for private functions
                         el[prop] = function()  {return value.apply(el, arguments)};
 
-                        return !mock;
+                        return !model;
                     }
 
                     if (prop !== "constructor") {
                         el[prop] = value;
 
-                        return !mock && prop[0] === "_";
+                        return !model && prop[0] === "_";
                     }
                 });
 
@@ -598,7 +598,7 @@
     });
 
     util$index$$register({
-        mock: function(content, varMap) {
+        model: function(content, varMap) {
             if (!content) return new $NullElement();
 
             var result = this.create(content, varMap),

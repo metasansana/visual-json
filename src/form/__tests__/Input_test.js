@@ -3,52 +3,66 @@ import React from 'react/addons';
 import Input from '../Input';
 
 var Test = React.addons.TestUtils;
+var model;
 
 describe('Input', function () {
+
+    beforeEach(function () {
+
+        model =
+        {
+            model: {},
+
+            set: jest.genMockFunction().mockImplementation(
+                function (name, value, control, target) {
+                    this.model[name] = value;
+                    return this;
+                }),
+            get: jest.genMockFunction(),
+            validate: jest.genMockFunction()
+
+        };
+    });
 
     describe('Input.render', function () {
 
         it('it should render the correct markup', function () {
 
-            expect(React.renderToStaticMarkup(<Input name="name" type="text"/>)).toBe(
-                '<input class="form-control" id="name" type="text" name="name">');
+            expect(React.renderToStaticMarkup(
+                React.createElement(Input, {name: "name", type: "text", model: model}))).
+                toBe('<input name="name" class="form-control" type="text">');
 
         });
 
         it('it should render the correct markup with defaults', function () {
 
-            expect(React.renderToStaticMarkup(<Input name="name" type="text"
-                                                     defaultValue="Some value"/>)).toBe(
-                '<input class="form-control" id="name" type="text" name="name" value="Some value">');
+            expect(React.renderToStaticMarkup(
+                React.createElement(Input, {
+                    name: "name",
+                    type: 'text',
+                    model: model,
+                    defaultValue: "Some value"
+                }))).
+                toBe('<input name="name" class="form-control" type="text" value="Some value">');
 
         });
     });
 
     describe('Input.change', function () {
 
-        it('should call the handler\'s valueChanged() when the value of the field changes', function () {
+        it('should call the model\'s set() when a changed', function () {
 
             var input;
 
-            var mock = {
-
-                valueChanged: jest.genMockFunction().mockImplementation(
-                    function (name, value, control, target) {
-                        expect(target.name).toBe(name);
-                        expect(value).toBe('myInput');
-                        expect(control).toBe(input);
-                    })
-            };
+            var model = {model:{}, get(key){return this.model[key];},set:function(key, value) {this.model[key]=value; return this}};
 
             input = Test.renderIntoDocument(
-                <Input handler={mock} name="myInput"/>);
-
+                React.createElement(Input, {model: model, name: "myInput", type: 'text'}));
 
             var node = Test.findRenderedDOMComponentWithTag(input, 'input');
 
-
             Test.Simulate.change(node, {target: {value: 'myInput', name: node.getDOMNode().name}});
-            expect(mock.valueChanged).toBeCalled();
+            expect(model.model.myInput).toBe('myInput');
 
 
         });
@@ -58,29 +72,19 @@ describe('Input', function () {
 
     describe('Input.blur', function () {
 
-        it('should call the handler\'s focusLost() when it losses focus', function () {
+        xit('should call the handler\'s validate() when it losses focus', function () {
 
             var input;
 
-            var mock = {
-
-                focusLost: jest.genMockFunction().mockImplementation(
-                    function (name, value, control, target) {
-                        expect(target.name).toBe(name);
-                        expect(value).toBe('myInput');
-                        expect(control).toBe(input);
-                    })
-            };
-
             input = Test.renderIntoDocument(
-                <Input handler={mock} name="myInput"/>);
+                <Input handler={model} name="myInput"/>);
 
 
             var node = Test.findRenderedDOMComponentWithTag(input, 'input');
 
 
             Test.Simulate.blur(node, {target: {value: 'myInput', name: node.getDOMNode().name}});
-            expect(mock.focusLost).toBeCalled();
+            expect(model.focusLost).toBeCalled();
 
 
         });

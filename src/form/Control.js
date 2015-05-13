@@ -12,29 +12,62 @@ class Control extends React.Component {
 
         super(props);
 
+        var self = this;
+
         this.callbacks = {
-            onClick: this.click.bind(this),
-            onChange: this.change.bind(this),
-            onBlur: this.blur.bind(this),
-            onFocus: this.focus.bind(this)
+            onChange: this.change.bind(self),
+            onBlur: this.blur.bind(self)
+            //onFocus: this.focus.bind(self)
         }
     }
 
-    click(e) {
-        this.props.handler.clicked(e.target.name, this, e.target);
+    _defaultValue() {
+
+        var fromModel = this.props.model.get(this.props.name);
+        var fromProps = this.props.defaultValue;
+
+        if (!fromModel)
+            return fromProps;
+
+        return fromModel;
+
+    }
+
+    _defaultProps(o) {
+
+        var self = this;
+        var props = self.props.attrs || {};
+        var o = o || {};
+
+        var firstMerge = {
+            name: self.props.name,
+            className: 'form-control',
+            model: self.props.model,
+            defaultValue: self._defaultValue(),
+            onChange: self.change.bind(self),
+            onBlur: self.blur.bind(self)
+        };
+
+        for (var key in firstMerge)
+            if (firstMerge.hasOwnProperty(key)) {
+                props[key] = firstMerge[key];
+            }
+
+        for (var key in o) {
+            if (o.hasOwnProperty(key))
+                props[key] = o[key];
+        }
+
+        return props;
+
     }
 
     change(e) {
-        this.props.handler.valueChanged(e.target.name, e.target.value, this, e.target);
+        this.props.model.set(e.target.name, e.target.value, this, e.target);
     }
 
     blur(e) {
-        e.preventDefault();
-        this.props.handler.focusLost(e.target.name, e.target.value, this, e.target);
-    }
-
-    focus(e) {
-        this.props.handler.focusReceived(e.target.name, e.target.value, this, e.target);
+        this.props.model.validate(e.target.name, e.target.value, this, e.target);
     }
 
     renderComponent() {
@@ -47,7 +80,4 @@ class Control extends React.Component {
     }
 
 }
-Control.propTypes = {
-    handler: React.PropTypes.object.isRequired
-};
 export default Control;

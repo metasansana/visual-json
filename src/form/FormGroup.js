@@ -4,7 +4,15 @@ class Wrapper extends React.Component {
 
     render() {
 
-        return (<div className={this.props.wrapClass}>{this.props.children}</div>)
+        var childs = this.props.children;
+
+        if(!Array.isArray(childs));
+        childs = [childs];
+
+        var args = ['div', {className:this.props.wrapClass}].concat(childs);
+
+        return React.createElement.apply(React, args);
+
     }
 
 }
@@ -16,44 +24,46 @@ class FormGroup extends React.Component {
     render() {
 
         var label;
-        var controls;
-        var handler = this.props.handler;
+        var controlSpec;
+        var component;
 
         if (this.props.label)
             label = (<label className={'control-label '+this.props.label.className} {...this.props.label.attrs}>
                 {this.props.label.value}</label>);
 
         if (this.props.controls.length === 1) {
-            controls = this.props.controls[0];
-            if (controls.wrapClass) {
-                controls = (
-                    <Wrapper wrapClass={controls.wrapClass}>
-                        {React.cloneElement(controls.control, {handler:handler})}
+
+            controlSpec = this.props.controls[0];
+
+            if (controlSpec.wrapClass) {
+                component = (
+                    <Wrapper wrapClass={controlSpec.wrapClass}>
+                        {controlSpec.control}
                     </Wrapper>);
             } else {
-                controls = React.cloneElement(controls.control, {handler:handler});
+                component = controlSpec.control;
             }
         } else {
 
-            controls = this.props.controls.map(function (control, i) {
+            component = this.props.controls.map(function (spec, i) {
 
-                if (control.wrapClass)
+                if (spec.wrapClass)
                     return (
-                        <Wrapper key={i} wrapClass={control.wrapClass}>
-                            {React.cloneElement(control.control, {handler:handler})}
-                        </Wrapper>)
+                        <Wrapper key={i} wrapClass={spec.wrapClass}>
+                            {spec.control}
+                        </Wrapper>);
 
-                return React.cloneElement(control.control, {handler:handler});
+                return spec.control;
             });
 
         }
 
-        return (
-            <div className="form-group">
-                {label}
-                {controls}
-            </div>
-        )
+        if(!Array.isArray(component))
+        component = [component];
+
+        var args = ['div', {className:'form-group'}, label].concat(component);
+        return React.createElement.apply(React, args);
+
     }
 
 

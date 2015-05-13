@@ -7,7 +7,6 @@ import Table from './view/Table';
 import Tag from './view/Tag';
 import Container from './view/Container';
 import View from './view/View';
-import Wrapper from './view/Wrapper';
 
 import Form from './form/Form';
 import FormGroup from './form/FormGroup';
@@ -33,11 +32,6 @@ var cleanForm = function (schema) {
  * called.
  */
 export default {
-
-    wrap: function(schema) {
-
-        return React.createElement(Wrapper, schema);
-    },
 
     default: function (schema) {
 
@@ -70,11 +64,16 @@ export default {
      * form generates a html form
      * @param {Object} schema
      * @param {Object} defaults
-     * @param {Processor} processor
+     * @param {Parser} processor
      */
     form: function (schema, defaults, processor) {
 
-        return React.createElement(Form, schema);
+        var args = [];
+        args.push(Form);
+        args.push(schema);
+        args = args.concat(schema.controls);
+        delete schema.controls;
+        return React.createElement.apply(React, args);
     },
 
     radio: function (schema, defaults, processor) {
@@ -116,7 +115,7 @@ export default {
      * dl renders a definition list
      * @param {Object} schema
      * @param {Object} defaults
-     * @param {Processor} processor
+     * @param {Parser} processor
      */
     dl: function (schema, defaults, processor) {
 
@@ -137,7 +136,7 @@ export default {
      * schema.controls.0.control are first converted to a valid React.Element
      * @param {Object} schema
      * @param {Object} defaults
-     * @param {Processor} processor
+     * @param {Parser} processor
      */
     formgroup: function (schema, defaults, processor) {
         return React.createElement(FormGroup, cleanView(schema));

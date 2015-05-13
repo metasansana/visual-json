@@ -9,10 +9,8 @@ class TextArea extends Control {
 
     renderComponent(callbacks) {
 
-        return (
-            <textarea className="form-control" id={this.props.name}
-                {...callbacks} name={this.props.name} {...this.props.attrs} defaultValue={this.props.defaultValue}></textarea>
-        );
+        var self = this;
+        return React.createElement('textarea', self._defaultProps());
 
     }
 
@@ -20,6 +18,7 @@ class TextArea extends Control {
 TextArea.propTypes = {
     name: React.PropTypes.string.isRequired,
     defaultValue: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.number]),
-    attrs: React.PropTypes.object
+    attrs: React.PropTypes.object,
+    model:React.PropTypes.object.isRequired
 }
 export default TextArea;

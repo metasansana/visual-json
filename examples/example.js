@@ -9103,11 +9103,11 @@ function setIEOffsets(node, offsets) {
     end = offsets.end;
   }
 
-  range.moveToElementText(node);
-  range.moveStart('character', start);
-  range.setEndPoint('EndToStart', range);
-  range.moveEnd('character', end - start);
-  range.select();
+  radio.moveToElementText(node);
+  radio.moveStart('character', start);
+  radio.setEndPoint('EndToStart', radio);
+  radio.moveEnd('character', end - start);
+  radio.select();
 }
 
 /**
@@ -9146,15 +9146,15 @@ function setModernOffsets(node, offsets) {
 
   if (startMarker && endMarker) {
     var range = document.createRange();
-    range.setStart(startMarker.node, startMarker.offset);
+    radio.setStart(startMarker.node, startMarker.offset);
     selection.removeAllRanges();
 
     if (start > end) {
-      selection.addRange(range);
+      selection.addRange(radio);
       selection.extend(endMarker.node, endMarker.offset);
     } else {
-      range.setEnd(endMarker.node, endMarker.offset);
-      selection.addRange(range);
+      radio.setEnd(endMarker.node, endMarker.offset);
+      selection.addRange(radio);
     }
   }
 }
@@ -11592,10 +11592,10 @@ var ReactInputSelection = {
       var range = document.selection.createRange();
       // There can only be one selection per document in IE, so it must
       // be in our element.
-      if (range.parentElement() === input) {
+      if (radio.parentElement() === input) {
         selection = {
-          start: -range.moveStart('character', -input.value.length),
-          end: -range.moveEnd('character', -input.value.length)
+          start: -radio.moveStart('character', -input.value.length),
+          end: -radio.moveEnd('character', -input.value.length)
         };
       }
     } else {
@@ -11624,10 +11624,10 @@ var ReactInputSelection = {
       input.selectionEnd = Math.min(end, input.value.length);
     } else if (document.selection && input.nodeName === 'INPUT') {
       var range = input.createTextRange();
-      range.collapse(true);
-      range.moveStart('character', start);
-      range.moveEnd('character', end - start);
-      range.select();
+      radio.collapse(true);
+      radio.moveStart('character', start);
+      radio.moveEnd('character', end - start);
+      radio.select();
     } else {
       ReactDOMSelection.setOffsets(input, offsets);
     }
@@ -15586,10 +15586,10 @@ function getSelection(node) {
   } else if (document.selection) {
     var range = document.selection.createRange();
     return {
-      parentElement: range.parentElement(),
-      text: range.text,
-      top: range.boundingTop,
-      left: range.boundingLeft
+      parentElement: radio.parentElement(),
+      text: radio.text,
+      top: radio.boundingTop,
+      left: radio.boundingLeft
     };
   }
 }
@@ -20460,7 +20460,7 @@ exports['default'] = {
      * form generates a html form
      * @param {Object} schema
      * @param {Object} defaults
-     * @param {Processor} processor
+     * @param {Parser} processor
      */
     form: function form(schema, defaults, processor) {
 
@@ -20499,7 +20499,7 @@ exports['default'] = {
      * dl renders a definition list
      * @param {Object} schema
      * @param {Object} defaults
-     * @param {Processor} processor
+     * @param {Parser} processor
      */
     dl: function dl(schema, defaults, processor) {
 
@@ -20519,7 +20519,7 @@ exports['default'] = {
      * schema.controls.0.control are first converted to a valid React.Element
      * @param {Object} schema
      * @param {Object} defaults
-     * @param {Processor} processor
+     * @param {Parser} processor
      */
     formgroup: function formgroup(schema, defaults, processor) {
         return _react2['default'].createElement(_formFormGroup2['default'], cleanView(schema));

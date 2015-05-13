@@ -11,9 +11,15 @@ class Input extends Control {
 
     renderComponent(callbacks) {
 
-        var self = this;
+        var defult = this.props.model.get(this.props.name)||this.props.defaultValue;
 
-        return React.createElement('input',  self._defaultProps({type:self.props.type}));
+
+        return (
+            <input className="form-control" id={this.props.name}
+                   type={this.props.type}
+                   name={this.props.name} defaultValue={defult}
+                {...callbacks} {...this.props.attrs}/>
+        );
 
     }
 }

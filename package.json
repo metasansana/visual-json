@@ -2,6 +2,7 @@
   "name": "powerforms",
   "version": "0.0.1",
   "description": "React powered forms generated from json.",
+  "main":"build/index.js",
   "author": {
     "name": "Lasana Murray",
     "email": "lmurray@trinistorm.org",
@@ -22,15 +23,14 @@
     "moment": "^2.10.2",
     "react": "^0.13.2"
   },
-  "browser": "src/index.js",
+  "browser": "build/index.js",
   "browserify": {
-    "transform": [
-      "babelify"
-    ]
   },
   "scripts": {
-    "test": "./node_modules/.bin/jest",
+    "test": "./node_modules/.bi1n/jest",
+    "build": "rm -R build; ./node_modules/.bin/babel -i srv/*/__tests__,node_modules -D -w src -d build",
     "build-example": "browserify -t babelify src/examples/index.js > examples/example.js"
+
   },
   "jest": {
     "unmockedModulePathPatterns": ["react", "react/addons", "src/*", "dot-component"],

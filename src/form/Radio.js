@@ -1,20 +1,27 @@
 import React from 'react';
 
-import Control from './Control'
+import Control from './Control';
 
 class Option extends React.Component {
 
     render() {
 
-        return (
-            <div className="radio">
-                <label className="radio-inline control-label">
-                    <input name={this.props.name} onChange={this.props.onChange}
-                           value={this.props.value} type="radio" {...this.props.selected}/>
-                    {this.props.label}
-                </label>
-            </div>
-        );
+        var self = this;
+        var props =  {
+            name: self.props.name,
+            value: self.props.value,
+            type: 'radio',
+            onChange:self.props.onChange
+        };
+
+        if(self.props.value === self.props.checked)
+        props.checked = true;
+
+        return React.createElement('div', {className: 'radio'}, null,
+            React.createElement('label', {className: 'radio-inline control-label'},
+                React.createElement('input', props), self.props.label));
+
+
     }
 }
 
@@ -26,47 +33,41 @@ Option.propTypes = {
         React.PropTypes.number,
     ]).isRequired,
     selected: React.PropTypes.object,
+    model: React.PropTypes.object,
     label: React.PropTypes.string
 };
 
 
 class Radio extends Control {
 
-
     renderComponent(callbacks) {
 
         var self = this;
 
-        return (
+        var args = self.props.options.map(function (option) {
 
-            <span>
-                {
-                    self.props.options.map(function (option, i) {
+            var props = {
+                value: option.value,
+                label: option.label,
+                checked:self._defaultValue()};
 
-                        var defalt = self.props.defaultValue;
-                        var selected = (defalt)? (option.value === defalt)? {selected:true}:{}:{};
+            return React.createElement(Option, self._defaultProps(props));
 
-                        return (<Option
-                            name={self.props.name}
-                            value={option.value}
-                            onChange={callbacks.onChange}
-                            selected={selected}
-                            key={i}
-                            label={option.label}/>);
-                    })
-                }
-            </span>
+        });
 
-        );
+        args.unshift(null);
+        args.unshift('span');
+
+        return React.createElement.apply(React,args);
 
     }
 }
 Radio.propTypes = {
     name: React.PropTypes.string.isRequired,
+    model: React.PropTypes.object.isRequired,
     options: React.PropTypes.arrayOf(React.PropTypes.shape({
         label: React.PropTypes.string.isRequired,
         value: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.number]).isRequired
-    })).isRequired,
-    handler: React.PropTypes.object.isRequired
+    })).isRequired
 };
 export default Radio;
