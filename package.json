@@ -27,7 +27,7 @@
   "browserify": {
   },
   "scripts": {
-    "test": "./node_modules/.bi1n/jest",
+    "test": "./node_modules/.bin/jest",
     "build": "rm -R build; ./node_modules/.bin/babel -i srv/*/__tests__,node_modules -D -w src -d build",
     "build-example": "browserify -t babelify src/examples/index.js > examples/example.js"
 

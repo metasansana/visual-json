@@ -90,22 +90,6 @@ class Table extends React.Component {
 
     }
 
-    format(name, datum, fmt, fmtType) {
-
-        var f = (data=>data);
-
-        if (fmt)
-            if (fmt[name])
-                f = fmt[name];
-
-        if (fmtType)
-            f = fmt[fmtType];
-
-        var data = dot.get(datum, name);
-
-        return f(data, datum);
-    }
-
     render() {
 
         var self = this;

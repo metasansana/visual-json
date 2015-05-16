@@ -55,7 +55,7 @@ var Panel = (function (_React$Component) {
                     { className: 'panel-body' },
                     this.props.children
                 ) : '',
-                this.props.table ? this.props.table : '',
+                this.props.table ? this.props.table : null,
                 this.props.footer ? _react2['default'].createElement(
                     'div',
                     { className: 'panel-footer' },

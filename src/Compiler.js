@@ -1,10 +1,42 @@
 import dot from 'dot-component';
 
+class TypedError extends Error {
 
-class KeyNotFoundOnContextError extends Error {
+    constructor(message) {
+        super();
+
+        if (Error.hasOwnProperty('captureStackTrace'))
+            Error.captureStackTrace(this, this.constructor);
+        else
+            Object.defineProperty(this, 'stack', {
+                value: (new Error()).stack
+            });
+
+        Object.defineProperty(this, 'message', {
+            value: message
+        });
+    }
+
+    get name() {
+        return this.constructor.name;
+    }
+
+}
+
+class KeyNotFoundOnContextError extends TypedError {
 
     constructor(key) {
-        super('ParseContext does not have a key ' + key + '!');
+        super('The Parse context does not have a key ' + key + '!');
+    }
+}
+
+class DuplicateKeyError extends TypedError {
+
+    constructor(key, o) {
+        super(
+            'The key "' + key +
+            '" appears twice in your schema! This will end the world if we do any swapping or compiling! Schema: ' +
+            JSON.stringify(o));
     }
 }
 
@@ -19,7 +51,8 @@ var cut = function (key, target) {
 };
 
 var SWAP_SYMBOL = '@';
-var CALL_AND_SWAP_SYMBOL = '@@';
+var SWAP_AND_PARSE_SYMBOL='@@';
+var CALL_AND_SWAP_SYMBOL = '$@';
 var BUILTIN_SYMBOL = '$$';
 var EAGER_COMPILE_SYMBOL = '$$$';
 
@@ -29,7 +62,9 @@ var EAGER_COMPILE_SYMBOL = '$$$';
  * Default Symbols:
  *
  *  @:    Swap the value of this property with a value from context
- *  @@:    Swap the value with a function from context (the function is bind() to context first)
+ *  @@:   Swap the value of this property with a value from context then parse that
+ *        (Parsing should be handled by the parser).
+ *  $@:    Swap the value with a function from context (the function is bind() to context first)
  *  $$:   Swap this value with a builtin value or function.
  *  $$$:  Process this property as a type or array of types.
  *
@@ -37,8 +72,36 @@ var EAGER_COMPILE_SYMBOL = '$$$';
  */
 class Compiler {
 
-    constructor(types) {
+    constructor(types, filters) {
         this.types = types;
+        this.filters = filters;
+    }
+
+    _checkDups(key, o) {
+        if (o.hasOwnProperty(key))
+            throw new DuplicateKeyError(key, o);
+    }
+
+    _swap(symbol, key, schema, ctx) {
+
+        var desiredKey = schema[key];
+
+        if (desiredKey === 'this') {
+            schema[cut(key, symbol)] = ctx;
+
+        } else if (typeof ctx[desiredKey] === 'function') {
+            schema[cut(key, symbol)] = ctx[desiredKey].bind(ctx);
+
+        } else {
+            schema[cut(key, symbol)] = dot.get(ctx, desiredKey);
+        }
+
+        delete schema[key];
+        return schema;
+    }
+
+    hasSymbol(key, sym) {
+        return (key.indexOf(sym) > -1);
     }
 
     /**
@@ -51,25 +114,21 @@ class Compiler {
      */
     swapSymbol(key, schema, ctx) {
 
-        if (key.indexOf(SWAP_SYMBOL) > -1) {
+        if (this.hasSymbol(key, SWAP_SYMBOL))
+        if(!this.hasSymbol(key, SWAP_AND_PARSE_SYMBOL)){
+            this._checkDups(cut(key, SWAP_SYMBOL), schema);
+            return this._swap(SWAP_SYMBOL, key, schema, ctx);
+        }
+        return schema;
+    }
 
-            var desiredKey = schema[key];
+    swapSymbolAndParse(key, schema, ctx, fn) {
 
-            //if (!ctx.hasOwnProperty(desiredKey))
-            //  if (desiredKey !== 'this')
-            //    throw new KeyNotFoundOnContextError(desiredKey);
-
-            if (desiredKey === 'this') {
-                schema[cut(key, SWAP_SYMBOL)] = ctx;
-
-            } else if (typeof ctx[desiredKey] === 'function') {
-                schema[cut(key, SWAP_SYMBOL)] = ctx[desiredKey].bind(ctx);
-
-            } else {
-                schema[cut(key, SWAP_SYMBOL)] = dot.get(ctx, desiredKey);
-            }
-
-            delete schema[key];
+        if(this.hasSymbol(key, SWAP_AND_PARSE_SYMBOL)){
+            this._checkDups(cut(key, SWAP_AND_PARSE_SYMBOL), schema);
+            var ret = this._swap(SWAP_AND_PARSE_SYMBOL, key, schema, ctx);
+            ret[cut(key, SWAP_AND_PARSE_SYMBOL)] = fn(ret[cut(key, SWAP_AND_PARSE_SYMBOL)],ctx,this);
+            return ret;
         }
 
         return schema;
@@ -85,10 +144,12 @@ class Compiler {
      */
     callAndSwapSymbol(key, schema, ctx) {
 
-        if (key.indexOf(CALL_AND_SWAP_SYMBOL) > -1) {
+        if(this.hasSymbol(key, CALL_AND_SWAP_SYMBOL)){
+
+            this._checkDups(cut(key, CALL_AND_SWAP_SYMBOL), schema);
 
             var desiredKey = schema[key];
-            var args = desiredKey.split(',');
+            var args = desiredKey.split(' ');
             desiredKey = args.shift();
 
             if (!ctx.hasOwnProperty(desiredKey))
@@ -102,35 +163,20 @@ class Compiler {
         return schema;
     }
 
-    /**
-     * swapContextSymbol
-     *
-     * @param {String} key
-     * @param {Object} schema
-     * @param {Object} ctx
-     * @returns {*}
-     */
-    swapContextSymbol(key, schema, ctx) {
-
-        if (key.indexOf(CONTEXT_SYMBOL) > -1) {
-            schema[cut(key, CONTEXT_SYMBOL)] = ctx;
-            delete schema[key];
-        }
-
-        return schema;
-    }
-
-
     swapFilter(key, schema, ctx) {
 
+        var self = this;
+
         if (key === '$$filter') {
+
+            this._checkDups(cut(key, '$$filter'), schema);
 
             schema.filter = function (filters, ctx) {
 
                 return function (value) {
                     return self.filter(value, filters, ctx);
                 }
-            }(schema.$$filter, defaults);
+            }(schema.$$filter, ctx);
 
             delete schema.$$filter;
 
@@ -139,10 +185,50 @@ class Compiler {
 
     }
 
+    /**
+     * filter a value based on a '\' delimited string of filters.
+     * @param {*} value
+     * @param {String} list
+     * @param {Object} context
+     * @param {Function} cb
+     * @returns {*}
+     */
+    filter(value, list, context) {
+
+        if (!list) return value;
+
+        var self = this;
+
+        var filters = list.split('|').map(str =>  str.trim().split(' '));
+
+        var next = function (thisValue) {
+
+            if (filters.length < 1)
+                return thisValue;
+
+            var nextFilterArray = filters.shift();
+            var nextFilterMethodName = nextFilterArray.shift();
+
+            if (!self.filters.hasOwnProperty(nextFilterMethodName))
+                throw new Error('Unknown filter ' + nextFilterMethodName + '!');
+
+            /* filter(value, args1...argn, context, next)*/
+
+            nextFilterArray.unshift(thisValue);
+            nextFilterArray.push(context);
+            nextFilterArray.push(next);
+            return self.filters[nextFilterMethodName].apply(self.filters, nextFilterArray);
+        }
+
+        return next(value);
+
+    }
+
     eagerCompile(key, schema, ctx, types) {
 
         if (key.indexOf(EAGER_COMPILE_SYMBOL) > -1)
             if (!Array.isArray(schema[key])) {
+                this._checkDups(cut(key, EAGER_COMPILE_SYMBOL), schema);
                 schema[cut(key, EAGER_COMPILE_SYMBOL)] = this.compile(schema[key]);
                 delete schema[key];
             }
@@ -154,9 +240,13 @@ class Compiler {
 
         if (key.indexOf(EAGER_COMPILE_SYMBOL) > -1)
             if (Array.isArray(schema[key])) {
+
+                this._checkDups(cut(key, EAGER_COMPILE_SYMBOL), schema);
+
                 schema[cut(key, EAGER_COMPILE_SYMBOL)] = schema[key].map(function (scheme) {
                     return this.compile(scheme);
                 }.bind(this));
+
                 delete schema[key];
             }
         return schema;

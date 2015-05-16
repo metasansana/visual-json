@@ -118,7 +118,6 @@ export default {
      * @param {Parser} processor
      */
     dl: function (schema, defaults, processor) {
-
         schema.data = schema.data || schema.defaultValue || defaults;
         return React.createElement(DefinitionList, cleanView(schema));
     },

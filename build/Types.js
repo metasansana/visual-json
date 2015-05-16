@@ -154,7 +154,6 @@ exports['default'] = {
      * @param {Parser} processor
      */
     dl: function dl(schema, defaults, processor) {
-
         schema.data = schema.data || schema.defaultValue || defaults;
         return _react2['default'].createElement(_viewDefinitionList2['default'], cleanView(schema));
     },

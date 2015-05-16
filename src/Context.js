@@ -53,7 +53,7 @@ class Context {
     generate(json, ctx) {
 
         var parser = new Parser();
-        return parser.parse(json, ctx, new Compiler(this.types));
+        return parser.parse(json, ctx, new Compiler(this.types, this.filters));
 
 
     }

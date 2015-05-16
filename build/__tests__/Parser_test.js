@@ -43,7 +43,7 @@ describe('Parser', function () {
 
         xit('it should call all filters', function () {
 
-            expect(parser.parseFilters('two', {
+            expect(parser.filter('two', {
                 value: 'one 1 | two | three three,four,five ',
                 context: {}
             })).toBe('[one,two,three]');

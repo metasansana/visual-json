@@ -11,16 +11,16 @@ class Option extends React.Component {
             name: self.props.name,
             value: self.props.value,
             type: 'radio',
-            onChange:self.props.onChange
+            onChange:self.props.onChange,
+            className:''
         };
 
         if(self.props.value === self.props.checked)
         props.checked = true;
 
         return React.createElement('div', {className: 'radio'}, null,
-            React.createElement('label', {className: 'radio-inline control-label'},
+            React.createElement('label', {className: ''},
                 React.createElement('input', props), self.props.label));
-
 
     }
 }

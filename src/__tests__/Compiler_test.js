@@ -19,6 +19,7 @@ describe('Compiler', function () {
         });
         ctx = {
             aProp: 26,
+            aParseProp:48,
             getAProp: function () {
 
                 return this.aProp
@@ -41,20 +42,41 @@ describe('Compiler', function () {
 
     });
 
-    describe('Compiler.swapAndBindSymbol', function () {
+
+    describe('Compiler.swapSymbolAndParse', function () {
+
+        it('should call the passed parse function', function () {
+
+            var result = false;
+
+            var fn = function(schema){
+                result = true;
+                return schema;
+            };
+
+            var schema = {'@@swapped': 'aProp'};
+            compiler.swapSymbolAndParse('@@swapped', schema, ctx, fn);
+            expect(schema.swapped).toBe(26);
+            expect(result).toBe(true);
+
+        });
+
+    });
+
+    describe('Compiler.callAndSwapSymbol', function () {
 
         it('should work', function () {
 
-            var schema = {'@@swapped': 'getAProp'};
-            compiler.callAndSwapSymbol('@@swapped', schema, ctx);
+            var schema = {'$@swapped': 'getAProp'};
+            compiler.callAndSwapSymbol('$@swapped', schema, ctx);
             expect(schema.swapped).toBe(26);
 
         });
 
         it('should work with arguments', function () {
 
-            var schema = {'@@swapped': 'getAValue,duke'};
-            compiler.callAndSwapSymbol('@@swapped', schema, ctx);
+            var schema = {'$@swapped': 'getAValue duke'};
+            compiler.callAndSwapSymbol('$@swapped', schema, ctx);
             expect(schema.swapped).toBe('duke');
 
         });
@@ -86,7 +108,7 @@ describe('Compiler', function () {
 
         });
 
-
     });
 
+    //@TODO write test for dup keys
 });

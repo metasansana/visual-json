@@ -104,22 +104,6 @@ var Table = (function (_React$Component) {
             this.setState(state);
         }
     }, {
-        key: 'format',
-        value: function format(name, datum, fmt, fmtType) {
-
-            var f = function f(data) {
-                return data;
-            };
-
-            if (fmt) if (fmt[name]) f = fmt[name];
-
-            if (fmtType) f = fmt[fmtType];
-
-            var data = _dotComponent2['default'].get(datum, name);
-
-            return f(data, datum);
-        }
-    }, {
         key: 'render',
         value: function render() {
 

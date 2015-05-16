@@ -14,8 +14,8 @@ class DefinitionList extends React.Component {
         var self = this;
         var lists = [];
 
-        var data = this.props.data || this.props.defaultValue;
-
+        var data = this.props.data || {};
+        console.log('we got this data, ', this.props.data);
         self.props.labels.forEach(function (label, i) {
 
             lists.push(<dt key={'dt-' + i}>{label.label}</dt>);
@@ -32,7 +32,6 @@ class DefinitionList extends React.Component {
                 </dd>);
 
         });
-
 
 
         return (<dl className={this.props.className || 'dl-horizontal'}>{lists}</dl>);

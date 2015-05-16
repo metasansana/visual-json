@@ -40,12 +40,13 @@ var Option = (function (_React$Component) {
                 name: self.props.name,
                 value: self.props.value,
                 type: 'radio',
-                onChange: self.props.onChange
+                onChange: self.props.onChange,
+                className: ''
             };
 
             if (self.props.value === self.props.checked) props.checked = true;
 
-            return _react2['default'].createElement('div', { className: 'radio' }, null, _react2['default'].createElement('label', { className: 'radio-inline control-label' }, _react2['default'].createElement('input', props), self.props.label));
+            return _react2['default'].createElement('div', { className: 'radio' }, null, _react2['default'].createElement('label', { className: '' }, _react2['default'].createElement('input', props), self.props.label));
         }
     }]);
 

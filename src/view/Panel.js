@@ -14,7 +14,7 @@ class Panel extends React.Component {
                 {(this.props.heading)?<div className="panel-heading">{this.props.heading}</div>: ''}
                 {(this.props.body)?<div className="panel-body">{this.props.body}</div>: ''}
                 {(this.props.children)?<div className="panel-body">{this.props.children}</div>: ''}
-                {(this.props.table)?this.props.table: ''}
+                {(this.props.table)?this.props.table: null}
                 {(this.props.footer)?<div className="panel-footer">{this.props.footer}</div>: ''}
             </div>
         );

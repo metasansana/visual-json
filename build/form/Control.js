@@ -81,6 +81,12 @@ var Control = (function (_React$Component) {
             return props;
         }
     }, {
+        key: 'componentDidMount',
+        value: function componentDidMount() {
+            console.log('our default ', this.props.name, this._defaultValue());
+            this.props.model.set(this.props.name, this._defaultValue(), this);
+        }
+    }, {
         key: 'change',
         value: function change(e) {
             this.props.model.set(e.target.name, e.target.value, this, e.target);

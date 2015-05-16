@@ -62,6 +62,11 @@ class Control extends React.Component {
 
     }
 
+    componentDidMount() {
+        console.log('our default ', this.props.name, this._defaultValue());
+        this.props.model.set(this.props.name, this._defaultValue(), this);
+    }
+
     change(e) {
         this.props.model.set(e.target.name, e.target.value, this, e.target);
     }
