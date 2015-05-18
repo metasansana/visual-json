@@ -158,7 +158,7 @@ class Table extends React.Component {
                 data = dot.get(datum, column.name);
 
                 if (column.filter)
-                    data = column.filter(data);
+                    data = column.filter((column.passAllToFilter)? datum : data);
 
                 return self._render('td', null, data);
 
