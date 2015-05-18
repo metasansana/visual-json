@@ -72,7 +72,8 @@ var Table = (function (_React$Component) {
         _get(Object.getPrototypeOf(Table.prototype), 'constructor', this).call(this, props);
 
         this.state = {
-            data: this.props.data.slice(),
+            view: '',
+            data: this.props.data ? this.props.data.slice() : [],
             columns: this.props.columns.slice(),
             shouldReverse: {},
             sortedOn: ''
@@ -85,7 +86,8 @@ var Table = (function (_React$Component) {
         key: 'headingClicked',
         value: function headingClicked(name, type) {
 
-            var state = { shouldReverse: this.state.shouldReverse };
+            var state = { shouldReverse: this.state.shouldReverse, view: 'sorting' };
+            var self = this;
 
             if (type === 'date') {
                 state.data = this.state.data.slice().sort(compareDate(name));
@@ -101,69 +103,103 @@ var Table = (function (_React$Component) {
             state.shouldReverse[name] = !state.shouldReverse[name];
             state.sortedOn = name;
 
-            this.setState(state);
+            self.setState(state, function () {
+                self.setState({ view: '', table: self._makeTable() });
+            });
+        }
+    }, {
+        key: 'getArrow',
+        value: function getArrow(schema) {
+
+            var self = this;
+            var arrow = '';
+
+            if (schema.name === self.state.sortedOn) {
+
+                if (self.state.shouldReverse[schema.name]) arrow = '⇩';
+
+                if (!self.state.shouldReverse[schema.name]) arrow = '⇧';
+            }
+
+            return arrow;
+        }
+    }, {
+        key: '_render',
+        value: function _render(tag, props, value) {
+
+            if (!Array.isArray(value)) value = [value];
+
+            var args = [];
+
+            args.push(tag);
+            args.push(props);
+            args = args.concat(value);
+            return _react2['default'].createElement.apply(_react2['default'], args);
+        }
+    }, {
+        key: 'renderTHEAD',
+        value: function renderTHEAD() {
+
+            var self = this;
+
+            var headings = self.state.columns.map(function (schema) {
+
+                return self._render('th', {
+                    onClick: self.headingClicked.bind(self, schema.name)
+                }, schema.label + '' + self.getArrow(schema));
+            });
+
+            if (self.props.appendHeadings) headings.push(_render('th', null, self.props.appendHeadings()));
+
+            return self._render('tr', null, headings);
+        }
+    }, {
+        key: 'renderTBODY',
+        value: function renderTBODY() {
+
+            var self = this;
+            var data;
+
+            return self.state.data.map(function (datum, i) {
+
+                var cells = self.props.columns.map(function (column) {
+
+                    data = _dotComponent2['default'].get(datum, column.name);
+
+                    if (column.filter) data = column.filter(data);
+
+                    return self._render('td', null, data);
+                });
+
+                if (self.props.appendCells) cells.push(self._render('td', null, self.props.appendCells(datum)));
+
+                return self._render('tr', null, cells);
+            });
+        }
+    }, {
+        key: '_makeTable',
+        value: function _makeTable() {
+
+            //@todo Optimize, too slow
+            var self = this;
+            var className = 'table ' + (self.props.className ? self.props.className : '');
+
+            return self._render('table', { className: className }, [self._render('thead', null, self.renderTHEAD()), self._render('tbody', null, self.renderTBODY())]);
+        }
+    }, {
+        key: 'componentDidMount',
+        value: function componentDidMount() {
+            this.setState({ view: 'show' });
         }
     }, {
         key: 'render',
         value: function render() {
 
-            var self = this;
-            var cells;
+            if (this.state.view === 'sorting') return _react2['default'].createElement('b', null, 'Sorting... Please Wait');
 
-            return _react2['default'].createElement(
-                'table',
-                { className: 'table ' + this.props.className },
-                _react2['default'].createElement(
-                    'thead',
-                    null,
-                    _react2['default'].createElement(
-                        'tr',
-                        null,
-                        self.state.columns.map(function (schema, i) {
+            if (this.state.table) return this.state.table;
 
-                            var arrow = '';
-
-                            if (schema.name === self.state.sortedOn) {
-
-                                if (self.state.shouldReverse[schema.name]) arrow = '⇩';
-
-                                if (!self.state.shouldReverse[schema.name]) arrow = '⇧';
-                            }
-
-                            return _react2['default'].createElement(
-                                'th',
-                                { key: i, onClick: self.headingClicked.bind(self, schema.name) },
-                                schema.label + ' ' + arrow
-                            );
-                        })
-                    )
-                ),
-                _react2['default'].createElement(
-                    'tbody',
-                    null,
-                    self.state.data.map(function (datum, i) {
-
-                        cells = self.props.columns.map(function (column, i) {
-
-                            var data = _dotComponent2['default'].get(datum, column.name);
-
-                            if (column.filter) data = column.filter(data);
-
-                            return _react2['default'].createElement(
-                                'td',
-                                { key: i },
-                                data
-                            );
-                        });
-
-                        return _react2['default'].createElement(
-                            'tr',
-                            { key: i },
-                            cells
-                        );
-                    })
-                )
-            );
+            return this._makeTable();
         }
     }]);
 
@@ -176,7 +212,9 @@ Table.propTypes = {
         name: _react2['default'].PropTypes.string.isRequired,
         label: _react2['default'].PropTypes.string.isRequired,
         filter: _react2['default'].PropTypes.func
-    })).isRequired
+    })).isRequired,
+    appendCells: _react2['default'].PropTypes.func,
+    appendHeadings: _react2['default'].PropTypes.func
 };
 
 exports['default'] = Table;

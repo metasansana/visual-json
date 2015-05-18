@@ -45,7 +45,7 @@ var DefinitionList = (function (_React$Component) {
             var lists = [];
 
             var data = this.props.data || {};
-            console.log('we got this data, ', this.props.data);
+
             self.props.labels.forEach(function (label, i) {
 
                 lists.push(_react2['default'].createElement(

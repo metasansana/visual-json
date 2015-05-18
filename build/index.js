@@ -18,8 +18,13 @@ var _Filters = require('./Filters');
 
 var _Filters2 = _interopRequireDefault(_Filters);
 
+var _form = require('./form');
+
+var _form2 = _interopRequireDefault(_form);
+
 exports['default'] = {
 
+    forms: _form2['default'],
     getDefaultContext: function getDefaultContext() {
 
         var ctx = new _Context2['default']();

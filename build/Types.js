@@ -82,7 +82,7 @@ exports['default'] = {
 
     'default': function _default(schema) {
 
-        throw new Error('Unknown type supplied ' + schema.type + ' check this schema: ' + JSON.stringify(schema));
+        throw new Error('Unknown type supplied "' + schema.type + '" in schema with keys: [' + Object.keys(schema) + ']');
     },
 
     view: function view(schema) {

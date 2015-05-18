@@ -40,8 +40,10 @@ var Select = (function (_Control) {
         value: function renderComponent(callbacks) {
 
             var self = this;
+            var props = self._defaultProps();
+            props.options = props.options || [];
 
-            return _react2['default'].createElement.apply(_react2['default'], ['select', self._defaultProps()].concat(this.props.options.map(function (option) {
+            return _react2['default'].createElement.apply(_react2['default'], ['select', props].concat(props.options.map(function (option) {
                 return _react2['default'].createElement('option', { value: option.value }, option.label);
             })));
         }

@@ -8,9 +8,11 @@ class Select extends Control {
     renderComponent(callbacks) {
 
         var self = this;
+        var props = self._defaultProps();
+        props.options = props.options || [];
 
-        return React.createElement.apply(React, ['select', self._defaultProps()].concat(
-            this.props.options.map(function (option) {
+        return React.createElement.apply(React, ['select', props].concat(
+            props.options.map(function (option) {
                 return React.createElement('option', {value: option.value}, option.label);
             })));
 

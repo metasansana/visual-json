@@ -15,7 +15,7 @@ class DefinitionList extends React.Component {
         var lists = [];
 
         var data = this.props.data || {};
-        console.log('we got this data, ', this.props.data);
+
         self.props.labels.forEach(function (label, i) {
 
             lists.push(<dt key={'dt-' + i}>{label.label}</dt>);

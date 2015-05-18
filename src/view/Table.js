@@ -54,7 +54,8 @@ class Table extends React.Component {
         super(props);
 
         this.state = {
-            data: this.props.data.slice(),
+            view: '',
+            data: (this.props.data) ? this.props.data.slice() : [],
             columns: this.props.columns.slice(),
             shouldReverse: {},
             sortedOn: ''
@@ -64,7 +65,8 @@ class Table extends React.Component {
 
     headingClicked(name, type) {
 
-        var state = {shouldReverse: this.state.shouldReverse};
+        var state = {shouldReverse: this.state.shouldReverse, view: 'sorting'};
+        var self = this;
 
         if (type === 'date') {
             state.data = this.state.data.slice().
@@ -86,65 +88,119 @@ class Table extends React.Component {
         state.shouldReverse[name] = !state.shouldReverse[name];
         state.sortedOn = name;
 
-        this.setState(state);
+        self.setState(state, function () {
+            self.setState({view: '', table: self._makeTable()})
+        });
 
+    }
+
+    getArrow(schema) {
+
+        var self = this;
+        var arrow = '';
+
+        if (schema.name === self.state.sortedOn) {
+
+            if (self.state.shouldReverse[schema.name])
+                arrow = '\u21e9';
+
+            if (!self.state.shouldReverse[schema.name])
+                arrow = '\u21e7';
+
+        }
+
+        return arrow;
+
+    }
+
+    _render(tag, props, value) {
+
+        if (!Array.isArray(value))
+            value = [value];
+
+        var args = [];
+
+        args.push(tag);
+        args.push(props);
+        args = args.concat(value);
+        return React.createElement.apply(React, args);
+
+    }
+
+    renderTHEAD() {
+
+        var self = this;
+
+        var headings = self.state.columns.map(function (schema) {
+
+            return self._render('th', {
+                onClick: self.headingClicked.bind(self, schema.name)
+            }, schema.label + '' + self.getArrow(schema));
+
+        });
+
+        if (self.props.appendHeadings)
+            headings.push(_render('th', null, self.props.appendHeadings()));
+
+        return self._render('tr', null, headings);
+
+    }
+
+    renderTBODY() {
+
+        var self = this;
+        var data;
+
+        return self.state.data.map(function (datum, i) {
+
+            var cells = self.props.columns.map(function (column) {
+
+                data = dot.get(datum, column.name);
+
+                if (column.filter)
+                    data = column.filter(data);
+
+                return self._render('td', null, data);
+
+            });
+
+            if (self.props.appendCells)
+                cells.push(self._render('td', null, self.props.appendCells(datum)));
+
+            return self._render('tr', null, cells);
+
+
+        });
+    }
+
+    _makeTable() {
+
+        //@todo Optimize, too slow
+        var self = this;
+        var className = 'table ' + ((self.props.className) ? self.props.className : '');
+
+        return self._render('table', {className: className},
+            [self._render('thead', null, self.renderTHEAD()),
+                self._render('tbody', null, self.renderTBODY())]);
+
+    }
+
+    componentDidMount() {
+        this.setState({view: 'show'});
     }
 
     render() {
 
-        var self = this;
-        var cells;
+        if (this.state.view === 'sorting')
+            return React.createElement('b', null, 'Sorting... Please Wait');
 
-        return (
-            <table className={'table ' + this.props.className}>
-                <thead>
-                <tr>
-                    {self.state.columns.map(function (schema, i) {
+        if (this.state.table)
+            return this.state.table;
 
-                        var arrow = '';
+        return this._makeTable();
 
-                        if (schema.name === self.state.sortedOn) {
-
-                            if (self.state.shouldReverse[schema.name])
-                                arrow = '\u21e9';
-
-                            if (!self.state.shouldReverse[schema.name])
-                                arrow = '\u21e7';
-
-                        }
-
-                        return (<th key={i} onClick={self.headingClicked.bind(self, schema.name)}>
-                            {schema.label + ' ' + arrow}</th>);
-
-                    })}
-                </tr>
-                </thead>
-                <tbody>
-
-                {self.state.data.map(function (datum, i) {
-
-                    cells = self.props.columns.map(function (column, i) {
-
-                        var data = dot.get(datum, column.name);
-
-                        if(column.filter)
-                        data = column.filter(data);
-
-                        return (
-                            <td key={i}>
-                                {data}
-                            </td>
-                        );
-
-                    });
-
-                    return (<tr key={i}>{cells}</tr>);
-
-                })}
-                </tbody>
-            </table>
-        );
     }
+
 }
 
 Table.propTypes = {
@@ -153,7 +209,9 @@ Table.propTypes = {
         name: React.PropTypes.string.isRequired,
         label: React.PropTypes.string.isRequired,
         filter: React.PropTypes.func
-    })).isRequired
+    })).isRequired,
+    appendCells: React.PropTypes.func,
+    appendHeadings: React.PropTypes.func
 };
 
 export default Table;
