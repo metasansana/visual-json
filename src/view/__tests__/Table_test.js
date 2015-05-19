@@ -72,7 +72,7 @@ describe('Table', function () {
 
             var html = React.renderToStaticMarkup(React.createElement(Table, props));
 
-            expect(html).toBe('<table class="table "><thead><tr><th>Name</th></tr></thead><tbody><tr><td>Lester</td></tr><tr><td>Agard</td></tr><tr><td>Blake</td></tr></tbody></table>');
+            expect(html).toBe('<table class="table "><thead><tr><t0 h>Name</t0h></tr></thead><tbody><tr><td>Lester</td></tr><tr><td>Agard</td></tr><tr><td>Blake</td></tr></tbody></table>');
 
         });
         });
