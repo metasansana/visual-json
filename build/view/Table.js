@@ -22,29 +22,16 @@ var _dotComponent = require('dot-component');
 
 var _dotComponent2 = _interopRequireDefault(_dotComponent);
 
-/* Utility functions */
-function unshift(val, array) {
-    if (!val) return array;
-    array.unshift(val);
-    return array;
-}
+var compareDate = function compareDate(name) {
 
-function push(val, array) {
-    if (!val) return array;
-    return array;
-}
-
-function compareDate(a, b) {
-
-    return function (name) {
-
+    return function (a, b) {
         a = new Date(a[name]).getTime();
         b = new Date(b[name]).getTime();
         return a > b ? -1 : a < b ? 1 : 0;
     };
-}
+};
 
-function compare(name) {
+var compare = function compare(name) {
 
     return function (a, b) {
 
@@ -57,9 +44,7 @@ function compare(name) {
 
         return aval > bval ? -1 : aval < bval ? 1 : 0;
     };
-}
-
-/* Ende */
+};
 
 /**
  *  Table
@@ -73,10 +58,11 @@ var Table = (function (_React$Component) {
 
         this.state = {
             view: '',
-            data: this.props.data ? this.props.data.slice() : [],
-            columns: this.props.columns.slice(),
-            shouldReverse: {},
-            sortedOn: ''
+            data: this.props.data ? this.props.data : [],
+            columns: this.props.columns ? this.props.columns : [],
+            sortedOn: '',
+            lastSorted: '',
+            arrow: ''
         };
     }
 
@@ -84,122 +70,62 @@ var Table = (function (_React$Component) {
 
     _createClass(Table, [{
         key: 'headingClicked',
-        value: function headingClicked(name, type) {
+        value: function headingClicked(name, sortAs) {
 
-            var state = { shouldReverse: this.state.shouldReverse, view: 'sorting' };
-            var self = this;
+            var data = this.state.data.slice();
+            var state = { data: data };
 
-            if (type === 'date') {
-                state.data = this.state.data.slice().sort(compareDate(name));
+            //This column was last sorted on this name
+            if (this.state.sortedOn === name) {
+                state.data.reverse();
+                state.lastSortedOn = name;
+                state.arrow = '⇧';
+            } else if (sortAs === 'date') {
+                state.data = state.data.sort(compareDate(name));
+                state.sortedOn = name;
+                state.arrow = '⇩';
             } else {
-
-                state.data = this.state.data.slice().sort(compare(name));
+                state.data = state.data.sort(compare(name));
+                state.lastSortedOn = this.state.sortedOn;
+                state.sortedOn = name;
+                state.arrow = '⇩';
             }
 
-            if (!state.shouldReverse.hasOwnProperty(name)) state.shouldReverse[name] = false;
-
-            if (state.shouldReverse[name]) state.data.reverse();
-
-            state.shouldReverse[name] = !state.shouldReverse[name];
-            state.sortedOn = name;
-
-            self.setState(state, function () {
-                self.setState({ view: '', table: self._makeTable() });
-            });
-        }
-    }, {
-        key: 'getArrow',
-        value: function getArrow(schema) {
-
-            var self = this;
-            var arrow = '';
-
-            if (schema.name === self.state.sortedOn) {
-
-                if (self.state.shouldReverse[schema.name]) arrow = '⇩';
-
-                if (!self.state.shouldReverse[schema.name]) arrow = '⇧';
-            }
-
-            return arrow;
-        }
-    }, {
-        key: '_render',
-        value: function _render(tag, props, value) {
-
-            if (!Array.isArray(value)) value = [value];
-
-            var args = [];
-
-            args.push(tag);
-            args.push(props);
-            args = args.concat(value);
-            return _react2['default'].createElement.apply(_react2['default'], args);
-        }
-    }, {
-        key: 'renderTHEAD',
-        value: function renderTHEAD() {
-
-            var self = this;
-
-            var headings = self.state.columns.map(function (schema) {
-
-                return self._render('th', {
-                    onClick: self.headingClicked.bind(self, schema.name)
-                }, schema.label + '' + self.getArrow(schema));
-            });
-
-            if (self.props.appendHeadings) headings.push(_render('th', null, self.props.appendHeadings()));
-
-            return self._render('tr', null, headings);
-        }
-    }, {
-        key: 'renderTBODY',
-        value: function renderTBODY() {
-
-            var self = this;
-            var data;
-
-            return self.state.data.map(function (datum, i) {
-
-                var cells = self.props.columns.map(function (column) {
-
-                    data = _dotComponent2['default'].get(datum, column.name);
-
-                    if (column.filter) data = column.filter(data);
-
-                    return self._render('td', null, data);
-                });
-
-                if (self.props.appendCells) cells.push(self._render('td', null, self.props.appendCells(datum)));
-
-                return self._render('tr', null, cells);
-            });
-        }
-    }, {
-        key: '_makeTable',
-        value: function _makeTable() {
-
-            //@todo Optimize, too slow
-            var self = this;
-            var className = 'table ' + (self.props.className ? self.props.className : '');
-
-            return self._render('table', { className: className }, [self._render('thead', null, self.renderTHEAD()), self._render('tbody', null, self.renderTBODY())]);
-        }
-    }, {
-        key: 'componentDidMount',
-        value: function componentDidMount() {
-            this.setState({ view: 'show' });
+            this.setState(state);
         }
     }, {
         key: 'render',
         value: function render() {
 
-            if (this.state.view === 'sorting') return _react2['default'].createElement('b', null, 'Sorting... Please Wait');
+            var self = this;
 
-            if (this.state.table) return this.state.table;
+            var headings = _react2['default'].createElement('tr', null, self.state.columns.map(function (column, i) {
 
-            return this._makeTable();
+                return _react2['default'].createElement('th', {
+                    onClick: self.headingClicked.bind(self, column.name, column.sortAs),
+                    key: i
+                }, column.label, self.state.sortedOn === column.name ? self.state.arrow : '');
+            }));
+
+            var body = self.state.data.map(function (datum, i) {
+
+                return _react2['default'].createElement('tr', { key: i }, self.state.columns.map(function (column, ii) {
+
+                    var data = _dotComponent2['default'].get(datum, column.name);
+
+                    if (!data) data = null;
+
+                    if (typeof data === 'object') data = data.toString();
+
+                    if (column.filter) data = column.filter(data, datum);
+
+                    return _react2['default'].createElement('td', { key: ii }, data);
+                }));
+            });
+
+            return _react2['default'].createElement('table', {
+                className: 'table ' + (self.props.className ? self.props.className : '')
+            }, _react2['default'].createElement('thead', null, headings), _react2['default'].createElement('tbody', null, body));
         }
     }]);
 

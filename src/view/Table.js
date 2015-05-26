@@ -1,9 +1,9 @@
 import React from 'react';
 import dot from 'dot-component';
 
-var compareDate = function(name) {
+var compareDate = function (name) {
 
-    return  function(a, b){
+    return function (a, b) {
         a = new Date(a[name]).getTime();
         b = new Date(b[name]).getTime();
         return a > b ? -1 : a < b ? 1 : 0;
@@ -53,23 +53,23 @@ class Table extends React.Component {
         var state = {data: data};
 
         //This column was last sorted on this name
-            if (this.state.sortedOn === name) {
-                state.data.reverse();
-                state.lastSortedOn = name;
-                state.arrow = '\u21e7';
+        if (this.state.sortedOn === name) {
+            state.data.reverse();
+            state.lastSortedOn = name;
+            state.arrow = '\u21e7';
 
-            } else if (sortAs === 'date') {
-                state.data = state.data.sort(compareDate(name));
-                state.sortedOn = name;
-                state.arrow = '\u21e9';
-            } else {
-                state.data = state.data.sort(compare(name));
-                state.lastSortedOn = this.state.sortedOn;
-                state.sortedOn = name;
-                state.arrow = '\u21e9';
-            }
+        } else if (sortAs === 'date') {
+            state.data = state.data.sort(compareDate(name));
+            state.sortedOn = name;
+            state.arrow = '\u21e9';
+        } else {
+            state.data = state.data.sort(compare(name));
+            state.lastSortedOn = this.state.sortedOn;
+            state.sortedOn = name;
+            state.arrow = '\u21e9';
+        }
 
-            this.setState(state);
+        this.setState(state);
 
     }
 
@@ -82,7 +82,7 @@ class Table extends React.Component {
             return React.createElement('th', {
                 onClick: self.headingClicked.bind(self, column.name, column.sortAs),
                 key: i
-            }, column.label, (self.state.sortedOn === column.name)? self.state.arrow: '');
+            }, column.label, (self.state.sortedOn === column.name) ? self.state.arrow : '');
 
         }));
 
@@ -113,8 +113,6 @@ class Table extends React.Component {
             },
             React.createElement('thead', null, headings),
             React.createElement('tbody', null, body));
-
-
     }
 
 }

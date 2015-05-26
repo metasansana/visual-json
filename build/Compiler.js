@@ -209,8 +209,8 @@ var Compiler = (function () {
 
                 schema.filter = (function (filters, ctx) {
 
-                    return function (value) {
-                        return self.filter(value, filters, ctx);
+                    return function (value, data) {
+                        return self.filter(value, filters, data);
                     };
                 })(schema.$$filter, ctx);
 
