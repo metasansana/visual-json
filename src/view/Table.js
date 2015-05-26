@@ -96,9 +96,6 @@ class Table extends React.Component {
                     if (!data)
                         data = null;
 
-                    if (typeof data === 'object')
-                        data = data.toString();
-
                     if (column.filter)
                         data = column.filter(data, datum);
 

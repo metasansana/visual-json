@@ -115,8 +115,6 @@ var Table = (function (_React$Component) {
 
                     if (!data) data = null;
 
-                    if (typeof data === 'object') data = data.toString();
-
                     if (column.filter) data = column.filter(data, datum);
 
                     return _react2['default'].createElement('td', { key: ii }, data);

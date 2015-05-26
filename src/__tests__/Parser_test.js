@@ -72,6 +72,12 @@ describe('Parser', function () {
 
                     return schema;
                 }),
+                swapSymbolAndParse: jest.genMockFn().mockImplementation(function (key, schema, ctx, fn) {
+                    return schema;
+                }),
+                swapFilter: jest.genMockFn().mockImplementation(function (key, schema, ctx, fn) {
+                    return schema;
+                }),
                 callAndSwapSymbol: jest.genMockFn().mockImplementation(function (key, schema) {
 
                     if (key === 'bind')
@@ -125,5 +131,6 @@ describe('Parser', function () {
         });
 
     });
-});
+})
+;
 
