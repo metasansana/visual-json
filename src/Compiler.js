@@ -171,12 +171,14 @@ class Compiler {
 
             this._checkDups(cut(key, '$$filter'), schema);
 
-            schema.filter = function (filters, ctx) {
+            schema.filter = function (filters) {
 
                 return function (value, data) {
+                    console.log('filter called with ',value, ' ab data ', data);
                     return self.filter(value, filters, data);
                 }
-            }(schema.$$filter, ctx);
+
+            }(schema.$$filter);
 
             delete schema.$$filter;
 
@@ -213,7 +215,7 @@ class Compiler {
                 throw new Error('Unknown filter ' + nextFilterMethodName + '!');
 
             /* filter(value, args1...argn, context, next)*/
-
+console.log('push the context ', context);
             nextFilterArray.unshift(thisValue);
             nextFilterArray.push(context);
             nextFilterArray.push(next);
