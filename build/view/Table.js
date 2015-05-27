@@ -142,10 +142,7 @@ Table.propTypes = {
     columns: _react2['default'].PropTypes.arrayOf(_react2['default'].PropTypes.shape({
         name: _react2['default'].PropTypes.string.isRequired,
         label: _react2['default'].PropTypes.string.isRequired,
-        filter: _react2['default'].PropTypes.func
-    })).isRequired,
-    appendCells: _react2['default'].PropTypes.func,
-    appendHeadings: _react2['default'].PropTypes.func
+        filter: _react2['default'].PropTypes.func })).isRequired
 };
 
 exports['default'] = Table;

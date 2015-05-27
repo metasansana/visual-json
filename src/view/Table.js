@@ -126,10 +126,9 @@ Table.propTypes = {
     columns: React.PropTypes.arrayOf(React.PropTypes.shape({
         name: React.PropTypes.string.isRequired,
         label: React.PropTypes.string.isRequired,
-        filter: React.PropTypes.func
-    })).isRequired,
-    appendCells: React.PropTypes.func,
-    appendHeadings: React.PropTypes.func
+        filter: React.PropTypes.func,
+
+    })).isRequired
 };
 
 export default Table;
