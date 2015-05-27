@@ -23,8 +23,7 @@ class DefinitionList extends React.Component {
             var value = dot.get(data, label.name);
 
             if (label.filter)
-                value = label.filter(value);
-
+                value = label.filter(value, data);
 
             lists.push(
                 <dd key={'dd-' + i}>

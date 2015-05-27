@@ -91,10 +91,17 @@ class Table extends React.Component {
             return React.createElement('tr', {key: i},
                 self.state.columns.map(function (column, ii) {
 
-                    var data = dot.get(datum, column.name);
+                    var data;
 
-                    if (!data)
-                        data = null;
+                    if(column.name === '$index') {
+                        data = i;
+                    }else{
+
+                        data = dot.get(datum, column.name);
+
+                        if (!data)
+                            data = null;
+                    }
 
                     if (column.filter)
                         data = column.filter(data, datum);

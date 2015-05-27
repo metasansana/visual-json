@@ -50,7 +50,9 @@ var Parser = (function () {
 
             for (var key in schema) {
                 if (schema.hasOwnProperty(key)) {
-                    schema[key] = this.parseObjectLike(schema[key], ctx, compiler);
+
+                    if (schema.$$NO_DEEP_PARSE !== true) schema[key] = this.parseObjectLike(schema[key], ctx, compiler);
+
                     schema = compiler.swapSymbolAndParse(key, schema, ctx, this.parseObjectLike.bind(this));
                     schema = compiler.callAndSwapSymbol(key, schema, ctx);
                     schema = compiler.swapSymbol(key, schema, ctx);
@@ -59,6 +61,18 @@ var Parser = (function () {
                     schema = compiler.eagerCompileArray(key, schema, ctx);
                 }
             }
+
+            if (schema.$$parse) {
+
+                schema.parse = (function (parser, ctx, compiler) {
+                    return function (schema) {
+                        return compiler.compile(parser.parseObjectLike(JSON.parse(JSON.stringify(schema)), ctx, compiler));
+                    };
+                })(this, ctx, compiler);
+
+                delete schema.$$parse;
+            }
+
             return schema;
         }
     }, {

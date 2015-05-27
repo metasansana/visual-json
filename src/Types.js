@@ -34,7 +34,7 @@ var cleanForm = function (schema) {
 export default {
 
     default: function (schema) {
-
+        console.log('Unknown schema found!', schema);
         throw new Error('Unknown type supplied "' + schema.type+'" in schema with keys: ['+Object.keys(schema)+']');
 
     },

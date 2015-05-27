@@ -111,9 +111,16 @@ var Table = (function (_React$Component) {
 
                 return _react2['default'].createElement('tr', { key: i }, self.state.columns.map(function (column, ii) {
 
-                    var data = _dotComponent2['default'].get(datum, column.name);
+                    var data;
 
-                    if (!data) data = null;
+                    if (column.name === '$index') {
+                        data = i;
+                    } else {
+
+                        data = _dotComponent2['default'].get(datum, column.name);
+
+                        if (!data) data = null;
+                    }
 
                     if (column.filter) data = column.filter(data, datum);
 

@@ -56,7 +56,7 @@ var DefinitionList = (function (_React$Component) {
 
                 var value = _dotComponent2['default'].get(data, label.name);
 
-                if (label.filter) value = label.filter(value);
+                if (label.filter) value = label.filter(value, data);
 
                 lists.push(_react2['default'].createElement(
                     'dd',
