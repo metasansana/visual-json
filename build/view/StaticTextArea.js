@@ -16,37 +16,34 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
-/**
- * Tag renders any html tag you desire.
- */
-
-var Tag = (function (_React$Component) {
-    function Tag() {
-        _classCallCheck(this, Tag);
+var TextArea = (function (_React$Component) {
+    function TextArea() {
+        _classCallCheck(this, TextArea);
 
         if (_React$Component != null) {
             _React$Component.apply(this, arguments);
         }
     }
 
-    _inherits(Tag, _React$Component);
+    _inherits(TextArea, _React$Component);
 
-    _createClass(Tag, [{
+    _createClass(TextArea, [{
         key: 'render',
         value: function render() {
 
-            return _react2['default'].createElement(this.props.tag, this.props, content);
+            var self = this;
+            return _react2['default'].createElement('textarea', self._defaultProps());
         }
     }]);
 
-    return Tag;
+    return TextArea;
 })(_react2['default'].Component);
 
-Tag.propTypes = {
-    tag: _react2['default'].PropTypes.string.isRequired,
+TextArea.propTypes = {
+    name: _react2['default'].PropTypes.string.isRequired,
+    defaultValue: _react2['default'].PropTypes.oneOfType([_react2['default'].PropTypes.string, _react2['default'].PropTypes.number]),
     attrs: _react2['default'].PropTypes.object,
-    content: _react2['default'].PropTypes.node
+    model: _react2['default'].PropTypes.object.isRequired
 };
-
-exports['default'] = Tag;
+exports['default'] = TextArea;
 module.exports = exports['default'];

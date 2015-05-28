@@ -94,7 +94,8 @@ class Table extends React.Component {
                     var data;
 
                     if(column.name === '$index') {
-                        data = i;
+                        data = datum.$index || i;
+
                     }else{
 
                         data = dot.get(datum, column.name);

@@ -114,7 +114,7 @@ var Table = (function (_React$Component) {
                     var data;
 
                     if (column.name === '$index') {
-                        data = i;
+                        data = datum.$index || i;
                     } else {
 
                         data = _dotComponent2['default'].get(datum, column.name);
