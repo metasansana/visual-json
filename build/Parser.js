@@ -54,6 +54,7 @@ var Parser = (function () {
                     if (schema.$$NO_DEEP_PARSE !== true) schema[key] = this.parseObjectLike(schema[key], ctx, compiler);
 
                     schema = compiler.swapSymbolAndParse(key, schema, ctx, this.parseObjectLike.bind(this));
+                    schema = compiler.swapTemplateStrings(key, schema, ctx);
                     schema = compiler.callAndSwapSymbol(key, schema, ctx);
                     schema = compiler.swapSymbol(key, schema, ctx);
                     schema = compiler.swapFilter(key, schema, ctx);

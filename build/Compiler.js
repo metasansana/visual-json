@@ -18,6 +18,10 @@ var _dotComponent = require('dot-component');
 
 var _dotComponent2 = _interopRequireDefault(_dotComponent);
 
+var _strtpl = require('strtpl');
+
+var _strtpl2 = _interopRequireDefault(_strtpl);
+
 var TypedError = (function (_Error) {
     function TypedError(message) {
         _classCallCheck(this, TypedError);
@@ -83,6 +87,7 @@ var SWAP_SYMBOL = '@';
 var SWAP_AND_PARSE_SYMBOL = '@@';
 var CALL_AND_SWAP_SYMBOL = '$@';
 var BUILTIN_SYMBOL = '$$';
+var BUILTIN_STR_SYMBOL = '$#';
 var EAGER_COMPILE_SYMBOL = '$$$';
 
 /**
@@ -95,6 +100,7 @@ var EAGER_COMPILE_SYMBOL = '$$$';
  *        (Parsing should be handled by the parser).
  *  $@:    Swap the value with a function from context (the function is bind() to context first)
  *  $$:   Swap this value with a builtin value or function.
+ *  $#:   Treat the value as a string template, swapping out {{x}} for the value of x.
  *  $$$:  Process this property as a type or array of types.
  *
  *
@@ -191,6 +197,33 @@ var Compiler = (function () {
                 if (!ctx.hasOwnProperty(desiredKey)) throw new KeyNotFoundOnContextError(desiredKey);
 
                 schema[cut(key, CALL_AND_SWAP_SYMBOL)] = ctx[desiredKey].apply(ctx, args);
+
+                delete schema[key];
+            }
+
+            return schema;
+        }
+    }, {
+        key: 'swapTemplateStrings',
+        value: function swapTemplateStrings(key, schema, ctx) {
+
+            if (this.hasSymbol(key, BUILTIN_STR_SYMBOL)) {
+
+                var realKey = cut(key, BUILTIN_STR_SYMBOL);
+
+                this._checkDups(realKey, schema);
+
+                var value = schema[key];
+
+                if (Array.isArray(value)) {
+                    schema[realKey] = value.map(function (v) {
+                        return (0, _strtpl2['default'])(v, ctx);
+                    });
+                } else {
+                    schema[realKey] = (0, _strtpl2['default'])(value, ctx);
+                }
+
+                schema[realKey] = (0, _strtpl2['default'])(schema[key], ctx);
 
                 delete schema[key];
             }
