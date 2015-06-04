@@ -25,4 +25,3 @@ View.propTypes = {
     content: React.PropTypes.node.isRequired
 }
 export default View;
-

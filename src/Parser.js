@@ -1,4 +1,6 @@
 import dot from 'dot-component';
+import strtpl from 'strtpl';
+
 import Compiler from './Compiler';
 
 /**
@@ -25,6 +27,20 @@ class Parser {
 
     parseObject(schema, ctx, compiler) {
 
+        if(!schema)  {
+            console.log('Null or undefined schema detected ',schema);
+            throw new Error('Schema is null or undefined!');
+        }
+
+        var $parse = function (parser, ctx, compiler) {
+            return function (schema, newCtx) {
+                ctx = newCtx || ctx;
+                console.log('cyclic schema ', schema);
+                return compiler.compile(parser.parseObjectLike(JSON.parse(JSON.stringify(schema)),
+                    ctx, compiler));
+            }
+        }(this, ctx, compiler);
+
         for (var key in schema) {
             if (schema.hasOwnProperty(key)) {
 
@@ -43,16 +59,14 @@ class Parser {
         }
 
         if (schema.$$parse) {
-
-            schema.parse = function (parser, ctx, compiler) {
-                return function (schema) {
-                    return compiler.compile(parser.parseObjectLike(JSON.parse(JSON.stringify(schema)),
-                        ctx, compiler));
-                }
-            }(this, ctx, compiler);
-
+            schema.parse = $parse;
             delete schema.$$parse;
+        }
 
+        schema.$parse = $parse;
+        schema.$template =  function(value, context) {
+            context = context || ctx;
+            return strtpl(value, context);
         }
 
         return schema;

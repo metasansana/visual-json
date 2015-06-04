@@ -14,6 +14,10 @@ var _dotComponent = require('dot-component');
 
 var _dotComponent2 = _interopRequireDefault(_dotComponent);
 
+var _strtpl = require('strtpl');
+
+var _strtpl2 = _interopRequireDefault(_strtpl);
+
 var _Compiler = require('./Compiler');
 
 var _Compiler2 = _interopRequireDefault(_Compiler);
@@ -48,6 +52,19 @@ var Parser = (function () {
         key: 'parseObject',
         value: function parseObject(schema, ctx, compiler) {
 
+            if (!schema) {
+                console.log('Null or undefined schema detected ', schema);
+                throw new Error('Schema is null or undefined!');
+            }
+
+            var $parse = (function (parser, ctx, compiler) {
+                return function (schema, newCtx) {
+                    ctx = newCtx || ctx;
+                    console.log('cyclic schema ', schema);
+                    return compiler.compile(parser.parseObjectLike(JSON.parse(JSON.stringify(schema)), ctx, compiler));
+                };
+            })(this, ctx, compiler);
+
             for (var key in schema) {
                 if (schema.hasOwnProperty(key)) {
 
@@ -64,15 +81,15 @@ var Parser = (function () {
             }
 
             if (schema.$$parse) {
-
-                schema.parse = (function (parser, ctx, compiler) {
-                    return function (schema) {
-                        return compiler.compile(parser.parseObjectLike(JSON.parse(JSON.stringify(schema)), ctx, compiler));
-                    };
-                })(this, ctx, compiler);
-
+                schema.parse = $parse;
                 delete schema.$$parse;
             }
+
+            schema.$parse = $parse;
+            schema.$template = function (value, context) {
+                context = context || ctx;
+                return (0, _strtpl2['default'])(value, context);
+            };
 
             return schema;
         }
