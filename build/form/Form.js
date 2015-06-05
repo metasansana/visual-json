@@ -4,8 +4,6 @@ Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -50,12 +48,10 @@ var Form = (function (_React$Component) {
         key: 'render',
         value: function render() {
 
-            return _react2['default'].createElement(
-                'form',
-                _extends({ name: this.props.name, className: this.props.className }, this.props.attrs, {
-                    onSubmit: this.submit.bind(this) }),
-                this.props.children
-            );
+            var props = this.props.$parser.cloneProps(this.props);
+            props.onSubmit = this.submit.bind(this);
+            delete props.controls;
+            return _react2['default'].createElement('form', props, this.props.$parser.parse(this.props.controls));
         }
     }]);
 
@@ -63,8 +59,11 @@ var Form = (function (_React$Component) {
 })(_react2['default'].Component);
 
 Form.propTypes = {
+    $parser: _react2['default'].PropTypes.object,
     onSubmit: _react2['default'].PropTypes.func,
-    defaultValue: _react2['default'].PropTypes.object };
+    defaultValue: _react2['default'].PropTypes.object,
+    controls: _react2['default'].PropTypes.arrayOf(_react2['default'].PropTypes.object)
+};
 
 exports['default'] = Form;
 module.exports = exports['default'];

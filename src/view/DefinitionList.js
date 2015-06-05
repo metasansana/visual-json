@@ -23,7 +23,7 @@ class DefinitionList extends React.Component {
             var value = dot.get(data, label.name);
 
             if (label.filter)
-                value = label.filter(value, data);
+                value = self.props.$filter(value, label.filter, data);
 
             lists.push(
                 <dd key={'dd-' + i}>
@@ -38,13 +38,15 @@ class DefinitionList extends React.Component {
 }
 
 DefinitionList.propTypes = {
+    $filter: React.PropTypes.func,
     labels: React.PropTypes.arrayOf(
         React.PropTypes.shape({
             label: React.PropTypes.string.isRequired,
-            name: React.PropTypes.string.isRequired
+            name: React.PropTypes.string.isRequired,
+            filter: React.PropTypes.string,
         })).isRequired,
     data: React.PropTypes.object,
-    filter: React.PropTypes.func
+
 
 };
 

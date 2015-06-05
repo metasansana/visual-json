@@ -1,6 +1,4 @@
 import React from 'react';
-
-import Callbacks from './Callbacks';
 import Control from './Control';
 
 
@@ -9,11 +7,9 @@ import Control from './Control';
  */
 class Input extends Control {
 
-    renderComponent(callbacks) {
+    renderComponent() {
 
-        var self = this;
-
-        return React.createElement('input',  self._defaultProps({type:self.props.type}));
+        return React.createElement('input',  this._defaultProps({type:this.props.nativeType||this.props.type||'text'}));
 
     }
 }
@@ -23,7 +19,7 @@ Input.propTypes = {
     name: React.PropTypes.string.isRequired,
     defaultValue: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.number]),
     model: React.PropTypes.object.isRequired,
-    attrs: React.PropTypes.object
+    nativeType: React.PropTypes.string
 }
 
 export default Input;

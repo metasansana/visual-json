@@ -5,23 +5,14 @@ import React from 'react';
 class View extends React.Component {
 
     render() {
+        return React.createElement('div', {className:"json-markup-view"},
+            this.props.$parser.parse(this.props.content));
 
-        if (Array.isArray(this.props.content)) {
-            if (this.props.content.length === 1)
-                return this.props.content[0];
-
-            return (
-                <span className="IGNORED_WRAPPER_FOR_REACT">
-                    {this.props.content.map(function (c, i) {
-                        return (<span className="IGNORED_WRAPPER_FOR_REACT_KEYS" key={i}>{c}</span>)
-                    })}
-                    </span>);
-        }
-        return this.props.content;
     }
 }
 
 View.propTypes = {
-    content: React.PropTypes.node.isRequired
+    $parser: React.PropTypes.object.isRequired,
+    content: React.PropTypes.oneOfType([React.PropTypes.object, React.PropTypes.array])
 }
 export default View;

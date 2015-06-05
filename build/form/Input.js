@@ -16,10 +16,6 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
-var _Callbacks = require('./Callbacks');
-
-var _Callbacks2 = _interopRequireDefault(_Callbacks);
-
 var _Control2 = require('./Control');
 
 var _Control3 = _interopRequireDefault(_Control2);
@@ -41,11 +37,9 @@ var Input = (function (_Control) {
 
     _createClass(Input, [{
         key: 'renderComponent',
-        value: function renderComponent(callbacks) {
+        value: function renderComponent() {
 
-            var self = this;
-
-            return _react2['default'].createElement('input', self._defaultProps({ type: self.props.type }));
+            return _react2['default'].createElement('input', this._defaultProps({ type: this.props.nativeType || this.props.type || 'text' }));
         }
     }]);
 
@@ -57,7 +51,7 @@ Input.propTypes = {
     name: _react2['default'].PropTypes.string.isRequired,
     defaultValue: _react2['default'].PropTypes.oneOfType([_react2['default'].PropTypes.string, _react2['default'].PropTypes.number]),
     model: _react2['default'].PropTypes.object.isRequired,
-    attrs: _react2['default'].PropTypes.object
+    nativeType: _react2['default'].PropTypes.string
 };
 
 exports['default'] = Input;

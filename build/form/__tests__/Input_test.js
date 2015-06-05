@@ -34,7 +34,7 @@ describe('Input', function () {
 
         it('it should render the correct markup', function () {
 
-            expect(_reactAddons2['default'].renderToStaticMarkup(_reactAddons2['default'].createElement(_Input2['default'], { name: 'name', type: 'text', model: model }))).toBe('<input name="name" class="form-control" type="text">');
+            expect(_reactAddons2['default'].renderToStaticMarkup(_reactAddons2['default'].createElement(_Input2['default'], { name: 'name', type: 'text', model: model }))).toBe('<input name="name" type="text" class="form-control">');
         });
 
         it('it should render the correct markup with defaults', function () {
@@ -44,7 +44,7 @@ describe('Input', function () {
                 type: 'text',
                 model: model,
                 defaultValue: 'Some value'
-            }))).toBe('<input name="name" class="form-control" type="text" value="Some value">');
+            }))).toBe('<input name="name" type="text" class="form-control" value="Some value">');
         });
     });
 

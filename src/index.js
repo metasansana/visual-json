@@ -1,24 +1,19 @@
-import Context from './Context';
-import Types from './Types';
-import Filters from './Filters';
-import Forms from './form';
-
+import form from './form';
+import view from './view';
+import state from './state';
+import types from './types';
+import filters from './filters';
+import Compiler from './Compiler';
+import Parser from './Parser';
+import Realm from './Realm';
 
 export default {
-
-    forms: Forms,
-    getDefaultContext() {
-
-        var ctx = new Context();
-
-        return ctx.addFilters(Filters).
-            addHandlers({}).
-            addTypes(Types);
-
-    },
-    getContext() {
-
-        return new Context();
-
-    }
+    Compiler: Compiler,
+    Parser: Parser,
+    Realm:Realm,
+    form: form,
+    state: state,
+    view: view,
+    types: types,
+    filters: filters
 }

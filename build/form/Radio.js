@@ -46,7 +46,7 @@ var Option = (function (_React$Component) {
 
             if (self.props.value === self.props.checked) props.checked = true;
 
-            return _react2['default'].createElement('div', { className: 'radio' }, null, _react2['default'].createElement('label', { className: '' }, _react2['default'].createElement('input', props), self.props.label));
+            return _react2['default'].createElement('div', { className: 'radio' }, null, _react2['default'].createElement('label', { className: this.props.inline ? 'radio-inline' : null }, _react2['default'].createElement('input', props), self.props.label));
         }
     }]);
 
@@ -59,8 +59,13 @@ Option.propTypes = {
     value: _react2['default'].PropTypes.oneOfType([_react2['default'].PropTypes.string, _react2['default'].PropTypes.number]).isRequired,
     selected: _react2['default'].PropTypes.object,
     model: _react2['default'].PropTypes.object,
-    label: _react2['default'].PropTypes.string
+    label: _react2['default'].PropTypes.string,
+    inline: _react2['default'].PropTypes.bool
 };
+
+/**
+ * Radio
+ */
 
 var Radio = (function (_Control) {
     function Radio() {
@@ -75,24 +80,24 @@ var Radio = (function (_Control) {
 
     _createClass(Radio, [{
         key: 'renderComponent',
-        value: function renderComponent(callbacks) {
+        value: function renderComponent() {
 
-            var self = this;
-
-            var args = self.props.options.map(function (option) {
+            var ret = this.props.options.map((function (option, key) {
 
                 var props = {
                     value: option.value,
                     label: option.label,
-                    checked: self._defaultValue() };
+                    inline: this.props.inline,
+                    checked: this._defaultValue(),
+                    key: key
+                };
 
-                return _react2['default'].createElement(Option, self._defaultProps(props));
-            });
+                return _react2['default'].createElement(Option, this._defaultProps(props));
+            }).bind(this));
 
-            args.unshift(null);
-            args.unshift('span');
+            if (this.props.wrap) return _react2['default'].createElement('span', null, ret);
 
-            return _react2['default'].createElement.apply(_react2['default'], args);
+            return ret;
         }
     }]);
 
@@ -102,6 +107,8 @@ var Radio = (function (_Control) {
 Radio.propTypes = {
     name: _react2['default'].PropTypes.string.isRequired,
     model: _react2['default'].PropTypes.object.isRequired,
+    inline: _react2['default'].PropTypes.bool,
+    wrap: _react2['default'].PropTypes.bool,
     options: _react2['default'].PropTypes.arrayOf(_react2['default'].PropTypes.shape({
         label: _react2['default'].PropTypes.string.isRequired,
         value: _react2['default'].PropTypes.oneOfType([_react2['default'].PropTypes.string, _react2['default'].PropTypes.number]).isRequired
