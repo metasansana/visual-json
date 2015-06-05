@@ -38,6 +38,7 @@
   },
   "dependencies": {
     "dot-component": "^0.1.1",
+    "jhr": "0.0.3",
     "merge": "^1.2.0",
     "strtpl": "^0.1.0"
   }
