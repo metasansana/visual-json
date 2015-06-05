@@ -36,6 +36,7 @@ var Panel = (function (_React$Component) {
         value: function render() {
 
             var style = this.props.className || 'panel-default';
+            var parser = this.props.$parser;
 
             return _react2['default'].createElement(
                 'div',
@@ -43,23 +44,18 @@ var Panel = (function (_React$Component) {
                 this.props.heading ? _react2['default'].createElement(
                     'div',
                     { className: 'panel-heading' },
-                    this.props.heading
+                    parser.parse(this.props.heading)
                 ) : '',
                 this.props.body ? _react2['default'].createElement(
                     'div',
                     { className: 'panel-body' },
-                    this.props.body
+                    parser.parse(this.props.body)
                 ) : '',
-                this.props.children ? _react2['default'].createElement(
-                    'div',
-                    { className: 'panel-body' },
-                    this.props.children
-                ) : '',
-                this.props.table ? this.props.table : null,
+                this.props.table ? parser.parse(this.props.table) : null,
                 this.props.footer ? _react2['default'].createElement(
                     'div',
                     { className: 'panel-footer' },
-                    this.props.footer
+                    parser.parse(this.props.footer)
                 ) : ''
             );
         }
@@ -69,11 +65,12 @@ var Panel = (function (_React$Component) {
 })(_react2['default'].Component);
 
 Panel.propTypes = {
+    $parser: _react2['default'].PropTypes.object.isRequired,
     className: _react2['default'].PropTypes.string,
-    heading: _react2['default'].PropTypes.node,
-    body: _react2['default'].PropTypes.node,
-    table: _react2['default'].PropTypes.node,
-    footer: _react2['default'].PropTypes.node
+    heading: _react2['default'].PropTypes.oneOfType([_react2['default'].PropTypes.node, _react2['default'].PropTypes.object, _react2['default'].PropTypes.array]),
+    body: _react2['default'].PropTypes.oneOfType([_react2['default'].PropTypes.node, _react2['default'].PropTypes.object, _react2['default'].PropTypes.array]),
+    table: _react2['default'].PropTypes.oneOfType([_react2['default'].PropTypes.object, _react2['default'].PropTypes.array]),
+    footer: _react2['default'].PropTypes.oneOfType([_react2['default'].PropTypes.node, _react2['default'].PropTypes.object, _react2['default'].PropTypes.array])
 };
 
 exports['default'] = Panel;

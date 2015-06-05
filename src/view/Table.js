@@ -105,7 +105,7 @@ class Table extends React.Component {
                     }
 
                     if (column.filter)
-                        data = column.filter(data, datum);
+                        data = self.props.$filter(data, column.filter, datum);
 
                     return React.createElement('td', {key: ii}, data);
 
@@ -123,11 +123,12 @@ class Table extends React.Component {
 }
 
 Table.propTypes = {
+    $filter: React.PropTypes.func,
     data: React.PropTypes.array.isRequired,
     columns: React.PropTypes.arrayOf(React.PropTypes.shape({
         name: React.PropTypes.string.isRequired,
         label: React.PropTypes.string.isRequired,
-        filter: React.PropTypes.func,
+        filter: React.PropTypes.string,
 
     })).isRequired
 };

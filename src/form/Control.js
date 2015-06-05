@@ -19,7 +19,7 @@ class Control extends React.Component {
             onBlur: this.blur.bind(self)
         }
 
-        this.state = {};
+        this.state = {validationState:''};
     }
 
     _defaultValue(fromProps) {
@@ -101,7 +101,7 @@ class Control extends React.Component {
 
 
     render() {
-        return this.renderComponent(this.callbacks);
+        return this.renderComponent();
     }
 
 }

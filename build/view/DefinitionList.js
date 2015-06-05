@@ -56,7 +56,7 @@ var DefinitionList = (function (_React$Component) {
 
                 var value = _dotComponent2['default'].get(data, label.name);
 
-                if (label.filter) value = label.filter(value, data);
+                if (label.filter) value = self.props.$filter(value, label.filter, data);
 
                 lists.push(_react2['default'].createElement(
                     'dd',
@@ -77,14 +77,12 @@ var DefinitionList = (function (_React$Component) {
 })(_react2['default'].Component);
 
 DefinitionList.propTypes = {
+    $filter: _react2['default'].PropTypes.func,
     labels: _react2['default'].PropTypes.arrayOf(_react2['default'].PropTypes.shape({
         label: _react2['default'].PropTypes.string.isRequired,
-        name: _react2['default'].PropTypes.string.isRequired
-    })).isRequired,
-    data: _react2['default'].PropTypes.object,
-    filter: _react2['default'].PropTypes.func
-
-};
+        name: _react2['default'].PropTypes.string.isRequired,
+        filter: _react2['default'].PropTypes.string })).isRequired,
+    data: _react2['default'].PropTypes.object };
 
 exports['default'] = DefinitionList;
 module.exports = exports['default'];

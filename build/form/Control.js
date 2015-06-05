@@ -38,7 +38,7 @@ var Control = (function (_React$Component) {
             onBlur: this.blur.bind(self)
         };
 
-        this.state = {};
+        this.state = { validationState: '' };
     }
 
     _inherits(Control, _React$Component);
@@ -120,7 +120,7 @@ var Control = (function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
-            return this.renderComponent(this.callbacks);
+            return this.renderComponent();
         }
     }]);
 

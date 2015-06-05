@@ -1,5 +1,4 @@
 import React from 'react/addons';
-
 import FormGroup from '../FormGroup';
 
 

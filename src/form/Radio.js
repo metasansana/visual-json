@@ -19,7 +19,7 @@ class Option extends React.Component {
         props.checked = true;
 
         return React.createElement('div', {className: 'radio'}, null,
-            React.createElement('label', {className: ''},
+            React.createElement('label', {className: (this.props.inline)?'radio-inline':null},
                 React.createElement('input', props), self.props.label));
 
     }
@@ -34,37 +34,43 @@ Option.propTypes = {
     ]).isRequired,
     selected: React.PropTypes.object,
     model: React.PropTypes.object,
-    label: React.PropTypes.string
+    label: React.PropTypes.string,
+    inline: React.PropTypes.bool
 };
 
-
+/**
+ * Radio
+ */
 class Radio extends Control {
 
-    renderComponent(callbacks) {
+    renderComponent() {
 
-        var self = this;
-
-        var args = self.props.options.map(function (option) {
+        var ret = this.props.options.map(function (option, key) {
 
             var props = {
                 value: option.value,
                 label: option.label,
-                checked:self._defaultValue()};
+                inline: this.props.inline,
+                checked: this._defaultValue(),
+                key:key
+            };
 
-            return React.createElement(Option, self._defaultProps(props));
+            return React.createElement(Option, this._defaultProps(props));
 
-        });
+        }.bind(this));
 
-        args.unshift(null);
-        args.unshift('span');
+        if(this.props.wrap)
+        return React.createElement('span', null, ret);
 
-        return React.createElement.apply(React,args);
-
+        return ret;
     }
 }
+
 Radio.propTypes = {
     name: React.PropTypes.string.isRequired,
     model: React.PropTypes.object.isRequired,
+    inline: React.PropTypes.bool,
+    wrap: React.PropTypes.bool,
     options: React.PropTypes.arrayOf(React.PropTypes.shape({
         label: React.PropTypes.string.isRequired,
         value: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.number]).isRequired

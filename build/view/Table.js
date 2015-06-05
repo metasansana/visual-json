@@ -122,7 +122,7 @@ var Table = (function (_React$Component) {
                         if (!data) data = null;
                     }
 
-                    if (column.filter) data = column.filter(data, datum);
+                    if (column.filter) data = self.props.$filter(data, column.filter, datum);
 
                     return _react2['default'].createElement('td', { key: ii }, data);
                 }));
@@ -138,11 +138,12 @@ var Table = (function (_React$Component) {
 })(_react2['default'].Component);
 
 Table.propTypes = {
+    $filter: _react2['default'].PropTypes.func,
     data: _react2['default'].PropTypes.array.isRequired,
     columns: _react2['default'].PropTypes.arrayOf(_react2['default'].PropTypes.shape({
         name: _react2['default'].PropTypes.string.isRequired,
         label: _react2['default'].PropTypes.string.isRequired,
-        filter: _react2['default'].PropTypes.func })).isRequired
+        filter: _react2['default'].PropTypes.string })).isRequired
 };
 
 exports['default'] = Table;

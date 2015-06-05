@@ -1,19 +1,7 @@
 import React from 'react';
 import dot from 'dot-component';
-
-import Panel from './view/Panel';
-import DefinitionList from './view/DefinitionList';
-import Table from './view/Table';
-import Tag from './view/Tag';
-import Container from './view/Container';
-import View from './view/View';
-
-import Form from './form/Form';
-import FormGroup from './form/FormGroup';
-import TextArea from './form/TextArea';
-import Select from './form/Select';
-import Radio from './form/Radio';
-import Input from './form/Input';
+import form from './form';
+import view from './view';
 
 var cleanView = function (schema) {
 
@@ -38,107 +26,65 @@ export default {
         throw new Error('Unknown type supplied "' + schema.type+'" in schema with keys: ['+Object.keys(schema)+']');
 
     },
-
-    view: function(schema){
-
-        return React.createElement(View,schema);
-
-    },
-
     input: function (schema, deafults, processor) {
-        return React.createElement(Input, schema);
+        return React.createElement(form.Input, schema);
     },
-
-    tag: function (schema, defaults, processor) {
-
-        return React.createElement(Tag, cleanView(schema));
-
-
+    form: function (schema) {
+        return React.createElement(form.Form, schema);
     },
-
-    container: function (schema, defaults, processor) {
-        return React.createElement(Container, cleanView(schema));
+    radio: function (schema) {
+        return React.createElement(form.Radio, schema);
     },
-
-    /**
-     * form generates a html form
-     * @param {Object} schema
-     * @param {Object} defaults
-     * @param {Parser} processor
-     */
-    form: function (schema, defaults, processor) {
-
-        var args = [];
-        args.push(Form);
-        args.push(schema);
-        args = args.concat(schema.controls);
-        delete schema.controls;
-        return React.createElement.apply(React, args);
+    'horizontal-radio': function (schema) {
+        return React.createElement(form.HorizontalRadio, schema);
     },
-
-    radio: function (schema, defaults, processor) {
-
-        if (defaults)
-            schema.defaultValue = dot.get(defaults, schema.name);
-
-        return React.createElement(Radio, schema);
-
+    'vertical-radio': function (schema) {
+        return React.createElement(form.VerticalRadio, schema);
     },
-
-    select: function (schema, defaults, processor) {
-
-        if (defaults)
-            schema.defaultValue = dot.get(defaults, schema.name);
-
-        return React.createElement(Select, schema);
-
+    select: function (schema) {
+        return React.createElement(form.Select, schema);
     },
-
-    text: function (schema, defaults, processor) {
-        return React.createElement(Input, schema);
+    'horizontal-select': function (schema) {
+        return React.createElement(form.HorizontalSelect, schema);
     },
-
-
-    textarea: function (schema, defaults, processor) {
-
-        return React.createElement(TextArea, schema);
-
+    'vertical-select': function (schema) {
+        return React.createElement(form.VerticalSelect, schema);
     },
-
-    panel: function (schema, defaults, processor) {
-
-        return React.createElement(Panel, cleanView(schema));
-
+    text: function (schema) {
+        return React.createElement(form.Input, schema);
     },
-
-    /**
-     * dl renders a definition list
-     * @param {Object} schema
-     * @param {Object} defaults
-     * @param {Parser} processor
-     */
-    dl: function (schema, defaults, processor) {
-        schema.data = schema.data || schema.defaultValue || defaults;
-        return React.createElement(DefinitionList, cleanView(schema));
+    'horizontal-text': function (schema) {
+        return React.createElement(form.HorizontalInput, schema);
     },
-
-    table: function(schema, defaults, processor) {
-
-        schema.data = schema.data || schema.defaultValue || defaults;
-        return React.createElement(Table, cleanView(schema));
-
+    'vertical-text': function (schema) {
+        return React.createElement(form.VerticalInput, schema);
     },
-
-    /**
-     * formgroup renders a FormGroup control.
-     *
-     * schema.controls.0.control are first converted to a valid React.Element
-     * @param {Object} schema
-     * @param {Object} defaults
-     * @param {Parser} processor
-     */
-    formgroup: function (schema, defaults, processor) {
-        return React.createElement(FormGroup, cleanView(schema));
+    textarea: function (schema) {
+        return React.createElement(form.TextArea, schema);
+    },
+    'horizontal-textarea': function (schema) {
+        return React.createElement(form.HorizontalTextArea, schema);
+    },
+    'vertical-textarea': function (schema) {
+        return React.createElement(form.VerticalTextArea, schema);
+    },
+    panel: function (schema) {
+        return React.createElement(view.Panel, cleanView(schema));
+    },
+    dl: function (schema) {
+        return React.createElement(view.DefinitionList, cleanView(schema));
+    },
+    tag: function (schema) {
+        return React.createElement(view.Tag, cleanView(schema));
+    },
+    view: function(schema){
+        return React.createElement(view.View,schema);
+    },
+    table: function(schema) {
+        return React.createElement(view.Table, cleanView(schema));
+    },
+    formgroup: function (schema) {
+        return React.createElement(view.FormGroup, cleanView(schema));
     }
 
 }

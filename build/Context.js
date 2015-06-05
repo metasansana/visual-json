@@ -82,8 +82,8 @@ var Context = (function () {
          */
         value: function generate(json, ctx) {
 
-            var parser = new _Parser2['default']();
-            return parser.parse(json, ctx, new _Compiler2['default'](this.types, this.filters));
+            var parser = new _Parser2['default'](new _Compiler2['default'](this.types, this.filters), ctx);
+            return parser.parse(json);
         }
     }]);
 

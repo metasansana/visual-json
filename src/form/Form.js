@@ -4,7 +4,6 @@ function clone(o) {
     return JSON.parse(JSON.stringify(o));
 }
 
-
 /**
  * Form turns json into a react powered form.
  */
@@ -16,25 +15,24 @@ class Form extends React.Component {
             e.preventDefault();
             this.props.onSubmit();
         }
-
     }
 
     render() {
 
-        return (
-            <form name={this.props.name} className={this.props.className} {...this.props.attrs}
-                  onSubmit={this.submit.bind(this)}>
-                {this.props.children}
-            </form>
-        );
+        var props = this.props.$parser.cloneProps(this.props);
+        props.onSubmit = this.submit.bind(this);
+        delete props.controls;
+        return React.createElement('form', props, this.props.$parser.parse(this.props.controls));
 
     }
 
 }
 
 Form.propTypes = {
+    $parser: React.PropTypes.object,
     onSubmit:React.PropTypes.func,
     defaultValue: React.PropTypes.object,
+    controls: React.PropTypes.arrayOf(React.PropTypes.object)
 };
 
 export default Form;

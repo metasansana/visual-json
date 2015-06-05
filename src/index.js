@@ -1,12 +1,9 @@
 import Context from './Context';
 import Types from './Types';
 import Filters from './Filters';
-import Forms from './form';
-
 
 export default {
 
-    forms: Forms,
     getDefaultContext() {
 
         var ctx = new Context();

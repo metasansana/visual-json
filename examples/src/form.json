@@ -1,13 +1,13 @@
 {
   "type": "view",
-  "$$$content": [
+  "content": [
     {
       "type": "panel",
       "heading": "Contact Form",
-      "$$$body": {
+      "body": {
         "type": "form",
         "className": "form-horizontal",
-        "$$$controls": [
+        "controls": [
           {
             "type": "formgroup",
             "label": {
@@ -17,9 +17,10 @@
             "controls": [
               {
                 "wrapClass": "col-md-4",
-                "$$$control": {
+                "control": {
                   "type": "text",
                   "name": "name.first",
+                  "@model": "this",
                   "attrs": {
                     "placeholder": "First"
                   },
@@ -28,9 +29,10 @@
               },
               {
                 "wrapClass": "col-md-4",
-                "$$$control": {
+                "control": {
                   "type": "text",
                   "name": "name.last",
+                  "@model": "this",
                   "attrs": {
                     "placeholder": "Last"
                   },
@@ -48,8 +50,9 @@
             "controls": [
               {
                 "wrapClass": "col-md-8",
-                "$$$control": {
+                "control": {
                   "type": "date",
+                  "@model": "this",
                   "name": "proposedMeetingDate"
                 }
               }
@@ -64,8 +67,11 @@
             "controls": [
               {
                 "wrapClass": "col-md-8",
-                "$$$control": {
+                "control": {
                   "name": "gender",
+                  "defaultValue":"F",
+                  "@model": "this",
+                  "wrap":true,
                   "type": "radio",
                   "options": [
                     {
@@ -90,8 +96,9 @@
             "controls": [
               {
                 "wrapClass": "col-md-8",
-                "$$$control": {
+                "control": {
                   "type": "select",
+                  "@model": "this",
                   "name": "service",
                   "options": [
                     {
@@ -121,9 +128,10 @@
             "controls": [
               {
                 "wrapClass": "col-md-8",
-                "$$$control": {
+                "control": {
                   "type": "textarea",
-                  "name": "aboutYou",
+                  "@model": "this",
+                  "name": "area",
                   "attrs": {
                     "rows": 6
                   }
@@ -137,19 +145,19 @@
     {
       "type": "panel",
       "heading": "A profile",
-      "$$$body": [
+      "body": [
         {
           "type": "dl",
           "labels": [
             {
               "label": "First Name",
               "name": "name.first",
-              "$$filter": "uppercase"
+              "filter": "uppercase"
             },
             {
               "label": "Last Name",
               "name": "name.last",
-              "$$filter": "uppercase"
+              "filter": "uppercase"
             }
           ],
           "data": {
@@ -165,19 +173,19 @@
       "type": "panel",
       "className":"panel-warning",
       "heading": "A table in a panel",
-      "$$$table": [
+      "table": [
         {
           "type": "table",
           "columns": [
             {
               "label": "First Name",
               "name": "name.first",
-              "$$filter": "uppercase"
+              "filter": "uppercase"
             },
             {
               "label": "Last Name",
               "name": "name.last",
-              "$$filter": "uppercase"
+              "filter": "uppercase"
             }
           ],
           "data": [
@@ -199,4 +207,3 @@
     }
   ]
 }
-

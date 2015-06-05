@@ -26,6 +26,7 @@ class FormGroup extends React.Component {
         var label;
         var controlSpec;
         var component;
+        var parser = this.props.$parser;
 
         if (this.props.label)
             label = (<label className={'control-label '+this.props.label.className} {...this.props.label.attrs}>
@@ -38,7 +39,7 @@ class FormGroup extends React.Component {
             if (controlSpec.wrapClass) {
                 component = (
                     <Wrapper wrapClass={controlSpec.wrapClass}>
-                        {controlSpec.control}
+                        {parser.parse(controlSpec.control)}
                     </Wrapper>);
             } else {
                 component = controlSpec.control;
@@ -50,7 +51,7 @@ class FormGroup extends React.Component {
                 if (spec.wrapClass)
                     return (
                         <Wrapper key={i} wrapClass={spec.wrapClass}>
-                            {spec.control}
+                            {parser.parse(spec.control)}
                         </Wrapper>);
 
                 return spec.control;
@@ -70,6 +71,7 @@ class FormGroup extends React.Component {
 }
 
 FormGroup.propTypes = {
+    $parser: React.PropTypes.object.isRequired,
     label: React.PropTypes.shape({
         className: React.PropTypes.string,
         value: React.PropTypes.node.isRequired,
@@ -77,7 +79,7 @@ FormGroup.propTypes = {
     }),
     controls: React.PropTypes.arrayOf(React.PropTypes.shape({
         wrapClass: React.PropTypes.string,
-        control: React.PropTypes.node.isRequired
+        control: React.PropTypes.oneOfType([React.PropTypes.object, React.PropTypes.array]).isRequired
     })).isRequired
 
 }

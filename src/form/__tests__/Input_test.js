@@ -30,7 +30,7 @@ describe('Input', function () {
 
             expect(React.renderToStaticMarkup(
                 React.createElement(Input, {name: "name", type: "text", model: model}))).
-                toBe('<input name="name" class="form-control" type="text">');
+                toBe('<input name="name" type="text" class="form-control">');
 
         });
 
@@ -43,7 +43,7 @@ describe('Input', function () {
                     model: model,
                     defaultValue: "Some value"
                 }))).
-                toBe('<input name="name" class="form-control" type="text" value="Some value">');
+                toBe('<input name="name" type="text" class="form-control" value="Some value">');
 
         });
     });
