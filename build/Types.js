@@ -22,6 +22,10 @@ var _view2 = require('./view');
 
 var _view3 = _interopRequireDefault(_view2);
 
+var _state = require('./state');
+
+var _state2 = _interopRequireDefault(_state);
+
 var cleanView = function cleanView(schema) {
 
     delete schema.type;
@@ -86,6 +90,9 @@ exports['default'] = {
     'vertical-textarea': function verticalTextarea(schema) {
         return _react2['default'].createElement(_form3['default'].VerticalTextArea, schema);
     },
+    'button': function button(schema) {
+        return _react2['default'].createElement(_form3['default'].Button, schema);
+    },
     panel: function panel(schema) {
         return _react2['default'].createElement(_view3['default'].Panel, cleanView(schema));
     },
@@ -103,6 +110,21 @@ exports['default'] = {
     },
     formgroup: function formgroup(schema) {
         return _react2['default'].createElement(_view3['default'].FormGroup, cleanView(schema));
+    },
+    location: function location(schema) {
+        return _react2['default'].createElement(_state2['default'].Location, schema);
+    },
+    'state-button': function stateButton(schema) {
+        return _react2['default'].createElement(_state2['default'].StateButton, schema);
+    },
+    'state-request': function stateRequest(schema) {
+        return _react2['default'].createElement(_state2['default'].StateRequest, schema);
+    },
+    'switch': function _switch(schema) {
+        return _react2['default'].createElement(_state2['default'].Switch, schema);
+    },
+    tabs: function tabs(schema) {
+        return _react2['default'].createElement(_state2['default'].Tabs, schema);
     }
 
 };

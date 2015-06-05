@@ -2,6 +2,7 @@ import React from 'react';
 import dot from 'dot-component';
 import form from './form';
 import view from './view';
+import state from './state';
 
 var cleanView = function (schema) {
 
@@ -68,6 +69,9 @@ export default {
     'vertical-textarea': function (schema) {
         return React.createElement(form.VerticalTextArea, schema);
     },
+    'button': function(schema) {
+        return React.createElement(form.Button, schema);
+    },
     panel: function (schema) {
         return React.createElement(view.Panel, cleanView(schema));
     },
@@ -85,7 +89,23 @@ export default {
     },
     formgroup: function (schema) {
         return React.createElement(view.FormGroup, cleanView(schema));
+    },
+    location: function(schema) {
+        return React.createElement(state.Location, schema);
+    },
+    'state-button': function(schema) {
+        return React.createElement(state.StateButton, schema);
+    },
+    'state-request': function(schema) {
+        return React.createElement(state.StateRequest, schema);
+    },
+    switch: function(schema) {
+        return React.createElement(state.Switch, schema);
+    },
+    tabs: function(schema) {
+        return React.createElement(state.Tabs, schema);
     }
+
 
 }
 

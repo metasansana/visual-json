@@ -72,6 +72,10 @@ var _VerticalInput = require('./VerticalInput');
 
 var _VerticalInput2 = _interopRequireDefault(_VerticalInput);
 
+var _Button = require('./Button');
+
+var _Button2 = _interopRequireDefault(_Button);
+
 exports['default'] = {
     Control: _Control2['default'],
     Form: _Form2['default'],
@@ -89,6 +93,7 @@ exports['default'] = {
     VerticalCheckBox: _VerticalCheckBox2['default'],
     Input: _Input2['default'],
     HorizontalInput: _HorizontalInput2['default'],
-    VerticalInput: _VerticalInput2['default']
+    VerticalInput: _VerticalInput2['default'],
+    Button: _Button2['default']
 };
 module.exports = exports['default'];

@@ -16,9 +16,9 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
-var _Button2 = require('./Button');
+var _formButton = require('../form/Button');
 
-var _Button3 = _interopRequireDefault(_Button2);
+var _formButton2 = _interopRequireDefault(_formButton);
 
 /**
  * StateButton is used to manipulate state of a context object via the click of a button.'
@@ -48,7 +48,7 @@ var StateButton = (function (_Button) {
   }]);
 
   return StateButton;
-})(_Button3['default']);
+})(_formButton2['default']);
 
 StateButton.propTypes = {
   name: _react2['default'].PropTypes.string.isRequired,

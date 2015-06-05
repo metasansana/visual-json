@@ -21,6 +21,8 @@ import Input from './Input';
 import HorizontalInput from './HorizontalInput';
 import VerticalInput from './VerticalInput';
 
+import Button from './Button';
+
 export default {
     Control: Control,
     Form: Form,
@@ -38,5 +40,6 @@ export default {
     VerticalCheckBox: VerticalCheckBox,
     Input: Input,
     HorizontalInput: HorizontalInput,
-    VerticalInput: VerticalInput
+    VerticalInput: VerticalInput,
+    Button: Button
 };

@@ -1,5 +1,5 @@
 import React from 'react';
-import Button from './Button';
+import Button from '../form/Button';
 
 /**
  * StateButton is used to manipulate state of a context object via the click of a button.'
