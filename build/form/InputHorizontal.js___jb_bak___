@@ -1,0 +1,37 @@
+import React from 'react';
+
+import Callbacks from './Callbacks';
+import Control from './Control';
+
+
+/**
+ * HorizontalInput
+ */
+class HorinzontalInput extends Control {
+
+    renderComponent(callbacks) {
+
+        var self = this;
+        var bsSize = this.props.bsSize || 'md';
+        var labelWidth = this.props.labelWidth || 4;
+        var controlWidth = this.props.controlWidth || 8;
+
+        return React.createElement('div', {className: 'form-group '+this.state.validationState},
+            React.createElement('label', {className: 'col-'+bsSize+'-'+labelWidth}, this.props.labelValue),
+            React.createElement('div', {className: 'col-'+bsSize+'-'+controlWidth},
+                React.createElement('input', self._defaultProps({type: self.props.type}))));
+
+    }
+}
+
+HorinzontalInput.propTypes = {
+    type: React.PropTypes.string,
+    name: React.PropTypes.string.isRequired,
+    defaultValue: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.number]),
+    model: React.PropTypes.object.isRequired,
+    bsSize: React.PropTypes.oneOf(['xs','sm', 'md', 'lg']),
+    labelWidth:React.PropTypes.number,
+    controlWidth:React.PropTypes.number
+}
+
+export default HorinzontalInput;
