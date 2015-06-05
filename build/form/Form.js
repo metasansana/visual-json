@@ -38,7 +38,7 @@ var Form = (function (_React$Component) {
     _createClass(Form, [{
         key: 'submit',
         value: function submit(e) {
-
+            if (this.props.noSubmit) return e.preventDefault();
             if (this.props.onSubmit) {
                 e.preventDefault();
                 this.props.onSubmit();
@@ -61,6 +61,7 @@ var Form = (function (_React$Component) {
 Form.propTypes = {
     $parser: _react2['default'].PropTypes.object,
     onSubmit: _react2['default'].PropTypes.func,
+    noSubmit: _react2['default'].PropTypes.bool,
     defaultValue: _react2['default'].PropTypes.object,
     controls: _react2['default'].PropTypes.arrayOf(_react2['default'].PropTypes.object)
 };

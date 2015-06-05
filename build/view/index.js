@@ -34,6 +34,10 @@ var _DefinitionList = require('./DefinitionList');
 
 var _DefinitionList2 = _interopRequireDefault(_DefinitionList);
 
+var _If = require('./If');
+
+var _If2 = _interopRequireDefault(_If);
+
 exports['default'] = {
     FormGroup: _FormGroup2['default'],
     Panel: _Panel2['default'],
@@ -41,6 +45,7 @@ exports['default'] = {
     Table: _Table2['default'],
     Tag: _Tag2['default'],
     View: _View2['default'],
-    DefinitionList: _DefinitionList2['default']
+    DefinitionList: _DefinitionList2['default'],
+    If: _If2['default']
 };
 module.exports = exports['default'];

@@ -49,7 +49,8 @@ var HorizontalTextArea = (function (_TextArea) {
 HorizontalTextArea.propTypes = {
     name: _react2['default'].PropTypes.string.isRequired,
     defaultValue: _react2['default'].PropTypes.oneOfType([_react2['default'].PropTypes.string, _react2['default'].PropTypes.number]),
-    model: _react2['default'].PropTypes.object.isRequired };
+    model: _react2['default'].PropTypes.object.isRequired
+};
 
 exports['default'] = HorizontalTextArea;
 module.exports = exports['default'];

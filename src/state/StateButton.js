@@ -18,9 +18,12 @@ class StateButton extends Button {
 
 StateButton.propTypes = {
   name: React.PropTypes.string.isRequired,
-  label: React.PropTypes.string,
+  target: React.PropTypes.object.isRequired,
   stateKey: React.PropTypes.string.isRequired,
-  target: React.PropTypes.object.isRequired
+  textLabel: React.PropTypes.string,
+  icon: React.PropTypes.string,
+  className:React.PropTypes.string
+
 };
 
 export default StateButton;

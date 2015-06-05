@@ -10,6 +10,12 @@ var _Parser = require('../Parser');
 
 var _Parser2 = _interopRequireDefault(_Parser);
 
+var _Compiler = require('../Compiler');
+
+var _Compiler2 = _interopRequireDefault(_Compiler);
+
+jest.autoMockOff();
+
 var Test = _reactAddons2['default'].addons.TestUtils;
 var parser;
 var MockFilter = {
@@ -36,10 +42,10 @@ var MockFilter = {
 describe('Parser', function () {
 
     beforeEach(function () {
-        parser = new _Parser2['default']({}, MockFilter, {});
+        parser = new _Parser2['default'](new _Compiler2['default']({}, MockFilter), { swap: 1 });
     });
 
-    describe('Parser.parseFilters()', function () {
+    xdescribe('Parser.parseFilters()', function () {
 
         xit('it should call all filters', function () {
 
@@ -50,7 +56,7 @@ describe('Parser', function () {
         });
     });
 
-    describe('Parser.parse()', function () {
+    xdescribe('Parser.parse()', function () {
 
         it('should not explode', function () {
 
@@ -114,6 +120,24 @@ describe('Parser', function () {
                     }
                 }, { avoid: true }]
             });
+        });
+    });
+
+    describe('Parser.parseObject()', function () {
+
+        it('should work on objects', function () {
+
+            expect(parser.parseObject({ '$->params': { '@$in': 'swap' } })).toEqual({ params: { '$in': 1 } });
+        });
+
+        it('should work on multi level objects', function () {
+
+            expect(parser.parseObject({ '$->params': { '$->institution': { '@$in': 'swap' } } })).toEqual({ params: { institution: { '$in': 1 } } });
+        });
+
+        it('should work on arrays', function () {
+
+            expect(parser.parseObject({ '$->params': [{ '@$in': 'swap' }, { '@$in': 'swap' }, { '@$in': 'swap' }] })).toEqual({ 'params': [{ '$in': 1 }, { '$in': 1 }, { '$in': 1 }] });
         });
     });
 });

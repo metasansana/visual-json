@@ -10,9 +10,9 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-var _dotComponent = require('dot-component');
+var _dotAccess = require('dot-access');
 
-var _dotComponent2 = _interopRequireDefault(_dotComponent);
+var _dotAccess2 = _interopRequireDefault(_dotAccess);
 
 var _strtpl = require('strtpl');
 
@@ -49,7 +49,7 @@ var Parser = (function () {
         key: 'parseArray',
         value: function parseArray(schema) {
             return schema.map((function (scheme, key) {
-                scheme.key = key;
+                if (scheme.type) scheme.key = key;
                 return this.parse(scheme);
             }).bind(this));
         }
@@ -63,21 +63,28 @@ var Parser = (function () {
                 if (schema.hasOwnProperty(key)) {
 
                     schema = this.compiler.swapSymbolAndParse(key, schema, context, this.parseObject.bind(this));
-                    schema = this.compiler.swapTemplateStrings(key, schema, context);
                     schema = this.compiler.callAndSwapSymbol(key, schema, context);
                     schema = this.compiler.swapSymbol(key, schema, context);
                     schema = this.compiler.swapFilter(key, schema, context);
                     schema = this.compiler.eagerCompile(key, schema, context);
                     schema = this.compiler.eagerCompileArray(key, schema, context);
+
+                    if (this.compiler.hasSymbol(key, '$->')) {
+                        schema[this.compiler.cut(key, '$->')] = this.parseObjectLike(schema[key]);
+                        delete schema[key];
+                    }
                 }
             }
 
-            this.number++;
-            schema.$parser = this;
-            schema.$context = this.context;
-            schema.$number = this.number;
-            schema.$template = this.template.bind(this);
-            schema.$filter = this.compiler.filter.bind(this.compiler);
+            if (schema.type) {
+                this.number++;
+                schema.$parser = this;
+                schema.$context = this.context;
+                schema.$number = this.number;
+                schema.$template = this.template.bind(this);
+                schema.$filter = this.compiler.filter.bind(this.compiler);
+            }
+
             return schema;
         }
     }, {

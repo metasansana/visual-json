@@ -71,10 +71,11 @@ var Button = (function (_React$Component) {
 
 Button.propTypes = {
     name: _react2['default'].PropTypes.string.isRequired,
-    className: _react2['default'].PropTypes.string,
+    onClick: _react2['default'].PropTypes.func,
     textLabel: _react2['default'].PropTypes.string,
     icon: _react2['default'].PropTypes.string,
-    onClick: _react2['default'].PropTypes.func
+    className: _react2['default'].PropTypes.string
+
 };
 
 exports['default'] = Button;

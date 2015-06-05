@@ -52,9 +52,12 @@ var StateButton = (function (_Button) {
 
 StateButton.propTypes = {
   name: _react2['default'].PropTypes.string.isRequired,
-  label: _react2['default'].PropTypes.string,
+  target: _react2['default'].PropTypes.object.isRequired,
   stateKey: _react2['default'].PropTypes.string.isRequired,
-  target: _react2['default'].PropTypes.object.isRequired
+  textLabel: _react2['default'].PropTypes.string,
+  icon: _react2['default'].PropTypes.string,
+  className: _react2['default'].PropTypes.string
+
 };
 
 exports['default'] = StateButton;

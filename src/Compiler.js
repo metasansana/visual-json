@@ -1,4 +1,4 @@
-import dot from 'dot-component';
+import dot from 'dot-access';
 import fmt from 'strtpl';
 class TypedError extends Error {
 
@@ -46,16 +46,8 @@ var inputs = {
     time: 1, url: 1, week: 1
 };
 
-var cut = function (key, target) {
-    return key.replace(target, '');
-};
-
-var SWAP_SYMBOL = '@';
-var SWAP_AND_PARSE_SYMBOL = '@@';
-var CALL_AND_SWAP_SYMBOL = '$@';
 var BUILTIN_SYMBOL = '$$';
 var BUILTIN_STR_SYMBOL = '$#';
-var EAGER_COMPILE_SYMBOL = '$$$';
 
 /**
  * Compiler compiles things that were parsed.
@@ -65,11 +57,8 @@ var EAGER_COMPILE_SYMBOL = '$$$';
  *  @:    Swap the value of this property with a value from context
  *  @@:   Swap the value of this property with a value from context then parse that
  *        (Parsing should be handled by the parser).
- *  $@:    Swap the value with a function from context (the function is bind() to context first)
- *  $$:   Swap this value with a builtin value or function.
- *  $#:   Treat the value as a string template, swapping out {{x}} for the value of x.
+ *  !@:   Swap the value with the result of a  function from context
  *  $$$:  Process this property as a type or array of types.
- *
  *
  */
 class Compiler {
@@ -77,6 +66,20 @@ class Compiler {
     constructor(types, filters) {
         this.types = types;
         this.filters = filters;
+        this.SYMBOLS = {
+            SWAP: '@',
+            SWAP_AND_PARSE: '@@',
+            CALL_AND_SWAP: '!@',
+            CALL_AND_SWAP_AND_PARSE_SYMBOL: '!@@',
+//            BUILTIN_SYMBOL: '$$',
+            //          BUILTIN_STR_SYMBOL: '$#',
+            EAGER_COMPILE: '$$$',
+            PARSE_STEP: '$->'
+        }
+    }
+
+    cut(key, target) {
+        return key.replace(target, '');
     }
 
     _checkDups(key, o) {
@@ -89,20 +92,35 @@ class Compiler {
         var desiredKey = schema[key];
 
         if (desiredKey === 'this') {
-            schema[cut(key, symbol)] = ctx;
+            schema[this.cut(key, symbol)] = ctx;
 
         } else if (typeof ctx[desiredKey] === 'function') {
-            schema[cut(key, symbol)] = ctx[desiredKey].bind(ctx);
+            schema[this.cut(key, symbol)] = ctx[desiredKey].bind(ctx);
 
         } else {
-            schema[cut(key, symbol)] = dot.get(ctx, desiredKey);
+            schema[this.cut(key, symbol)] = dot.get(ctx, desiredKey);
         }
 
         delete schema[key];
         return schema;
     }
 
+    /**
+     * hasSymbol checks if a symbol exists in the key.
+     *
+     * It first checks that no other symbols exists to prevent mixesups.
+     * @param key
+     * @param sym
+     * @returns {boolean}
+     */
     hasSymbol(key, sym) {
+
+        for (var index in this.SYMBOLS)
+            if (this.SYMBOLS.hasOwnProperty(index))
+                if (this.SYMBOLS[index] !== sym)
+                    if (key.indexOf(this.SYMBOLS[index]) > -1)
+                        return false;
+
         return (key.indexOf(sym) > -1);
     }
 
@@ -116,20 +134,19 @@ class Compiler {
      */
     swapSymbol(key, schema, ctx) {
 
-        if (this.hasSymbol(key, SWAP_SYMBOL))
-            if (!this.hasSymbol(key, SWAP_AND_PARSE_SYMBOL)) {
-                this._checkDups(cut(key, SWAP_SYMBOL), schema);
-                return this._swap(SWAP_SYMBOL, key, schema, ctx);
-            }
+        if (this.hasSymbol(key, this.SYMBOLS.SWAP)) {
+            this._checkDups(this.cut(key, this.SYMBOLS.SWAP), schema);
+            return this._swap(this.SYMBOLS.SWAP, key, schema, ctx);
+        }
         return schema;
     }
 
     swapSymbolAndParse(key, schema, ctx, fn) {
 
-        if (this.hasSymbol(key, SWAP_AND_PARSE_SYMBOL)) {
-            this._checkDups(cut(key, SWAP_AND_PARSE_SYMBOL), schema);
-            var ret = this._swap(SWAP_AND_PARSE_SYMBOL, key, schema, ctx);
-            ret[cut(key, SWAP_AND_PARSE_SYMBOL)] = fn(ret[cut(key, SWAP_AND_PARSE_SYMBOL)], ctx, this);
+        if (this.hasSymbol(key, this.SYMBOLS.SWAP_AND_PARSE)) {
+            this._checkDups(this.cut(key, this.SYMBOLS.SWAP_AND_PARSE), schema);
+            var ret = this._swap(this.SYMBOLS.SWAP_AND_PARSE, key, schema, ctx);
+            ret[this.cut(key, this.SYMBOLS.SWAP_AND_PARSE)] = fn(ret[this.cut(key, this.SYMBOLS.SWAP_AND_PARSE)], ctx, this);
             return ret;
         }
 
@@ -146,9 +163,9 @@ class Compiler {
      */
     callAndSwapSymbol(key, schema, ctx) {
 
-        if (this.hasSymbol(key, CALL_AND_SWAP_SYMBOL)) {
+        if (this.hasSymbol(key, this.SYMBOLS.CALL_AND_SWAP)) {
 
-            this._checkDups(cut(key, CALL_AND_SWAP_SYMBOL), schema);
+            this._checkDups(this.cut(key, this.SYMBOLS.CALL_AND_SWAP), schema);
 
             var desiredKey = schema[key];
             var args = desiredKey.split(' ');
@@ -157,41 +174,12 @@ class Compiler {
             if (!ctx.hasOwnProperty(desiredKey))
                 throw new KeyNotFoundOnContextError(desiredKey);
 
-            schema[cut(key, CALL_AND_SWAP_SYMBOL)] = ctx[desiredKey].apply(ctx, args);
+            schema[this.cut(key, this.SYMBOLS.CALL_AND_SWAP)] = ctx[desiredKey].apply(ctx, args);
 
             delete schema[key];
         }
 
         return schema;
-    }
-
-    swapTemplateStrings(key, schema, ctx) {
-
-        if (this.hasSymbol(key, BUILTIN_STR_SYMBOL)) {
-
-            var realKey = cut(key, BUILTIN_STR_SYMBOL);
-
-            this._checkDups(realKey, schema);
-
-            var value = schema[key];
-
-
-            if (Array.isArray(value)) {
-                schema[realKey] = value.map(function (v) {
-                    return fmt(v, ctx);
-                });
-            } else {
-                schema[realKey] = fmt(value, ctx);
-            }
-
-            schema[realKey] = fmt(schema[key], ctx);
-
-            delete schema[key];
-
-        }
-
-        return schema;
-
     }
 
     swapFilter(key, schema, ctx) {
@@ -200,7 +188,7 @@ class Compiler {
 
         if (key === '$$filter') {
 
-            this._checkDups(cut(key, '$$filter'), schema);
+            this._checkDups(this.cut(key, '$$filter'), schema);
 
             schema.filter = function (filters) {
 
@@ -258,10 +246,10 @@ class Compiler {
 
     eagerCompile(key, schema, ctx, types) {
 
-        if (key.indexOf(EAGER_COMPILE_SYMBOL) > -1)
+        if (key.indexOf(this.SYMBOLS.EAGER_COMPILE) > -1)
             if (!Array.isArray(schema[key])) {
-                this._checkDups(cut(key, EAGER_COMPILE_SYMBOL), schema);
-                schema[cut(key, EAGER_COMPILE_SYMBOL)] = this.compile(schema[key]);
+                this._checkDups(this.cut(key, this.SYMBOLS.EAGER_COMPILE), schema);
+                schema[this.cut(key, this.SYMBOLS.EAGER_COMPILE)] = this.compile(schema[key]);
                 delete schema[key];
             }
         return schema;
@@ -270,12 +258,12 @@ class Compiler {
 
     eagerCompileArray(key, schema, ctx, types) {
 
-        if (key.indexOf(EAGER_COMPILE_SYMBOL) > -1)
+        if (key.indexOf(this.SYMBOLS.EAGER_COMPILE) > -1)
             if (Array.isArray(schema[key])) {
 
-                this._checkDups(cut(key, EAGER_COMPILE_SYMBOL), schema);
+                this._checkDups(this.cut(key, this.SYMBOLS.EAGER_COMPILE), schema);
 
-                schema[cut(key, EAGER_COMPILE_SYMBOL)] = schema[key].map(function (scheme) {
+                schema[this.cut(key, this.SYMBOLS.EAGER_COMPILE)] = schema[key].map(function (scheme) {
                     return this.compile(scheme);
                 }.bind(this));
 
@@ -286,6 +274,9 @@ class Compiler {
     }
 
     compile(schema) {
+
+        if (!schema.type)
+            return schema;
 
         if (schema.type in this.types)
             return this.types[schema.type](schema);

@@ -14,9 +14,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
 
-var _dotComponent = require('dot-component');
+var _dotAccess = require('dot-access');
 
-var _dotComponent2 = _interopRequireDefault(_dotComponent);
+var _dotAccess2 = _interopRequireDefault(_dotAccess);
 
 var _strtpl = require('strtpl');
 
@@ -79,16 +79,8 @@ var inputs = {
     time: 1, url: 1, week: 1
 };
 
-var cut = function cut(key, target) {
-    return key.replace(target, '');
-};
-
-var SWAP_SYMBOL = '@';
-var SWAP_AND_PARSE_SYMBOL = '@@';
-var CALL_AND_SWAP_SYMBOL = '$@';
 var BUILTIN_SYMBOL = '$$';
 var BUILTIN_STR_SYMBOL = '$#';
-var EAGER_COMPILE_SYMBOL = '$$$';
 
 /**
  * Compiler compiles things that were parsed.
@@ -98,11 +90,8 @@ var EAGER_COMPILE_SYMBOL = '$$$';
  *  @:    Swap the value of this property with a value from context
  *  @@:   Swap the value of this property with a value from context then parse that
  *        (Parsing should be handled by the parser).
- *  $@:    Swap the value with a function from context (the function is bind() to context first)
- *  $$:   Swap this value with a builtin value or function.
- *  $#:   Treat the value as a string template, swapping out {{x}} for the value of x.
+ *  !@:   Swap the value with the result of a  function from context
  *  $$$:  Process this property as a type or array of types.
- *
  *
  */
 
@@ -112,9 +101,24 @@ var Compiler = (function () {
 
         this.types = types;
         this.filters = filters;
+        this.SYMBOLS = {
+            SWAP: '@',
+            SWAP_AND_PARSE: '@@',
+            CALL_AND_SWAP: '!@',
+            CALL_AND_SWAP_AND_PARSE_SYMBOL: '!@@',
+            //            BUILTIN_SYMBOL: '$$',
+            //          BUILTIN_STR_SYMBOL: '$#',
+            EAGER_COMPILE: '$$$',
+            PARSE_STEP: '$->'
+        };
     }
 
     _createClass(Compiler, [{
+        key: 'cut',
+        value: function cut(key, target) {
+            return key.replace(target, '');
+        }
+    }, {
         key: '_checkDups',
         value: function _checkDups(key, o) {
             if (o.hasOwnProperty(key)) throw new DuplicateKeyError(key, o);
@@ -126,11 +130,11 @@ var Compiler = (function () {
             var desiredKey = schema[key];
 
             if (desiredKey === 'this') {
-                schema[cut(key, symbol)] = ctx;
+                schema[this.cut(key, symbol)] = ctx;
             } else if (typeof ctx[desiredKey] === 'function') {
-                schema[cut(key, symbol)] = ctx[desiredKey].bind(ctx);
+                schema[this.cut(key, symbol)] = ctx[desiredKey].bind(ctx);
             } else {
-                schema[cut(key, symbol)] = _dotComponent2['default'].get(ctx, desiredKey);
+                schema[this.cut(key, symbol)] = _dotAccess2['default'].get(ctx, desiredKey);
             }
 
             delete schema[key];
@@ -138,7 +142,19 @@ var Compiler = (function () {
         }
     }, {
         key: 'hasSymbol',
+
+        /**
+         * hasSymbol checks if a symbol exists in the key.
+         *
+         * It first checks that no other symbols exists to prevent mixesups.
+         * @param key
+         * @param sym
+         * @returns {boolean}
+         */
         value: function hasSymbol(key, sym) {
+
+            for (var index in this.SYMBOLS) if (this.SYMBOLS.hasOwnProperty(index)) if (this.SYMBOLS[index] !== sym) if (key.indexOf(this.SYMBOLS[index]) > -1) return false;
+
             return key.indexOf(sym) > -1;
         }
     }, {
@@ -154,9 +170,9 @@ var Compiler = (function () {
          */
         value: function swapSymbol(key, schema, ctx) {
 
-            if (this.hasSymbol(key, SWAP_SYMBOL)) if (!this.hasSymbol(key, SWAP_AND_PARSE_SYMBOL)) {
-                this._checkDups(cut(key, SWAP_SYMBOL), schema);
-                return this._swap(SWAP_SYMBOL, key, schema, ctx);
+            if (this.hasSymbol(key, this.SYMBOLS.SWAP)) {
+                this._checkDups(this.cut(key, this.SYMBOLS.SWAP), schema);
+                return this._swap(this.SYMBOLS.SWAP, key, schema, ctx);
             }
             return schema;
         }
@@ -164,10 +180,10 @@ var Compiler = (function () {
         key: 'swapSymbolAndParse',
         value: function swapSymbolAndParse(key, schema, ctx, fn) {
 
-            if (this.hasSymbol(key, SWAP_AND_PARSE_SYMBOL)) {
-                this._checkDups(cut(key, SWAP_AND_PARSE_SYMBOL), schema);
-                var ret = this._swap(SWAP_AND_PARSE_SYMBOL, key, schema, ctx);
-                ret[cut(key, SWAP_AND_PARSE_SYMBOL)] = fn(ret[cut(key, SWAP_AND_PARSE_SYMBOL)], ctx, this);
+            if (this.hasSymbol(key, this.SYMBOLS.SWAP_AND_PARSE)) {
+                this._checkDups(this.cut(key, this.SYMBOLS.SWAP_AND_PARSE), schema);
+                var ret = this._swap(this.SYMBOLS.SWAP_AND_PARSE, key, schema, ctx);
+                ret[this.cut(key, this.SYMBOLS.SWAP_AND_PARSE)] = fn(ret[this.cut(key, this.SYMBOLS.SWAP_AND_PARSE)], ctx, this);
                 return ret;
             }
 
@@ -186,9 +202,9 @@ var Compiler = (function () {
          */
         value: function callAndSwapSymbol(key, schema, ctx) {
 
-            if (this.hasSymbol(key, CALL_AND_SWAP_SYMBOL)) {
+            if (this.hasSymbol(key, this.SYMBOLS.CALL_AND_SWAP)) {
 
-                this._checkDups(cut(key, CALL_AND_SWAP_SYMBOL), schema);
+                this._checkDups(this.cut(key, this.SYMBOLS.CALL_AND_SWAP), schema);
 
                 var desiredKey = schema[key];
                 var args = desiredKey.split(' ');
@@ -196,34 +212,7 @@ var Compiler = (function () {
 
                 if (!ctx.hasOwnProperty(desiredKey)) throw new KeyNotFoundOnContextError(desiredKey);
 
-                schema[cut(key, CALL_AND_SWAP_SYMBOL)] = ctx[desiredKey].apply(ctx, args);
-
-                delete schema[key];
-            }
-
-            return schema;
-        }
-    }, {
-        key: 'swapTemplateStrings',
-        value: function swapTemplateStrings(key, schema, ctx) {
-
-            if (this.hasSymbol(key, BUILTIN_STR_SYMBOL)) {
-
-                var realKey = cut(key, BUILTIN_STR_SYMBOL);
-
-                this._checkDups(realKey, schema);
-
-                var value = schema[key];
-
-                if (Array.isArray(value)) {
-                    schema[realKey] = value.map(function (v) {
-                        return (0, _strtpl2['default'])(v, ctx);
-                    });
-                } else {
-                    schema[realKey] = (0, _strtpl2['default'])(value, ctx);
-                }
-
-                schema[realKey] = (0, _strtpl2['default'])(schema[key], ctx);
+                schema[this.cut(key, this.SYMBOLS.CALL_AND_SWAP)] = ctx[desiredKey].apply(ctx, args);
 
                 delete schema[key];
             }
@@ -238,7 +227,7 @@ var Compiler = (function () {
 
             if (key === '$$filter') {
 
-                this._checkDups(cut(key, '$$filter'), schema);
+                this._checkDups(this.cut(key, '$$filter'), schema);
 
                 schema.filter = (function (filters) {
 
@@ -295,9 +284,9 @@ var Compiler = (function () {
         key: 'eagerCompile',
         value: function eagerCompile(key, schema, ctx, types) {
 
-            if (key.indexOf(EAGER_COMPILE_SYMBOL) > -1) if (!Array.isArray(schema[key])) {
-                this._checkDups(cut(key, EAGER_COMPILE_SYMBOL), schema);
-                schema[cut(key, EAGER_COMPILE_SYMBOL)] = this.compile(schema[key]);
+            if (key.indexOf(this.SYMBOLS.EAGER_COMPILE) > -1) if (!Array.isArray(schema[key])) {
+                this._checkDups(this.cut(key, this.SYMBOLS.EAGER_COMPILE), schema);
+                schema[this.cut(key, this.SYMBOLS.EAGER_COMPILE)] = this.compile(schema[key]);
                 delete schema[key];
             }
             return schema;
@@ -306,11 +295,11 @@ var Compiler = (function () {
         key: 'eagerCompileArray',
         value: function eagerCompileArray(key, schema, ctx, types) {
 
-            if (key.indexOf(EAGER_COMPILE_SYMBOL) > -1) if (Array.isArray(schema[key])) {
+            if (key.indexOf(this.SYMBOLS.EAGER_COMPILE) > -1) if (Array.isArray(schema[key])) {
 
-                this._checkDups(cut(key, EAGER_COMPILE_SYMBOL), schema);
+                this._checkDups(this.cut(key, this.SYMBOLS.EAGER_COMPILE), schema);
 
-                schema[cut(key, EAGER_COMPILE_SYMBOL)] = schema[key].map((function (scheme) {
+                schema[this.cut(key, this.SYMBOLS.EAGER_COMPILE)] = schema[key].map((function (scheme) {
                     return this.compile(scheme);
                 }).bind(this));
 
@@ -321,6 +310,8 @@ var Compiler = (function () {
     }, {
         key: 'compile',
         value: function compile(schema) {
+
+            if (!schema.type) return schema;
 
             if (schema.type in this.types) return this.types[schema.type](schema);
 

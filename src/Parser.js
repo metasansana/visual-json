@@ -1,6 +1,5 @@
-import dot from 'dot-component';
+import dot from 'dot-access';
 import strtpl from 'strtpl';
-
 import Compiler from './Compiler';
 
 /**
@@ -27,6 +26,7 @@ class Parser {
 
     parseArray(schema) {
         return schema.map(function (scheme, key) {
+            if(scheme.type)
             scheme.key = key;
             return this.parse(scheme);
         }.bind(this))
@@ -40,22 +40,31 @@ class Parser {
             if (schema.hasOwnProperty(key)) {
 
                 schema = this.compiler.swapSymbolAndParse(key, schema, context, this.parseObject.bind(this));
-                schema = this.compiler.swapTemplateStrings(key, schema, context);
                 schema = this.compiler.callAndSwapSymbol(key, schema, context);
                 schema = this.compiler.swapSymbol(key, schema, context);
                 schema = this.compiler.swapFilter(key, schema, context);
                 schema = this.compiler.eagerCompile(key, schema, context);
-                schema = this.compiler.eagerCompileArray(key, schema, context)
+                schema = this.compiler.eagerCompileArray(key, schema, context);
+
+                if (this.compiler.hasSymbol(key, '$->')) {
+                    schema[this.compiler.cut(key, '$->')] = this.parseObjectLike(schema[key]);
+                    delete schema[key];
+                }
+
+
 
             }
         }
 
-        this.number++;
-        schema.$parser = this;
-        schema.$context = this.context;
-        schema.$number = this.number;
-        schema.$template = this.template.bind(this);
-        schema.$filter = this.compiler.filter.bind(this.compiler);
+        if(schema.type) {
+            this.number++;
+            schema.$parser = this;
+            schema.$context = this.context;
+            schema.$number = this.number;
+            schema.$template = this.template.bind(this);
+            schema.$filter = this.compiler.filter.bind(this.compiler);
+        }
+
         return schema;
     }
 
@@ -94,7 +103,7 @@ class Parser {
      * @returns {*}
      */
     parse(schema) {
-        if(!schema) return schema;
+        if (!schema) return schema;
         schema = this.parseObjectLike(JSON.parse(JSON.stringify(schema)));
         if ((typeof schema !== 'object') || Array.isArray(schema)) return schema;
         return this.compiler.compile(schema);

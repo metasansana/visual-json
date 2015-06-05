@@ -5,6 +5,7 @@ import Table from './Table';
 import Tag from './Tag';
 import View from './View';
 import DefinitionList from './DefinitionList';
+import If from './If';
 
 export default {
     FormGroup: FormGroup,
@@ -13,5 +14,6 @@ export default {
     Table: Table,
     Tag: Tag,
     View: View,
-    DefinitionList: DefinitionList
+    DefinitionList: DefinitionList,
+    If: If
 }

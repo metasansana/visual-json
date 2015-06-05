@@ -96,6 +96,9 @@ export default {
     formgroup: function (schema) {
         return React.createElement(view.FormGroup, cleanView(schema));
     },
+    if: function(schema){
+        return React.createElement(view.If, schema);
+    },
     location: function(schema) {
         return React.createElement(state.Location, schema);
     },
@@ -110,7 +113,7 @@ export default {
     },
     tabs: function(schema) {
         return React.createElement(state.Tabs, schema);
-    }
+    },
 
 
 }

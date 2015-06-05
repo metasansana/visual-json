@@ -117,6 +117,9 @@ exports['default'] = {
     formgroup: function formgroup(schema) {
         return _react2['default'].createElement(_view3['default'].FormGroup, cleanView(schema));
     },
+    'if': function _if(schema) {
+        return _react2['default'].createElement(_view3['default'].If, schema);
+    },
     location: function location(schema) {
         return _react2['default'].createElement(_state2['default'].Location, schema);
     },

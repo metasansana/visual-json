@@ -39,17 +39,18 @@ class Tabs extends React.Component {
 }
 
 Tabs.propTypes = {
+  parent: React.PropTypes.object.isRequired,
+  stateKey:React.PropTypes.string.isRequired,
+  currentTab:React.PropTypes.string,
+  defaultTab:React.PropTypes.string,
   tabs: React.PropTypes.arrayOf(React.PropTypes.shape(
     {
       label: React.PropTypes.string.isRequired,
       tabKey: React.PropTypes.string.isRequired,
       activeKey: React.PropTypes.string
     }
-  )).isRequired,
-  currentTab:React.PropTypes.string,
-  defaultTab:React.PropTypes.string,
-  parent: React.PropTypes.object.isRequired,
-  stateKey:React.PropTypes.string.isRequired
+  )).isRequired
+
 };
 
 export default Tabs;

@@ -1,6 +1,6 @@
 {
   "name": "visual-json",
-  "version": "0.0.3",
+  "version": "0.0.1",
   "description": "Library for creating user interfaces from json files.",
   "main": "build/index.js",
   "author": {
@@ -32,12 +32,14 @@
       "react",
       "react/addons",
       "src/*",
-      "dot-component"
+      "dot-access"
     ],
     "scriptPreprocessor": "./node_modules/babel-jest/index.js"
   },
   "dependencies": {
-    "dot-component": "^0.1.1",
+    "babel": "^5.5.3",
+    "dot-access": "^1.0.0",
+    "is": "^3.0.1",
     "jhr": "0.0.3",
     "merge": "^1.2.0",
     "strtpl": "^0.1.0"

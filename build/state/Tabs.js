@@ -70,15 +70,16 @@ var Tabs = (function (_React$Component) {
 })(_react2['default'].Component);
 
 Tabs.propTypes = {
+  parent: _react2['default'].PropTypes.object.isRequired,
+  stateKey: _react2['default'].PropTypes.string.isRequired,
+  currentTab: _react2['default'].PropTypes.string,
+  defaultTab: _react2['default'].PropTypes.string,
   tabs: _react2['default'].PropTypes.arrayOf(_react2['default'].PropTypes.shape({
     label: _react2['default'].PropTypes.string.isRequired,
     tabKey: _react2['default'].PropTypes.string.isRequired,
     activeKey: _react2['default'].PropTypes.string
-  })).isRequired,
-  currentTab: _react2['default'].PropTypes.string,
-  defaultTab: _react2['default'].PropTypes.string,
-  parent: _react2['default'].PropTypes.object.isRequired,
-  stateKey: _react2['default'].PropTypes.string.isRequired
+  })).isRequired
+
 };
 
 exports['default'] = Tabs;

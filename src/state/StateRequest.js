@@ -68,7 +68,7 @@ class StateRequest extends React.Component {
         }
 
         if (props.parent)
-          return parent.setState(state);
+          return props.parent.setState(state);
 
       });
 
@@ -101,7 +101,7 @@ StateRequest.propTypes = {
   url: React.PropTypes.string.isRequired,
   method: React.PropTypes.string.isRequired,
   beforeRequest: React.PropTypes.func,
-  params: React.PropTypes.array,
+  params: React.PropTypes.object,
   parent: React.PropTypes.object,
   resultKey: React.PropTypes.string,
   onError: React.PropTypes.func,

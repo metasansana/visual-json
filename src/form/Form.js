@@ -10,7 +10,8 @@ function clone(o) {
 class Form extends React.Component {
 
     submit(e) {
-
+        if (this.props.noSubmit)
+            return e.preventDefault();
         if (this.props.onSubmit) {
             e.preventDefault();
             this.props.onSubmit();
@@ -30,7 +31,8 @@ class Form extends React.Component {
 
 Form.propTypes = {
     $parser: React.PropTypes.object,
-    onSubmit:React.PropTypes.func,
+    onSubmit: React.PropTypes.func,
+    noSubmit: React.PropTypes.bool,
     defaultValue: React.PropTypes.object,
     controls: React.PropTypes.arrayOf(React.PropTypes.object)
 };

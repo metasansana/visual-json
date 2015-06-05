@@ -81,8 +81,11 @@ DefinitionList.propTypes = {
     labels: _react2['default'].PropTypes.arrayOf(_react2['default'].PropTypes.shape({
         label: _react2['default'].PropTypes.string.isRequired,
         name: _react2['default'].PropTypes.string.isRequired,
-        filter: _react2['default'].PropTypes.string })).isRequired,
-    data: _react2['default'].PropTypes.object };
+        filter: _react2['default'].PropTypes.string
+    })).isRequired,
+    data: _react2['default'].PropTypes.object
+
+};
 
 exports['default'] = DefinitionList;
 module.exports = exports['default'];

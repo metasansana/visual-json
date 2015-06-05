@@ -85,7 +85,7 @@ var StateRequest = (function (_React$Component) {
           return self.setState({ view: 'error', data: res.data });
         }
 
-        if (props.parent) return parent.setState(state);
+        if (props.parent) return props.parent.setState(state);
       });
     }
   }, {
@@ -114,7 +114,7 @@ StateRequest.propTypes = {
   url: _react2['default'].PropTypes.string.isRequired,
   method: _react2['default'].PropTypes.string.isRequired,
   beforeRequest: _react2['default'].PropTypes.func,
-  params: _react2['default'].PropTypes.array,
+  params: _react2['default'].PropTypes.object,
   parent: _react2['default'].PropTypes.object,
   resultKey: _react2['default'].PropTypes.string,
   onError: _react2['default'].PropTypes.func,
