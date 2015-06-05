@@ -30,6 +30,12 @@ export default {
     input: function (schema, deafults, processor) {
         return React.createElement(form.Input, schema);
     },
+    'horizontal-input': function (schema) {
+        return React.createElement(form.HorizontalInput, schema);
+    },
+    'vertical-input': function (schema) {
+        return React.createElement(form.VerticalInput, schema);
+    },
     form: function (schema) {
         return React.createElement(form.Form, schema);
     },

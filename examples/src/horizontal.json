@@ -1,0 +1,82 @@
+{
+  "type": "view",
+  "content": [
+    {
+      "type": "panel",
+      "heading": "Contact Form",
+      "body": {
+        "type": "form",
+        "className": "form-horizontal",
+        "controls": [
+          {
+            "type": "horizontal-text",
+            "name": "name.first",
+            "@model":"this",
+            "labelValue": "First Name",
+            "defaultValue": "Lasana"
+          },
+          {
+            "type": "horizontal-text",
+            "name": "name.last",
+            "@model":"this",
+            "labelValue": "Last Name",
+            "defaultValue": "Murray"
+          },
+          {
+            "type": "horizontal-input",
+            "nativeType": "date",
+            "name": "proposedMeetingDate",
+            "@model":"this",
+            "labelValue": "When can we talk?",
+            "className": "col-md-4"
+          },
+          {
+            "type": "horizontal-radio",
+            "name": "gender",
+            "@model":"this",
+            "labelValue": "Gender",
+            "options": [
+              {
+                "label": "Male",
+                "value": "M"
+              },
+              {
+                "label": "Female",
+                "value": "F"
+              }
+            ]
+          },
+          {
+            "type": "horizontal-select",
+            "name": "service",
+            "@model":"this",
+            "labelValue": "What service are you interested in?",
+            "defaultValue": "E-Commerce",
+            "options": [
+              {
+                "label": "Software Development",
+                "value": "Software Development"
+              },
+              {
+                "label": "IT Return On Investment Analysis",
+                "value": "ROI Analysis"
+              },
+              {
+                "label": "E-Commerce",
+                "value": "E-Commerce"
+              }
+            ]
+          },
+          {
+            "type": "horizontal-textarea",
+            "name": "area",
+            "@model":"this",
+            "labelValue": "About You",
+            "rows": 6
+          }
+        ]
+      }
+    }
+  ]
+}
+

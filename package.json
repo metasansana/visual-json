@@ -1,7 +1,7 @@
 {
-  "name": "powerforms",
+  "name": "visual-json",
   "version": "0.0.1",
-  "description": "React powered forms generated from json.",
+  "description": "Library for creating user interfaces from json files.",
   "main": "build/index.js",
   "author": {
     "name": "Lasana Murray",

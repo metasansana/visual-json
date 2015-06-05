@@ -6,29 +6,46 @@ Object.defineProperty(exports, '__esModule', {
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-var _Context = require('./Context');
+var _form = require('./form');
 
-var _Context2 = _interopRequireDefault(_Context);
+var _form2 = _interopRequireDefault(_form);
 
-var _Types = require('./Types');
+var _view = require('./view');
 
-var _Types2 = _interopRequireDefault(_Types);
+var _view2 = _interopRequireDefault(_view);
 
-var _Filters = require('./Filters');
+var _state = require('./state');
 
-var _Filters2 = _interopRequireDefault(_Filters);
+var _state2 = _interopRequireDefault(_state);
+
+var _types = require('./types');
+
+var _types2 = _interopRequireDefault(_types);
+
+var _filters = require('./filters');
+
+var _filters2 = _interopRequireDefault(_filters);
+
+var _Compiler = require('./Compiler');
+
+var _Compiler2 = _interopRequireDefault(_Compiler);
+
+var _Parser = require('./Parser');
+
+var _Parser2 = _interopRequireDefault(_Parser);
+
+var _Realm = require('./Realm');
+
+var _Realm2 = _interopRequireDefault(_Realm);
 
 exports['default'] = {
-
-    getDefaultContext: function getDefaultContext() {
-
-        var ctx = new _Context2['default']();
-
-        return ctx.addFilters(_Filters2['default']).addHandlers({}).addTypes(_Types2['default']);
-    },
-    getContext: function getContext() {
-
-        return new _Context2['default']();
-    }
+    Compiler: _Compiler2['default'],
+    Parser: _Parser2['default'],
+    Realm: _Realm2['default'],
+    form: _form2['default'],
+    state: _state2['default'],
+    view: _view2['default'],
+    types: _types2['default'],
+    filters: _filters2['default']
 };
 module.exports = exports['default'];

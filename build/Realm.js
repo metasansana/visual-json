@@ -22,73 +22,71 @@ var _Compiler = require('./Compiler');
 
 var _Compiler2 = _interopRequireDefault(_Compiler);
 
+var _types = require('./types');
+
+var _types2 = _interopRequireDefault(_types);
+
+var _filters = require('./filters');
+
+var _filters2 = _interopRequireDefault(_filters);
+
 /**
- * Context
+ * Realm
  */
 
-var Context = (function () {
-    function Context() {
-        _classCallCheck(this, Context);
+var Realm = (function () {
+    function Realm(types, filters) {
+        _classCallCheck(this, Realm);
 
-        this.filters = {};
-        this.handlers = {};
-        this.types = {};
+        this.types = types || {};
+        this.filters = filters || {};
     }
 
-    _createClass(Context, [{
+    _createClass(Realm, [{
         key: 'addFilters',
 
         /**
          *
          * @param {Object} filters
-         * @returns {Context}
+         * @returns {Realm}
          */
         value: function addFilters(filters) {
             this.filters = (0, _merge2['default'])(this.filters, filters);
             return this;
         }
     }, {
-        key: 'addHandlers',
-
-        /**
-         *
-         * @param {Object}handlers
-         * @returns {Context}
-         */
-        value: function addHandlers(handlers) {
-            this.handlers = (0, _merge2['default'])(this.handlers, handlers);
-            return this;
-        }
-    }, {
         key: 'addTypes',
 
         /**
-         *
-         * @param {Object} types
-         * @returns {Context}
-         */
+        *
+        * @param {Object} types
+        * @returns {Realm}
+        */
         value: function addTypes(types) {
             this.types = (0, _merge2['default'])(this.types, types);
             return this;
         }
     }, {
-        key: 'generate',
+        key: 'getParser',
 
         /**
          *
          * @param {Object} json
          * @param {Object} ctx
-         * @returns {React.Element}
+         * @returns {Parser}
          */
-        value: function generate(json, ctx) {
+        value: function getParser(ctx) {
 
-            var parser = new _Parser2['default'](new _Compiler2['default'](this.types, this.filters), ctx);
-            return parser.parse(json);
+            return new _Parser2['default'](new _Compiler2['default'](this.types, this.filters), ctx);
         }
     }]);
 
-    return Context;
+    return Realm;
 })();
 
-exports['default'] = Context;
+Realm.getDefaultRealm = function () {
+    return new Realm(_types2['default'], _filters2['default']);
+};
+
+exports['default'] = Realm;
 module.exports = exports['default'];

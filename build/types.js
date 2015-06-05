@@ -51,6 +51,12 @@ exports['default'] = {
     input: function input(schema, deafults, processor) {
         return _react2['default'].createElement(_form3['default'].Input, schema);
     },
+    'horizontal-input': function horizontalInput(schema) {
+        return _react2['default'].createElement(_form3['default'].HorizontalInput, schema);
+    },
+    'vertical-input': function verticalInput(schema) {
+        return _react2['default'].createElement(_form3['default'].VerticalInput, schema);
+    },
     form: function form(schema) {
         return _react2['default'].createElement(_form3['default'].Form, schema);
     },

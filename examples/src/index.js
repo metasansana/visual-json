@@ -1,9 +1,11 @@
 import React from 'react';
-import lib from '../../src/index';
+import visualJSON from '../../src/index';
 import form from './form.json';
 import horizontal from './horizontal.json';
+import vertical from './vertical.json';
 
-var ctx = lib.getDefaultContext();
+var realm = visualJSON.Realm.getDefaultRealm();
+
 var context = {
     "area":"Is what this is about.",
     set: function (k,v){
@@ -18,5 +20,6 @@ var context = {
 
 };
 
-React.render(ctx.generate(form, context), document.getElementById('form'));
-//React.render(ctx.generate(horizontal, context), document.getElementById('horizontal'));
+React.render(realm.getParser(context).parse(form), document.getElementById('form'));
+React.render(realm.getParser(context).parse(horizontal), document.getElementById('horizontal'));
+React.render(realm.getParser(context).parse(vertical), document.getElementById('vertical'));
