@@ -51,8 +51,6 @@ class Parser {
                     delete schema[key];
                 }
 
-
-
             }
         }
 
@@ -76,6 +74,10 @@ class Parser {
     template(value, context) {
         context = context || this.context;
         return strtpl(value, context);
+    }
+
+    filter(){
+        return this.compiler.filter.apply(this.compiler, arguments);
     }
 
     /**

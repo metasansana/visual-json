@@ -100,6 +100,11 @@ var Parser = (function () {
             return (0, _strtpl2['default'])(value, context);
         }
     }, {
+        key: 'filter',
+        value: function filter() {
+            return this.compiler.filter.apply(this.compiler, arguments);
+        }
+    }, {
         key: 'cloneProps',
 
         /**

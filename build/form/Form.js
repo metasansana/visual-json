@@ -38,6 +38,7 @@ var Form = (function (_React$Component) {
     _createClass(Form, [{
         key: 'submit',
         value: function submit(e) {
+            console.log('a form is being sumbitted ');
             if (this.props.noSubmit) return e.preventDefault();
             if (this.props.onSubmit) {
                 e.preventDefault();

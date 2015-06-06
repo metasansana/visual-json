@@ -19,7 +19,12 @@ class Switch extends React.Component {
         if(!views.hasOwnProperty(state))
         throw new Error('Unknown view state '+state+'!');
 
-        return this.props.$parser.parse(views[state]);
+        var ret = this.props.$parser.parse(views[state]);
+
+        if(Array.isArray(ret))
+        ret = React.createElement('span',null, ret);
+
+        return ret;
 
     }
 
