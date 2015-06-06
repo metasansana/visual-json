@@ -120,6 +120,9 @@ exports['default'] = {
     'if': function _if(schema) {
         return _react2['default'].createElement(_view3['default'].If, schema);
     },
+    section: function section(schema) {
+        return _react2['default'].createElement(_view3['default'].Section, schema);
+    },
     location: function location(schema) {
         return _react2['default'].createElement(_state2['default'].Location, schema);
     },
