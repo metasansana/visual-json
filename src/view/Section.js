@@ -7,7 +7,7 @@ class Section extends React.Component {
 
     render() {
 
-        return React.createElement('section', this.$parser.cloneProps(this.props),
+        return React.createElement('section', this.props.$parser.cloneProps(this.props),
             this.$parser.parseObjectLike(this.props.content));
 
     }
