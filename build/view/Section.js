@@ -35,7 +35,7 @@ var Section = (function (_React$Component) {
         key: 'render',
         value: function render() {
 
-            return _react2['default'].createElement('section', this.props.$parser.cloneProps(this.props), this.$parser.parseObjectLike(this.props.content));
+            return _react2['default'].createElement('section', this.props.$parser.cloneProps(this.props), this.props.$parser.parseObjectLike(this.props.content));
         }
     }]);
 
