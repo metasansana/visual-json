@@ -99,6 +99,9 @@ export default {
     if: function(schema){
         return React.createElement(view.If, schema);
     },
+    section: function(schema) {
+      return React.createElement(view.Section, schema);
+    },
     location: function(schema) {
         return React.createElement(state.Location, schema);
     },
