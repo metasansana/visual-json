@@ -18,9 +18,9 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
-var _dotComponent = require('dot-component');
+var _dotAccess = require('dot-access');
 
-var _dotComponent2 = _interopRequireDefault(_dotComponent);
+var _dotAccess2 = _interopRequireDefault(_dotAccess);
 
 var compareDate = function compareDate(name) {
 
@@ -35,8 +35,8 @@ var compare = function compare(name) {
 
     return function (a, b) {
 
-        var aval = _dotComponent2['default'].get(a, name);
-        var bval = _dotComponent2['default'].get(b, name);
+        var aval = _dotAccess2['default'].get(a, name);
+        var bval = _dotAccess2['default'].get(b, name);
 
         if (typeof aval === 'string') aval = aval.replace(/\s+/, '').toLowerCase();
 
@@ -56,7 +56,7 @@ var Table = (function (_React$Component) {
 
         _get(Object.getPrototypeOf(Table.prototype), 'constructor', this).call(this, props);
 
-        this.state = {
+        var state = {
             view: '',
             data: this.props.data ? this.props.data : [],
             columns: this.props.columns ? this.props.columns : [],
@@ -64,6 +64,13 @@ var Table = (function (_React$Component) {
             lastSorted: '',
             arrow: ''
         };
+
+        state.columns = state.columns.filter(function (col) {
+
+            if (!col.hidden) return true;
+        });
+
+        this.state = state;
     }
 
     _inherits(Table, _React$Component);
@@ -117,7 +124,7 @@ var Table = (function (_React$Component) {
                         data = datum.$index || i;
                     } else {
 
-                        data = _dotComponent2['default'].get(datum, column.name);
+                        data = _dotAccess2['default'].get(datum, column.name);
 
                         if (!data) data = null;
                     }

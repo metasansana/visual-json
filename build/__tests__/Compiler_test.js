@@ -12,19 +12,20 @@ var _reactAddons2 = _interopRequireDefault(_reactAddons);
 
 var compiler;
 var ctx;
+var types;
 
 describe('Compiler', function () {
 
     beforeEach(function () {
 
-        compiler = new _Compiler2['default']({
+        types = {
             form: function form(schema) {
                 return _reactAddons2['default'].createElement('form', {}, schema.controls);
             },
             input: function input(schema) {
                 return _reactAddons2['default'].createElement('div', {}, _reactAddons2['default'].createElement('input', schema));
-            }
-        });
+            } };
+
         ctx = {
             aProp: 26,
             aParseProp: 48,
@@ -36,9 +37,21 @@ describe('Compiler', function () {
                 return value;
             }
         };
+
+        compiler = new _Compiler2['default'](types);
     });
 
-    describe('Compiler.swapSymbol', function () {
+    describe('Compiler.importFromCache()', function () {
+
+        it('should work', function () {
+
+            compiler = new _Compiler2['default'](types, {}, { target: { 'name': 'Joe Ens' } });
+
+            expect(compiler['import']('!import', { '!import': 'target' })).toEqual({ 'import': { name: 'Joe Ens' } });
+        });
+    });
+
+    xdescribe('Compiler.swapSymbol', function () {
 
         it('should work', function () {
 
@@ -48,7 +61,7 @@ describe('Compiler', function () {
         });
     });
 
-    describe('Compiler.swapSymbolAndParse', function () {
+    xdescribe('Compiler.swapSymbolAndParse', function () {
 
         it('should call the passed parse function', function () {
 
@@ -66,7 +79,7 @@ describe('Compiler', function () {
         });
     });
 
-    describe('Compiler.callAndSwapSymbol', function () {
+    xdescribe('Compiler.callAndSwapSymbol', function () {
 
         it('should work', function () {
 
@@ -83,7 +96,7 @@ describe('Compiler', function () {
         });
     });
 
-    describe('Compiler.filter()', function () {
+    xdescribe('Compiler.filter()', function () {
 
         xit('it should call all filters', function () {
 
@@ -92,7 +105,7 @@ describe('Compiler', function () {
         });
     });
 
-    describe('Compiler.compile()', function () {
+    xdescribe('Compiler.compile()', function () {
 
         it('should not mess up the component', function () {
 

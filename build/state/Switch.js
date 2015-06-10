@@ -38,7 +38,7 @@ var Switch = (function (_React$Component) {
         value: function render() {
 
             var views = this.props.views;
-            var state = this.props.currentView || this.props.defaultView;
+            var state = this.props.currentView || this.props.defaultView || Object.keys(this.props.views)[0];
 
             if (!views.hasOwnProperty(state)) throw new Error('Unknown view state ' + state + '!');
 

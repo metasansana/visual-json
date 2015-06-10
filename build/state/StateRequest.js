@@ -22,9 +22,9 @@ var _jhr = require('jhr');
 
 var _jhr2 = _interopRequireDefault(_jhr);
 
-var _dotComponent = require('dot-component');
+var _dotAccess = require('dot-access');
 
-var _dotComponent2 = _interopRequireDefault(_dotComponent);
+var _dotAccess2 = _interopRequireDefault(_dotAccess);
 
 var http = _jhr2['default'].createAgent();
 
@@ -121,7 +121,8 @@ StateRequest.propTypes = {
   onSuccess: _react2['default'].PropTypes.func,
   stateKey: _react2['default'].PropTypes.string,
   errorState: _react2['default'].PropTypes.string,
-  successState: _react2['default'].PropTypes.string
+  successState: _react2['default'].PropTypes.string,
+  content: _react2['default'].PropTypes.object
 };
 
 exports['default'] = StateRequest;

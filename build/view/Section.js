@@ -35,7 +35,15 @@ var Section = (function (_React$Component) {
         key: 'render',
         value: function render() {
 
-            return _react2['default'].createElement('section', this.props.$parser.cloneProps(this.props), this.props.$parser.parse(this.props.content));
+            var content = Array.isArray(this.props.content) ? this.props.content : [this.props.content];
+            var secProps = this.props.$parser.cloneProps(this.props, Section.propTypes);
+            secProps.className = 'container-fluid';
+
+            content = content.map((function (schema, key) {
+                return _react2['default'].createElement('div', { className: 'row-fluid', key: key }, this.props.$parser.parse(schema));
+            }).bind(this));
+
+            return _react2['default'].createElement('section', secProps, content);
         }
     }]);
 
@@ -44,7 +52,7 @@ var Section = (function (_React$Component) {
 
 Section.propTypes = {
     $parser: _react2['default'].PropTypes.object.isRequired,
-    content: _react2['default'].PropTypes.oneOf([_react2['default'].PropTypes.arrayOf(_react2['default'].PropTypes.object), _react2['default'].PropTypes.object])
+    content: _react2['default'].PropTypes.oneOfType([_react2['default'].PropTypes.array, _react2['default'].PropTypes.object])
 };
 
 exports['default'] = Section;

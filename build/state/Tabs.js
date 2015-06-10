@@ -43,6 +43,9 @@ var Tabs = (function (_React$Component) {
         var aProps = {};
         var keyForActive = tab.activeKey || tab.tabKey;
         var currentTab = this.props.currentTab || this.props.defaultTab;
+        var parent = this.props.parent || this.props.$context;
+
+        if (tab.hasOwnProperty('hidden')) if (tab.hidden === true) return null;
 
         if (currentTab === keyForActive) props.className = 'active';
 
@@ -53,7 +56,7 @@ var Tabs = (function (_React$Component) {
         aProps.onClick = (function (tabKey) {
           var state = {};
           state[this.props.stateKey] = tabKey;
-          this.props.parent.setState(state);
+          parent.setState(state);
         }).bind(this, tab.tabKey);
 
         return _react2['default'].createElement('li', props, _react2['default'].createElement('a', aProps, tab.label));
@@ -70,7 +73,8 @@ var Tabs = (function (_React$Component) {
 })(_react2['default'].Component);
 
 Tabs.propTypes = {
-  parent: _react2['default'].PropTypes.object.isRequired,
+  parent: _react2['default'].PropTypes.object,
+  $context: _react2['default'].PropTypes.object.isRequired,
   stateKey: _react2['default'].PropTypes.string.isRequired,
   currentTab: _react2['default'].PropTypes.string,
   defaultTab: _react2['default'].PropTypes.string,

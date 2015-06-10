@@ -7,8 +7,16 @@ class Section extends React.Component {
 
     render() {
 
-        return React.createElement('section', this.props.$parser.cloneProps(this.props),
-            this.props.$parser.parse(this.props.content));
+        var content =(Array.isArray(this.props.content))? this.props.content: [this.props.content];
+        var secProps = this.props.$parser.cloneProps(this.props, Section.propTypes);
+        secProps.className ='container-fluid';
+
+        content = content.map(function(schema, key) {
+            return React.createElement('div', {className:'row-fluid', key:key},this.props.$parser.parse(schema));
+        }.bind(this));
+
+
+        return React.createElement('section', secProps, content);
 
     }
 
@@ -16,7 +24,7 @@ class Section extends React.Component {
 
 Section.propTypes = {
     $parser: React.PropTypes.object.isRequired,
-    content: React.PropTypes.oneOf([React.PropTypes.arrayOf(React.PropTypes.object), React.PropTypes.object])
+    content: React.PropTypes.oneOfType([React.PropTypes.array, React.PropTypes.object])
 }
 
 export default Section;

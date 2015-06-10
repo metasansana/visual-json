@@ -421,119 +421,786 @@ module.exports={
 
 
 },{}],5:[function(require,module,exports){
-
-/**
- * Module dependencies.
- */
-
-var type = require('type-component');
-
-/**
- * Gets a certain `path` from the `obj`.
- *
- * @param {Object} target
- * @param {String} key
- * @return {Object} found object, or `undefined
- * @api public
- */
-
-exports.get = function(obj, path){
-  if (~path.indexOf('.')) {
-    var par = parent(obj, path);
-    var mainKey = path.split('.').pop();
-    var t = type(par);
-    if ('object' == t || 'array' == t) return par[mainKey];
-  } else {
+exports.get = function (obj, path) {
+  try {
+    return new Function('_', 'return _.' + path)(obj);
+  } catch (e) {
     return obj[path];
   }
 };
 
-/**
- * Sets the given `path` to `val` in `obj`.
+exports.set = function (obj, path, value) {
+  var segs = path.split('.');
+  segs.reduce(function set(deep, seg, i) {
+    return deep[seg] = segs.length - 1 === i
+      ? deep[seg] = value
+      : deep[seg] || {};
+  }, obj);
+
+  return obj;
+};
+},{}],6:[function(require,module,exports){
+
+/**!
+ * is
+ * the definitive JavaScript type testing library
  *
- * @param {Object} target
- * @Param {String} key
- * @param {Object} value
+ * @copyright 2013-2014 Enrico Marino / Jordan Harband
+ * @license MIT
+ */
+
+var objProto = Object.prototype;
+var owns = objProto.hasOwnProperty;
+var toStr = objProto.toString;
+var symbolValueOf;
+if (typeof Symbol === 'function') {
+  symbolValueOf = Symbol.prototype.valueOf;
+}
+var isActualNaN = function (value) {
+  return value !== value;
+};
+var NON_HOST_TYPES = {
+  boolean: 1,
+  number: 1,
+  string: 1,
+  undefined: 1
+};
+
+var base64Regex = /^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{4}|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)$/;
+var hexRegex = /^[A-Fa-f0-9]+$/;
+
+/**
+ * Expose `is`
+ */
+
+var is = module.exports = {};
+
+/**
+ * Test general.
+ */
+
+/**
+ * is.type
+ * Test if `value` is a type of `type`.
+ *
+ * @param {Mixed} value value to test
+ * @param {String} type type
+ * @return {Boolean} true if `value` is a type of `type`, false otherwise
  * @api public
  */
 
-exports.set = function(obj, path, val){
-  if (~path.indexOf('.')) {
-    var par = parent(obj, path, true);
-    var mainKey = path.split('.').pop();
-    if (par && 'object' == type(par)) par[mainKey] = val;
-  } else {
-    obj[path] = val;
-  }
+is.a = is.type = function (value, type) {
+  return typeof value === type;
 };
 
 /**
- * Gets the parent object for a given key (dot notation aware).
+ * is.defined
+ * Test if `value` is defined.
  *
- * - If a parent object doesn't exist, it's initialized.
- * - Array index lookup is supported
- *
- * @param {Object} target object
- * @param {String} key
- * @param {Boolean} true if it should initialize the path
+ * @param {Mixed} value value to test
+ * @return {Boolean} true if 'value' is defined, false otherwise
  * @api public
  */
 
-exports.parent = parent;
+is.defined = function (value) {
+  return typeof value !== 'undefined';
+};
 
-function parent(obj, key, init){
-  if (~key.indexOf('.')) {
-    var pieces = key.split('.');
-    var ret = obj;
+/**
+ * is.empty
+ * Test if `value` is empty.
+ *
+ * @param {Mixed} value value to test
+ * @return {Boolean} true if `value` is empty, false otherwise
+ * @api public
+ */
 
-    for (var i = 0; i < pieces.length - 1; i++) {
-      // if the key is a number string and parent is an array
-      if (Number(pieces[i]) == pieces[i] && 'array' == type(ret)) {
-        ret = ret[pieces[i]];
-      } else if ('object' == type(ret)) {
-        if (init && !ret.hasOwnProperty(pieces[i])) {
-          ret[pieces[i]] = {};
-        }
-        if (ret) ret = ret[pieces[i]];
+is.empty = function (value) {
+  var type = toStr.call(value);
+  var key;
+
+  if ('[object Array]' === type || '[object Arguments]' === type || '[object String]' === type) {
+    return value.length === 0;
+  }
+
+  if ('[object Object]' === type) {
+    for (key in value) {
+      if (owns.call(value, key)) { return false; }
+    }
+    return true;
+  }
+
+  return !value;
+};
+
+/**
+ * is.equal
+ * Test if `value` is equal to `other`.
+ *
+ * @param {Mixed} value value to test
+ * @param {Mixed} other value to compare with
+ * @return {Boolean} true if `value` is equal to `other`, false otherwise
+ */
+
+is.equal = function (value, other) {
+  var strictlyEqual = value === other;
+  if (strictlyEqual) {
+    return true;
+  }
+
+  var type = toStr.call(value);
+  var key;
+
+  if (type !== toStr.call(other)) {
+    return false;
+  }
+
+  if ('[object Object]' === type) {
+    for (key in value) {
+      if (!is.equal(value[key], other[key]) || !(key in other)) {
+        return false;
       }
     }
-
-    return ret;
-  } else {
-    return obj;
+    for (key in other) {
+      if (!is.equal(value[key], other[key]) || !(key in value)) {
+        return false;
+      }
+    }
+    return true;
   }
-}
 
-},{"type-component":6}],6:[function(require,module,exports){
+  if ('[object Array]' === type) {
+    key = value.length;
+    if (key !== other.length) {
+      return false;
+    }
+    while (--key) {
+      if (!is.equal(value[key], other[key])) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  if ('[object Function]' === type) {
+    return value.prototype === other.prototype;
+  }
+
+  if ('[object Date]' === type) {
+    return value.getTime() === other.getTime();
+  }
+
+  return strictlyEqual;
+};
 
 /**
- * toString ref.
- */
-
-var toString = Object.prototype.toString;
-
-/**
- * Return the type of `val`.
+ * is.hosted
+ * Test if `value` is hosted by `host`.
  *
- * @param {Mixed} val
- * @return {String}
+ * @param {Mixed} value to test
+ * @param {Mixed} host host to test with
+ * @return {Boolean} true if `value` is hosted by `host`, false otherwise
  * @api public
  */
 
-module.exports = function(val){
-  switch (toString.call(val)) {
-    case '[object Function]': return 'function';
-    case '[object Date]': return 'date';
-    case '[object RegExp]': return 'regexp';
-    case '[object Arguments]': return 'arguments';
-    case '[object Array]': return 'array';
+is.hosted = function (value, host) {
+  var type = typeof host[value];
+  return type === 'object' ? !!host[value] : !NON_HOST_TYPES[type];
+};
+
+/**
+ * is.instance
+ * Test if `value` is an instance of `constructor`.
+ *
+ * @param {Mixed} value value to test
+ * @return {Boolean} true if `value` is an instance of `constructor`
+ * @api public
+ */
+
+is.instance = is['instanceof'] = function (value, constructor) {
+  return value instanceof constructor;
+};
+
+/**
+ * is.nil / is.null
+ * Test if `value` is null.
+ *
+ * @param {Mixed} value value to test
+ * @return {Boolean} true if `value` is null, false otherwise
+ * @api public
+ */
+
+is.nil = is['null'] = function (value) {
+  return value === null;
+};
+
+/**
+ * is.undef / is.undefined
+ * Test if `value` is undefined.
+ *
+ * @param {Mixed} value value to test
+ * @return {Boolean} true if `value` is undefined, false otherwise
+ * @api public
+ */
+
+is.undef = is.undefined = function (value) {
+  return typeof value === 'undefined';
+};
+
+/**
+ * Test arguments.
+ */
+
+/**
+ * is.args
+ * Test if `value` is an arguments object.
+ *
+ * @param {Mixed} value value to test
+ * @return {Boolean} true if `value` is an arguments object, false otherwise
+ * @api public
+ */
+
+is.args = is.arguments = function (value) {
+  var isStandardArguments = '[object Arguments]' === toStr.call(value);
+  var isOldArguments = !is.array(value) && is.arraylike(value) && is.object(value) && is.fn(value.callee);
+  return isStandardArguments || isOldArguments;
+};
+
+/**
+ * Test array.
+ */
+
+/**
+ * is.array
+ * Test if 'value' is an array.
+ *
+ * @param {Mixed} value value to test
+ * @return {Boolean} true if `value` is an array, false otherwise
+ * @api public
+ */
+
+is.array = function (value) {
+  return '[object Array]' === toStr.call(value);
+};
+
+/**
+ * is.arguments.empty
+ * Test if `value` is an empty arguments object.
+ *
+ * @param {Mixed} value value to test
+ * @return {Boolean} true if `value` is an empty arguments object, false otherwise
+ * @api public
+ */
+is.args.empty = function (value) {
+  return is.args(value) && value.length === 0;
+};
+
+/**
+ * is.array.empty
+ * Test if `value` is an empty array.
+ *
+ * @param {Mixed} value value to test
+ * @return {Boolean} true if `value` is an empty array, false otherwise
+ * @api public
+ */
+is.array.empty = function (value) {
+  return is.array(value) && value.length === 0;
+};
+
+/**
+ * is.arraylike
+ * Test if `value` is an arraylike object.
+ *
+ * @param {Mixed} value value to test
+ * @return {Boolean} true if `value` is an arguments object, false otherwise
+ * @api public
+ */
+
+is.arraylike = function (value) {
+  return !!value && !is.boolean(value)
+    && owns.call(value, 'length')
+    && isFinite(value.length)
+    && is.number(value.length)
+    && value.length >= 0;
+};
+
+/**
+ * Test boolean.
+ */
+
+/**
+ * is.boolean
+ * Test if `value` is a boolean.
+ *
+ * @param {Mixed} value value to test
+ * @return {Boolean} true if `value` is a boolean, false otherwise
+ * @api public
+ */
+
+is.boolean = function (value) {
+  return '[object Boolean]' === toStr.call(value);
+};
+
+/**
+ * is.false
+ * Test if `value` is false.
+ *
+ * @param {Mixed} value value to test
+ * @return {Boolean} true if `value` is false, false otherwise
+ * @api public
+ */
+
+is['false'] = function (value) {
+  return is.boolean(value) && Boolean(Number(value)) === false;
+};
+
+/**
+ * is.true
+ * Test if `value` is true.
+ *
+ * @param {Mixed} value value to test
+ * @return {Boolean} true if `value` is true, false otherwise
+ * @api public
+ */
+
+is['true'] = function (value) {
+  return is.boolean(value) && Boolean(Number(value)) === true;
+};
+
+/**
+ * Test date.
+ */
+
+/**
+ * is.date
+ * Test if `value` is a date.
+ *
+ * @param {Mixed} value value to test
+ * @return {Boolean} true if `value` is a date, false otherwise
+ * @api public
+ */
+
+is.date = function (value) {
+  return '[object Date]' === toStr.call(value);
+};
+
+/**
+ * Test element.
+ */
+
+/**
+ * is.element
+ * Test if `value` is an html element.
+ *
+ * @param {Mixed} value value to test
+ * @return {Boolean} true if `value` is an HTML Element, false otherwise
+ * @api public
+ */
+
+is.element = function (value) {
+  return value !== undefined
+    && typeof HTMLElement !== 'undefined'
+    && value instanceof HTMLElement
+    && value.nodeType === 1;
+};
+
+/**
+ * Test error.
+ */
+
+/**
+ * is.error
+ * Test if `value` is an error object.
+ *
+ * @param {Mixed} value value to test
+ * @return {Boolean} true if `value` is an error object, false otherwise
+ * @api public
+ */
+
+is.error = function (value) {
+  return '[object Error]' === toStr.call(value);
+};
+
+/**
+ * Test function.
+ */
+
+/**
+ * is.fn / is.function (deprecated)
+ * Test if `value` is a function.
+ *
+ * @param {Mixed} value value to test
+ * @return {Boolean} true if `value` is a function, false otherwise
+ * @api public
+ */
+
+is.fn = is['function'] = function (value) {
+  var isAlert = typeof window !== 'undefined' && value === window.alert;
+  return isAlert || '[object Function]' === toStr.call(value);
+};
+
+/**
+ * Test number.
+ */
+
+/**
+ * is.number
+ * Test if `value` is a number.
+ *
+ * @param {Mixed} value value to test
+ * @return {Boolean} true if `value` is a number, false otherwise
+ * @api public
+ */
+
+is.number = function (value) {
+  return '[object Number]' === toStr.call(value);
+};
+
+/**
+ * is.infinite
+ * Test if `value` is positive or negative infinity.
+ *
+ * @param {Mixed} value value to test
+ * @return {Boolean} true if `value` is positive or negative Infinity, false otherwise
+ * @api public
+ */
+is.infinite = function (value) {
+  return value === Infinity || value === -Infinity;
+};
+
+/**
+ * is.decimal
+ * Test if `value` is a decimal number.
+ *
+ * @param {Mixed} value value to test
+ * @return {Boolean} true if `value` is a decimal number, false otherwise
+ * @api public
+ */
+
+is.decimal = function (value) {
+  return is.number(value) && !isActualNaN(value) && !is.infinite(value) && value % 1 !== 0;
+};
+
+/**
+ * is.divisibleBy
+ * Test if `value` is divisible by `n`.
+ *
+ * @param {Number} value value to test
+ * @param {Number} n dividend
+ * @return {Boolean} true if `value` is divisible by `n`, false otherwise
+ * @api public
+ */
+
+is.divisibleBy = function (value, n) {
+  var isDividendInfinite = is.infinite(value);
+  var isDivisorInfinite = is.infinite(n);
+  var isNonZeroNumber = is.number(value) && !isActualNaN(value) && is.number(n) && !isActualNaN(n) && n !== 0;
+  return isDividendInfinite || isDivisorInfinite || (isNonZeroNumber && value % n === 0);
+};
+
+/**
+ * is.int
+ * Test if `value` is an integer.
+ *
+ * @param value to test
+ * @return {Boolean} true if `value` is an integer, false otherwise
+ * @api public
+ */
+
+is.int = function (value) {
+  return is.number(value) && !isActualNaN(value) && value % 1 === 0;
+};
+
+/**
+ * is.maximum
+ * Test if `value` is greater than 'others' values.
+ *
+ * @param {Number} value value to test
+ * @param {Array} others values to compare with
+ * @return {Boolean} true if `value` is greater than `others` values
+ * @api public
+ */
+
+is.maximum = function (value, others) {
+  if (isActualNaN(value)) {
+    throw new TypeError('NaN is not a valid value');
+  } else if (!is.arraylike(others)) {
+    throw new TypeError('second argument must be array-like');
+  }
+  var len = others.length;
+
+  while (--len >= 0) {
+    if (value < others[len]) {
+      return false;
+    }
   }
 
-  if (val === null) return 'null';
-  if (val === undefined) return 'undefined';
-  if (val === Object(val)) return 'object';
+  return true;
+};
 
-  return typeof val;
+/**
+ * is.minimum
+ * Test if `value` is less than `others` values.
+ *
+ * @param {Number} value value to test
+ * @param {Array} others values to compare with
+ * @return {Boolean} true if `value` is less than `others` values
+ * @api public
+ */
+
+is.minimum = function (value, others) {
+  if (isActualNaN(value)) {
+    throw new TypeError('NaN is not a valid value');
+  } else if (!is.arraylike(others)) {
+    throw new TypeError('second argument must be array-like');
+  }
+  var len = others.length;
+
+  while (--len >= 0) {
+    if (value > others[len]) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
+/**
+ * is.nan
+ * Test if `value` is not a number.
+ *
+ * @param {Mixed} value value to test
+ * @return {Boolean} true if `value` is not a number, false otherwise
+ * @api public
+ */
+
+is.nan = function (value) {
+  return !is.number(value) || value !== value;
+};
+
+/**
+ * is.even
+ * Test if `value` is an even number.
+ *
+ * @param {Number} value value to test
+ * @return {Boolean} true if `value` is an even number, false otherwise
+ * @api public
+ */
+
+is.even = function (value) {
+  return is.infinite(value) || (is.number(value) && value === value && value % 2 === 0);
+};
+
+/**
+ * is.odd
+ * Test if `value` is an odd number.
+ *
+ * @param {Number} value value to test
+ * @return {Boolean} true if `value` is an odd number, false otherwise
+ * @api public
+ */
+
+is.odd = function (value) {
+  return is.infinite(value) || (is.number(value) && value === value && value % 2 !== 0);
+};
+
+/**
+ * is.ge
+ * Test if `value` is greater than or equal to `other`.
+ *
+ * @param {Number} value value to test
+ * @param {Number} other value to compare with
+ * @return {Boolean}
+ * @api public
+ */
+
+is.ge = function (value, other) {
+  if (isActualNaN(value) || isActualNaN(other)) {
+    throw new TypeError('NaN is not a valid value');
+  }
+  return !is.infinite(value) && !is.infinite(other) && value >= other;
+};
+
+/**
+ * is.gt
+ * Test if `value` is greater than `other`.
+ *
+ * @param {Number} value value to test
+ * @param {Number} other value to compare with
+ * @return {Boolean}
+ * @api public
+ */
+
+is.gt = function (value, other) {
+  if (isActualNaN(value) || isActualNaN(other)) {
+    throw new TypeError('NaN is not a valid value');
+  }
+  return !is.infinite(value) && !is.infinite(other) && value > other;
+};
+
+/**
+ * is.le
+ * Test if `value` is less than or equal to `other`.
+ *
+ * @param {Number} value value to test
+ * @param {Number} other value to compare with
+ * @return {Boolean} if 'value' is less than or equal to 'other'
+ * @api public
+ */
+
+is.le = function (value, other) {
+  if (isActualNaN(value) || isActualNaN(other)) {
+    throw new TypeError('NaN is not a valid value');
+  }
+  return !is.infinite(value) && !is.infinite(other) && value <= other;
+};
+
+/**
+ * is.lt
+ * Test if `value` is less than `other`.
+ *
+ * @param {Number} value value to test
+ * @param {Number} other value to compare with
+ * @return {Boolean} if `value` is less than `other`
+ * @api public
+ */
+
+is.lt = function (value, other) {
+  if (isActualNaN(value) || isActualNaN(other)) {
+    throw new TypeError('NaN is not a valid value');
+  }
+  return !is.infinite(value) && !is.infinite(other) && value < other;
+};
+
+/**
+ * is.within
+ * Test if `value` is within `start` and `finish`.
+ *
+ * @param {Number} value value to test
+ * @param {Number} start lower bound
+ * @param {Number} finish upper bound
+ * @return {Boolean} true if 'value' is is within 'start' and 'finish'
+ * @api public
+ */
+is.within = function (value, start, finish) {
+  if (isActualNaN(value) || isActualNaN(start) || isActualNaN(finish)) {
+    throw new TypeError('NaN is not a valid value');
+  } else if (!is.number(value) || !is.number(start) || !is.number(finish)) {
+    throw new TypeError('all arguments must be numbers');
+  }
+  var isAnyInfinite = is.infinite(value) || is.infinite(start) || is.infinite(finish);
+  return isAnyInfinite || (value >= start && value <= finish);
+};
+
+/**
+ * Test object.
+ */
+
+/**
+ * is.object
+ * Test if `value` is an object.
+ *
+ * @param {Mixed} value value to test
+ * @return {Boolean} true if `value` is an object, false otherwise
+ * @api public
+ */
+
+is.object = function (value) {
+  return '[object Object]' === toStr.call(value);
+};
+
+/**
+ * is.hash
+ * Test if `value` is a hash - a plain object literal.
+ *
+ * @param {Mixed} value value to test
+ * @return {Boolean} true if `value` is a hash, false otherwise
+ * @api public
+ */
+
+is.hash = function (value) {
+  return is.object(value) && value.constructor === Object && !value.nodeType && !value.setInterval;
+};
+
+/**
+ * Test regexp.
+ */
+
+/**
+ * is.regexp
+ * Test if `value` is a regular expression.
+ *
+ * @param {Mixed} value value to test
+ * @return {Boolean} true if `value` is a regexp, false otherwise
+ * @api public
+ */
+
+is.regexp = function (value) {
+  return '[object RegExp]' === toStr.call(value);
+};
+
+/**
+ * Test string.
+ */
+
+/**
+ * is.string
+ * Test if `value` is a string.
+ *
+ * @param {Mixed} value value to test
+ * @return {Boolean} true if 'value' is a string, false otherwise
+ * @api public
+ */
+
+is.string = function (value) {
+  return '[object String]' === toStr.call(value);
+};
+
+/**
+ * Test base64 string.
+ */
+
+/**
+ * is.base64
+ * Test if `value` is a valid base64 encoded string.
+ *
+ * @param {Mixed} value value to test
+ * @return {Boolean} true if 'value' is a base64 encoded string, false otherwise
+ * @api public
+ */
+
+is.base64 = function (value) {
+  return is.string(value) && (!value.length || base64Regex.test(value));
+};
+
+/**
+ * Test base64 string.
+ */
+
+/**
+ * is.hex
+ * Test if `value` is a valid hex encoded string.
+ *
+ * @param {Mixed} value value to test
+ * @return {Boolean} true if 'value' is a hex encoded string, false otherwise
+ * @api public
+ */
+
+is.hex = function (value) {
+  return is.string(value) && (!value.length || hexRegex.test(value));
+};
+
+/**
+ * is.symbol
+ * Test if `value` is an ES6 Symbol
+ *
+ * @param {Mixed} value value to test
+ * @return {Boolean} true if `value` is a Symbol, false otherise
+ * @api public
+ */
+
+is.symbol = function (value) {
+  return typeof Symbol === 'function' && toStr.call(value) === '[object Symbol]' && typeof symbolValueOf.call(value) === 'symbol';
 };
 
 },{}],7:[function(require,module,exports){
@@ -5641,7 +6308,7 @@ function isUndefined(arg) {
 },{}]},{},[4])(4)
 });                    ;if (typeof window !== 'undefined' && window !== null) {                               window.P = window.Promise;                                                     } else if (typeof self !== 'undefined' && self !== null) {                             self.P = self.Promise;                                                         }
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":224}],8:[function(require,module,exports){
+},{"_process":225}],8:[function(require,module,exports){
 exports.defaults = {};
 
 exports.set = function(name, value, options) {
@@ -5711,770 +6378,8 @@ exports.erase = function(name, options) {
 };
 
 },{}],9:[function(require,module,exports){
-
-/**!
- * is
- * the definitive JavaScript type testing library
- *
- * @copyright 2013-2014 Enrico Marino / Jordan Harband
- * @license MIT
- */
-
-var objProto = Object.prototype;
-var owns = objProto.hasOwnProperty;
-var toStr = objProto.toString;
-var symbolValueOf;
-if (typeof Symbol === 'function') {
-  symbolValueOf = Symbol.prototype.valueOf;
-}
-var isActualNaN = function (value) {
-  return value !== value;
-};
-var NON_HOST_TYPES = {
-  boolean: 1,
-  number: 1,
-  string: 1,
-  undefined: 1
-};
-
-var base64Regex = /^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{4}|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)$/;
-var hexRegex = /^[A-Fa-f0-9]+$/;
-
-/**
- * Expose `is`
- */
-
-var is = module.exports = {};
-
-/**
- * Test general.
- */
-
-/**
- * is.type
- * Test if `value` is a type of `type`.
- *
- * @param {Mixed} value value to test
- * @param {String} type type
- * @return {Boolean} true if `value` is a type of `type`, false otherwise
- * @api public
- */
-
-is.a = is.type = function (value, type) {
-  return typeof value === type;
-};
-
-/**
- * is.defined
- * Test if `value` is defined.
- *
- * @param {Mixed} value value to test
- * @return {Boolean} true if 'value' is defined, false otherwise
- * @api public
- */
-
-is.defined = function (value) {
-  return typeof value !== 'undefined';
-};
-
-/**
- * is.empty
- * Test if `value` is empty.
- *
- * @param {Mixed} value value to test
- * @return {Boolean} true if `value` is empty, false otherwise
- * @api public
- */
-
-is.empty = function (value) {
-  var type = toStr.call(value);
-  var key;
-
-  if ('[object Array]' === type || '[object Arguments]' === type || '[object String]' === type) {
-    return value.length === 0;
-  }
-
-  if ('[object Object]' === type) {
-    for (key in value) {
-      if (owns.call(value, key)) { return false; }
-    }
-    return true;
-  }
-
-  return !value;
-};
-
-/**
- * is.equal
- * Test if `value` is equal to `other`.
- *
- * @param {Mixed} value value to test
- * @param {Mixed} other value to compare with
- * @return {Boolean} true if `value` is equal to `other`, false otherwise
- */
-
-is.equal = function (value, other) {
-  var strictlyEqual = value === other;
-  if (strictlyEqual) {
-    return true;
-  }
-
-  var type = toStr.call(value);
-  var key;
-
-  if (type !== toStr.call(other)) {
-    return false;
-  }
-
-  if ('[object Object]' === type) {
-    for (key in value) {
-      if (!is.equal(value[key], other[key]) || !(key in other)) {
-        return false;
-      }
-    }
-    for (key in other) {
-      if (!is.equal(value[key], other[key]) || !(key in value)) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  if ('[object Array]' === type) {
-    key = value.length;
-    if (key !== other.length) {
-      return false;
-    }
-    while (--key) {
-      if (!is.equal(value[key], other[key])) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  if ('[object Function]' === type) {
-    return value.prototype === other.prototype;
-  }
-
-  if ('[object Date]' === type) {
-    return value.getTime() === other.getTime();
-  }
-
-  return strictlyEqual;
-};
-
-/**
- * is.hosted
- * Test if `value` is hosted by `host`.
- *
- * @param {Mixed} value to test
- * @param {Mixed} host host to test with
- * @return {Boolean} true if `value` is hosted by `host`, false otherwise
- * @api public
- */
-
-is.hosted = function (value, host) {
-  var type = typeof host[value];
-  return type === 'object' ? !!host[value] : !NON_HOST_TYPES[type];
-};
-
-/**
- * is.instance
- * Test if `value` is an instance of `constructor`.
- *
- * @param {Mixed} value value to test
- * @return {Boolean} true if `value` is an instance of `constructor`
- * @api public
- */
-
-is.instance = is['instanceof'] = function (value, constructor) {
-  return value instanceof constructor;
-};
-
-/**
- * is.nil / is.null
- * Test if `value` is null.
- *
- * @param {Mixed} value value to test
- * @return {Boolean} true if `value` is null, false otherwise
- * @api public
- */
-
-is.nil = is['null'] = function (value) {
-  return value === null;
-};
-
-/**
- * is.undef / is.undefined
- * Test if `value` is undefined.
- *
- * @param {Mixed} value value to test
- * @return {Boolean} true if `value` is undefined, false otherwise
- * @api public
- */
-
-is.undef = is.undefined = function (value) {
-  return typeof value === 'undefined';
-};
-
-/**
- * Test arguments.
- */
-
-/**
- * is.args
- * Test if `value` is an arguments object.
- *
- * @param {Mixed} value value to test
- * @return {Boolean} true if `value` is an arguments object, false otherwise
- * @api public
- */
-
-is.args = is.arguments = function (value) {
-  var isStandardArguments = '[object Arguments]' === toStr.call(value);
-  var isOldArguments = !is.array(value) && is.arraylike(value) && is.object(value) && is.fn(value.callee);
-  return isStandardArguments || isOldArguments;
-};
-
-/**
- * Test array.
- */
-
-/**
- * is.array
- * Test if 'value' is an array.
- *
- * @param {Mixed} value value to test
- * @return {Boolean} true if `value` is an array, false otherwise
- * @api public
- */
-
-is.array = function (value) {
-  return '[object Array]' === toStr.call(value);
-};
-
-/**
- * is.arguments.empty
- * Test if `value` is an empty arguments object.
- *
- * @param {Mixed} value value to test
- * @return {Boolean} true if `value` is an empty arguments object, false otherwise
- * @api public
- */
-is.args.empty = function (value) {
-  return is.args(value) && value.length === 0;
-};
-
-/**
- * is.array.empty
- * Test if `value` is an empty array.
- *
- * @param {Mixed} value value to test
- * @return {Boolean} true if `value` is an empty array, false otherwise
- * @api public
- */
-is.array.empty = function (value) {
-  return is.array(value) && value.length === 0;
-};
-
-/**
- * is.arraylike
- * Test if `value` is an arraylike object.
- *
- * @param {Mixed} value value to test
- * @return {Boolean} true if `value` is an arguments object, false otherwise
- * @api public
- */
-
-is.arraylike = function (value) {
-  return !!value && !is.boolean(value)
-    && owns.call(value, 'length')
-    && isFinite(value.length)
-    && is.number(value.length)
-    && value.length >= 0;
-};
-
-/**
- * Test boolean.
- */
-
-/**
- * is.boolean
- * Test if `value` is a boolean.
- *
- * @param {Mixed} value value to test
- * @return {Boolean} true if `value` is a boolean, false otherwise
- * @api public
- */
-
-is.boolean = function (value) {
-  return '[object Boolean]' === toStr.call(value);
-};
-
-/**
- * is.false
- * Test if `value` is false.
- *
- * @param {Mixed} value value to test
- * @return {Boolean} true if `value` is false, false otherwise
- * @api public
- */
-
-is['false'] = function (value) {
-  return is.boolean(value) && Boolean(Number(value)) === false;
-};
-
-/**
- * is.true
- * Test if `value` is true.
- *
- * @param {Mixed} value value to test
- * @return {Boolean} true if `value` is true, false otherwise
- * @api public
- */
-
-is['true'] = function (value) {
-  return is.boolean(value) && Boolean(Number(value)) === true;
-};
-
-/**
- * Test date.
- */
-
-/**
- * is.date
- * Test if `value` is a date.
- *
- * @param {Mixed} value value to test
- * @return {Boolean} true if `value` is a date, false otherwise
- * @api public
- */
-
-is.date = function (value) {
-  return '[object Date]' === toStr.call(value);
-};
-
-/**
- * Test element.
- */
-
-/**
- * is.element
- * Test if `value` is an html element.
- *
- * @param {Mixed} value value to test
- * @return {Boolean} true if `value` is an HTML Element, false otherwise
- * @api public
- */
-
-is.element = function (value) {
-  return value !== undefined
-    && typeof HTMLElement !== 'undefined'
-    && value instanceof HTMLElement
-    && value.nodeType === 1;
-};
-
-/**
- * Test error.
- */
-
-/**
- * is.error
- * Test if `value` is an error object.
- *
- * @param {Mixed} value value to test
- * @return {Boolean} true if `value` is an error object, false otherwise
- * @api public
- */
-
-is.error = function (value) {
-  return '[object Error]' === toStr.call(value);
-};
-
-/**
- * Test function.
- */
-
-/**
- * is.fn / is.function (deprecated)
- * Test if `value` is a function.
- *
- * @param {Mixed} value value to test
- * @return {Boolean} true if `value` is a function, false otherwise
- * @api public
- */
-
-is.fn = is['function'] = function (value) {
-  var isAlert = typeof window !== 'undefined' && value === window.alert;
-  return isAlert || '[object Function]' === toStr.call(value);
-};
-
-/**
- * Test number.
- */
-
-/**
- * is.number
- * Test if `value` is a number.
- *
- * @param {Mixed} value value to test
- * @return {Boolean} true if `value` is a number, false otherwise
- * @api public
- */
-
-is.number = function (value) {
-  return '[object Number]' === toStr.call(value);
-};
-
-/**
- * is.infinite
- * Test if `value` is positive or negative infinity.
- *
- * @param {Mixed} value value to test
- * @return {Boolean} true if `value` is positive or negative Infinity, false otherwise
- * @api public
- */
-is.infinite = function (value) {
-  return value === Infinity || value === -Infinity;
-};
-
-/**
- * is.decimal
- * Test if `value` is a decimal number.
- *
- * @param {Mixed} value value to test
- * @return {Boolean} true if `value` is a decimal number, false otherwise
- * @api public
- */
-
-is.decimal = function (value) {
-  return is.number(value) && !isActualNaN(value) && !is.infinite(value) && value % 1 !== 0;
-};
-
-/**
- * is.divisibleBy
- * Test if `value` is divisible by `n`.
- *
- * @param {Number} value value to test
- * @param {Number} n dividend
- * @return {Boolean} true if `value` is divisible by `n`, false otherwise
- * @api public
- */
-
-is.divisibleBy = function (value, n) {
-  var isDividendInfinite = is.infinite(value);
-  var isDivisorInfinite = is.infinite(n);
-  var isNonZeroNumber = is.number(value) && !isActualNaN(value) && is.number(n) && !isActualNaN(n) && n !== 0;
-  return isDividendInfinite || isDivisorInfinite || (isNonZeroNumber && value % n === 0);
-};
-
-/**
- * is.int
- * Test if `value` is an integer.
- *
- * @param value to test
- * @return {Boolean} true if `value` is an integer, false otherwise
- * @api public
- */
-
-is.int = function (value) {
-  return is.number(value) && !isActualNaN(value) && value % 1 === 0;
-};
-
-/**
- * is.maximum
- * Test if `value` is greater than 'others' values.
- *
- * @param {Number} value value to test
- * @param {Array} others values to compare with
- * @return {Boolean} true if `value` is greater than `others` values
- * @api public
- */
-
-is.maximum = function (value, others) {
-  if (isActualNaN(value)) {
-    throw new TypeError('NaN is not a valid value');
-  } else if (!is.arraylike(others)) {
-    throw new TypeError('second argument must be array-like');
-  }
-  var len = others.length;
-
-  while (--len >= 0) {
-    if (value < others[len]) {
-      return false;
-    }
-  }
-
-  return true;
-};
-
-/**
- * is.minimum
- * Test if `value` is less than `others` values.
- *
- * @param {Number} value value to test
- * @param {Array} others values to compare with
- * @return {Boolean} true if `value` is less than `others` values
- * @api public
- */
-
-is.minimum = function (value, others) {
-  if (isActualNaN(value)) {
-    throw new TypeError('NaN is not a valid value');
-  } else if (!is.arraylike(others)) {
-    throw new TypeError('second argument must be array-like');
-  }
-  var len = others.length;
-
-  while (--len >= 0) {
-    if (value > others[len]) {
-      return false;
-    }
-  }
-
-  return true;
-};
-
-/**
- * is.nan
- * Test if `value` is not a number.
- *
- * @param {Mixed} value value to test
- * @return {Boolean} true if `value` is not a number, false otherwise
- * @api public
- */
-
-is.nan = function (value) {
-  return !is.number(value) || value !== value;
-};
-
-/**
- * is.even
- * Test if `value` is an even number.
- *
- * @param {Number} value value to test
- * @return {Boolean} true if `value` is an even number, false otherwise
- * @api public
- */
-
-is.even = function (value) {
-  return is.infinite(value) || (is.number(value) && value === value && value % 2 === 0);
-};
-
-/**
- * is.odd
- * Test if `value` is an odd number.
- *
- * @param {Number} value value to test
- * @return {Boolean} true if `value` is an odd number, false otherwise
- * @api public
- */
-
-is.odd = function (value) {
-  return is.infinite(value) || (is.number(value) && value === value && value % 2 !== 0);
-};
-
-/**
- * is.ge
- * Test if `value` is greater than or equal to `other`.
- *
- * @param {Number} value value to test
- * @param {Number} other value to compare with
- * @return {Boolean}
- * @api public
- */
-
-is.ge = function (value, other) {
-  if (isActualNaN(value) || isActualNaN(other)) {
-    throw new TypeError('NaN is not a valid value');
-  }
-  return !is.infinite(value) && !is.infinite(other) && value >= other;
-};
-
-/**
- * is.gt
- * Test if `value` is greater than `other`.
- *
- * @param {Number} value value to test
- * @param {Number} other value to compare with
- * @return {Boolean}
- * @api public
- */
-
-is.gt = function (value, other) {
-  if (isActualNaN(value) || isActualNaN(other)) {
-    throw new TypeError('NaN is not a valid value');
-  }
-  return !is.infinite(value) && !is.infinite(other) && value > other;
-};
-
-/**
- * is.le
- * Test if `value` is less than or equal to `other`.
- *
- * @param {Number} value value to test
- * @param {Number} other value to compare with
- * @return {Boolean} if 'value' is less than or equal to 'other'
- * @api public
- */
-
-is.le = function (value, other) {
-  if (isActualNaN(value) || isActualNaN(other)) {
-    throw new TypeError('NaN is not a valid value');
-  }
-  return !is.infinite(value) && !is.infinite(other) && value <= other;
-};
-
-/**
- * is.lt
- * Test if `value` is less than `other`.
- *
- * @param {Number} value value to test
- * @param {Number} other value to compare with
- * @return {Boolean} if `value` is less than `other`
- * @api public
- */
-
-is.lt = function (value, other) {
-  if (isActualNaN(value) || isActualNaN(other)) {
-    throw new TypeError('NaN is not a valid value');
-  }
-  return !is.infinite(value) && !is.infinite(other) && value < other;
-};
-
-/**
- * is.within
- * Test if `value` is within `start` and `finish`.
- *
- * @param {Number} value value to test
- * @param {Number} start lower bound
- * @param {Number} finish upper bound
- * @return {Boolean} true if 'value' is is within 'start' and 'finish'
- * @api public
- */
-is.within = function (value, start, finish) {
-  if (isActualNaN(value) || isActualNaN(start) || isActualNaN(finish)) {
-    throw new TypeError('NaN is not a valid value');
-  } else if (!is.number(value) || !is.number(start) || !is.number(finish)) {
-    throw new TypeError('all arguments must be numbers');
-  }
-  var isAnyInfinite = is.infinite(value) || is.infinite(start) || is.infinite(finish);
-  return isAnyInfinite || (value >= start && value <= finish);
-};
-
-/**
- * Test object.
- */
-
-/**
- * is.object
- * Test if `value` is an object.
- *
- * @param {Mixed} value value to test
- * @return {Boolean} true if `value` is an object, false otherwise
- * @api public
- */
-
-is.object = function (value) {
-  return '[object Object]' === toStr.call(value);
-};
-
-/**
- * is.hash
- * Test if `value` is a hash - a plain object literal.
- *
- * @param {Mixed} value value to test
- * @return {Boolean} true if `value` is a hash, false otherwise
- * @api public
- */
-
-is.hash = function (value) {
-  return is.object(value) && value.constructor === Object && !value.nodeType && !value.setInterval;
-};
-
-/**
- * Test regexp.
- */
-
-/**
- * is.regexp
- * Test if `value` is a regular expression.
- *
- * @param {Mixed} value value to test
- * @return {Boolean} true if `value` is a regexp, false otherwise
- * @api public
- */
-
-is.regexp = function (value) {
-  return '[object RegExp]' === toStr.call(value);
-};
-
-/**
- * Test string.
- */
-
-/**
- * is.string
- * Test if `value` is a string.
- *
- * @param {Mixed} value value to test
- * @return {Boolean} true if 'value' is a string, false otherwise
- * @api public
- */
-
-is.string = function (value) {
-  return '[object String]' === toStr.call(value);
-};
-
-/**
- * Test base64 string.
- */
-
-/**
- * is.base64
- * Test if `value` is a valid base64 encoded string.
- *
- * @param {Mixed} value value to test
- * @return {Boolean} true if 'value' is a base64 encoded string, false otherwise
- * @api public
- */
-
-is.base64 = function (value) {
-  return is.string(value) && (!value.length || base64Regex.test(value));
-};
-
-/**
- * Test base64 string.
- */
-
-/**
- * is.hex
- * Test if `value` is a valid hex encoded string.
- *
- * @param {Mixed} value value to test
- * @return {Boolean} true if 'value' is a hex encoded string, false otherwise
- * @api public
- */
-
-is.hex = function (value) {
-  return is.string(value) && (!value.length || hexRegex.test(value));
-};
-
-/**
- * is.symbol
- * Test if `value` is an ES6 Symbol
- *
- * @param {Mixed} value value to test
- * @return {Boolean} true if `value` is a Symbol, false otherise
- * @api public
- */
-
-is.symbol = function (value) {
-  return typeof Symbol === 'function' && toStr.call(value) === '[object Symbol]' && typeof symbolValueOf.call(value) === 'symbol';
-};
-
-},{}],10:[function(require,module,exports){
+arguments[4][6][0].apply(exports,arguments)
+},{"dup":6}],10:[function(require,module,exports){
 var isFunction = require('is-function')
 
 module.exports = forEach
@@ -7168,6 +7073,9 @@ exports['default'] = ClientError;
 module.exports = exports['default'];
 
 },{"./HTTPError":21}],21:[function(require,module,exports){
+/**
+ * HTTPError
+ */
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7176,17 +7084,11 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { desc = parent = getter = undefined; _again = false; var object = _x,
-    property = _x2,
-    receiver = _x3; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
-
-/**
- * HTTPError
- */
 
 var HTTPError = (function (_Error) {
 
@@ -7316,7 +7218,7 @@ var Response = function Response(status, data, headers, text) {
  * @param {Transform} transform
  */
 Response.create = function (xhr, transform) {
-    return new Response(xhr.status, transform.transformResponseBody(xhr.response), _parseHeaders2['default'](xhr.getAllResponseHeaders()), xhr.statusText);
+    return new Response(xhr.status, transform.transformResponseBody(xhr.response), (0, _parseHeaders2['default'])(xhr.getAllResponseHeaders()), xhr.statusText);
 };
 exports['default'] = Response;
 module.exports = exports['default'];
@@ -7360,6 +7262,12 @@ exports['default'] = ServerError;
 module.exports = exports['default'];
 
 },{"./HTTPError":21}],25:[function(require,module,exports){
+/**
+ * TransportError indicates a lowlevel error.
+ *
+ * The error may be due to an abort on a request or the browser being unable to
+ * honour it.
+ */
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7369,13 +7277,6 @@ Object.defineProperty(exports, "__esModule", {
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
-
-/**
- * TransportError indicates a lowlevel error.
- *
- * The error may be due to an abort on a request or the browser being unable to
- * honour it.
- */
 
 var TransportError = (function (_Error) {
   function TransportError() {
@@ -8782,7 +8683,7 @@ var CSSPropertyOperations = {
 module.exports = CSSPropertyOperations;
 
 }).call(this,require('_process'))
-},{"./CSSProperty":32,"./ExecutionEnvironment":49,"./camelizeStyleName":137,"./dangerousStyleValue":142,"./hyphenateStyleName":162,"./memoizeStringOnly":172,"./warning":183,"_process":224}],34:[function(require,module,exports){
+},{"./CSSProperty":32,"./ExecutionEnvironment":49,"./camelizeStyleName":137,"./dangerousStyleValue":142,"./hyphenateStyleName":162,"./memoizeStringOnly":172,"./warning":183,"_process":225}],34:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -8882,7 +8783,7 @@ PooledClass.addPoolingTo(CallbackQueue);
 module.exports = CallbackQueue;
 
 }).call(this,require('_process'))
-},{"./Object.assign":55,"./PooledClass":56,"./invariant":164,"_process":224}],35:[function(require,module,exports){
+},{"./Object.assign":55,"./PooledClass":56,"./invariant":164,"_process":225}],35:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -9427,7 +9328,7 @@ var DOMChildrenOperations = {
 module.exports = DOMChildrenOperations;
 
 }).call(this,require('_process'))
-},{"./Danger":40,"./ReactMultiChildUpdateTypes":101,"./invariant":164,"./setTextContent":178,"_process":224}],38:[function(require,module,exports){
+},{"./Danger":40,"./ReactMultiChildUpdateTypes":101,"./invariant":164,"./setTextContent":178,"_process":225}],38:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -9726,7 +9627,7 @@ var DOMProperty = {
 module.exports = DOMProperty;
 
 }).call(this,require('_process'))
-},{"./invariant":164,"_process":224}],39:[function(require,module,exports){
+},{"./invariant":164,"_process":225}],39:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -9918,7 +9819,7 @@ var DOMPropertyOperations = {
 module.exports = DOMPropertyOperations;
 
 }).call(this,require('_process'))
-},{"./DOMProperty":38,"./quoteAttributeValueForBrowser":176,"./warning":183,"_process":224}],40:[function(require,module,exports){
+},{"./DOMProperty":38,"./quoteAttributeValueForBrowser":176,"./warning":183,"_process":225}],40:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -10105,7 +10006,7 @@ var Danger = {
 module.exports = Danger;
 
 }).call(this,require('_process'))
-},{"./ExecutionEnvironment":49,"./createNodesFromMarkup":141,"./emptyFunction":143,"./getMarkupWrap":156,"./invariant":164,"_process":224}],41:[function(require,module,exports){
+},{"./ExecutionEnvironment":49,"./createNodesFromMarkup":141,"./emptyFunction":143,"./getMarkupWrap":156,"./invariant":164,"_process":225}],41:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -10446,7 +10347,7 @@ var EventListener = {
 module.exports = EventListener;
 
 }).call(this,require('_process'))
-},{"./emptyFunction":143,"_process":224}],45:[function(require,module,exports){
+},{"./emptyFunction":143,"_process":225}],45:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -10724,7 +10625,7 @@ var EventPluginHub = {
 module.exports = EventPluginHub;
 
 }).call(this,require('_process'))
-},{"./EventPluginRegistry":46,"./EventPluginUtils":47,"./accumulateInto":134,"./forEachAccumulated":149,"./invariant":164,"_process":224}],46:[function(require,module,exports){
+},{"./EventPluginRegistry":46,"./EventPluginUtils":47,"./accumulateInto":134,"./forEachAccumulated":149,"./invariant":164,"_process":225}],46:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -11004,7 +10905,7 @@ var EventPluginRegistry = {
 module.exports = EventPluginRegistry;
 
 }).call(this,require('_process'))
-},{"./invariant":164,"_process":224}],47:[function(require,module,exports){
+},{"./invariant":164,"_process":225}],47:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -11225,7 +11126,7 @@ var EventPluginUtils = {
 module.exports = EventPluginUtils;
 
 }).call(this,require('_process'))
-},{"./EventConstants":43,"./invariant":164,"_process":224}],48:[function(require,module,exports){
+},{"./EventConstants":43,"./invariant":164,"_process":225}],48:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -11367,7 +11268,7 @@ var EventPropagators = {
 module.exports = EventPropagators;
 
 }).call(this,require('_process'))
-},{"./EventConstants":43,"./EventPluginHub":45,"./accumulateInto":134,"./forEachAccumulated":149,"_process":224}],49:[function(require,module,exports){
+},{"./EventConstants":43,"./EventPluginHub":45,"./accumulateInto":134,"./forEachAccumulated":149,"_process":225}],49:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -11869,7 +11770,7 @@ var LinkedValueUtils = {
 module.exports = LinkedValueUtils;
 
 }).call(this,require('_process'))
-},{"./ReactPropTypes":107,"./invariant":164,"_process":224}],53:[function(require,module,exports){
+},{"./ReactPropTypes":107,"./invariant":164,"_process":225}],53:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014-2015, Facebook, Inc.
@@ -11926,7 +11827,7 @@ var LocalEventTrapMixin = {
 module.exports = LocalEventTrapMixin;
 
 }).call(this,require('_process'))
-},{"./ReactBrowserEventEmitter":59,"./accumulateInto":134,"./forEachAccumulated":149,"./invariant":164,"_process":224}],54:[function(require,module,exports){
+},{"./ReactBrowserEventEmitter":59,"./accumulateInto":134,"./forEachAccumulated":149,"./invariant":164,"_process":225}],54:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -12149,7 +12050,7 @@ var PooledClass = {
 module.exports = PooledClass;
 
 }).call(this,require('_process'))
-},{"./invariant":164,"_process":224}],57:[function(require,module,exports){
+},{"./invariant":164,"_process":225}],57:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -12301,7 +12202,7 @@ React.version = '0.13.3';
 module.exports = React;
 
 }).call(this,require('_process'))
-},{"./EventPluginUtils":47,"./ExecutionEnvironment":49,"./Object.assign":55,"./ReactChildren":61,"./ReactClass":62,"./ReactComponent":63,"./ReactContext":67,"./ReactCurrentOwner":68,"./ReactDOM":69,"./ReactDOMTextComponent":80,"./ReactDefaultInjection":83,"./ReactElement":86,"./ReactElementValidator":87,"./ReactInstanceHandles":95,"./ReactMount":99,"./ReactPerf":104,"./ReactPropTypes":107,"./ReactReconciler":110,"./ReactServerRendering":113,"./findDOMNode":146,"./onlyChild":173,"_process":224}],58:[function(require,module,exports){
+},{"./EventPluginUtils":47,"./ExecutionEnvironment":49,"./Object.assign":55,"./ReactChildren":61,"./ReactClass":62,"./ReactComponent":63,"./ReactContext":67,"./ReactCurrentOwner":68,"./ReactDOM":69,"./ReactDOMTextComponent":80,"./ReactDefaultInjection":83,"./ReactElement":86,"./ReactElementValidator":87,"./ReactInstanceHandles":95,"./ReactMount":99,"./ReactPerf":104,"./ReactPropTypes":107,"./ReactReconciler":110,"./ReactServerRendering":113,"./findDOMNode":146,"./onlyChild":173,"_process":225}],58:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -12965,7 +12866,7 @@ var ReactChildren = {
 module.exports = ReactChildren;
 
 }).call(this,require('_process'))
-},{"./PooledClass":56,"./ReactFragment":92,"./traverseAllChildren":182,"./warning":183,"_process":224}],62:[function(require,module,exports){
+},{"./PooledClass":56,"./ReactFragment":92,"./traverseAllChildren":182,"./warning":183,"_process":225}],62:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -13911,7 +13812,7 @@ var ReactClass = {
 module.exports = ReactClass;
 
 }).call(this,require('_process'))
-},{"./Object.assign":55,"./ReactComponent":63,"./ReactCurrentOwner":68,"./ReactElement":86,"./ReactErrorUtils":89,"./ReactInstanceMap":96,"./ReactLifeCycle":97,"./ReactPropTypeLocationNames":105,"./ReactPropTypeLocations":106,"./ReactUpdateQueue":115,"./invariant":164,"./keyMirror":169,"./keyOf":170,"./warning":183,"_process":224}],63:[function(require,module,exports){
+},{"./Object.assign":55,"./ReactComponent":63,"./ReactCurrentOwner":68,"./ReactElement":86,"./ReactErrorUtils":89,"./ReactInstanceMap":96,"./ReactLifeCycle":97,"./ReactPropTypeLocationNames":105,"./ReactPropTypeLocations":106,"./ReactUpdateQueue":115,"./invariant":164,"./keyMirror":169,"./keyOf":170,"./warning":183,"_process":225}],63:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -14065,7 +13966,7 @@ if ("production" !== process.env.NODE_ENV) {
 module.exports = ReactComponent;
 
 }).call(this,require('_process'))
-},{"./ReactUpdateQueue":115,"./invariant":164,"./warning":183,"_process":224}],64:[function(require,module,exports){
+},{"./ReactUpdateQueue":115,"./invariant":164,"./warning":183,"_process":225}],64:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -14173,7 +14074,7 @@ var ReactComponentEnvironment = {
 module.exports = ReactComponentEnvironment;
 
 }).call(this,require('_process'))
-},{"./invariant":164,"_process":224}],66:[function(require,module,exports){
+},{"./invariant":164,"_process":225}],66:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -15086,7 +14987,7 @@ var ReactCompositeComponent = {
 module.exports = ReactCompositeComponent;
 
 }).call(this,require('_process'))
-},{"./Object.assign":55,"./ReactComponentEnvironment":65,"./ReactContext":67,"./ReactCurrentOwner":68,"./ReactElement":86,"./ReactElementValidator":87,"./ReactInstanceMap":96,"./ReactLifeCycle":97,"./ReactNativeComponent":102,"./ReactPerf":104,"./ReactPropTypeLocationNames":105,"./ReactPropTypeLocations":106,"./ReactReconciler":110,"./ReactUpdates":116,"./emptyObject":144,"./invariant":164,"./shouldUpdateReactComponent":180,"./warning":183,"_process":224}],67:[function(require,module,exports){
+},{"./Object.assign":55,"./ReactComponentEnvironment":65,"./ReactContext":67,"./ReactCurrentOwner":68,"./ReactElement":86,"./ReactElementValidator":87,"./ReactInstanceMap":96,"./ReactLifeCycle":97,"./ReactNativeComponent":102,"./ReactPerf":104,"./ReactPropTypeLocationNames":105,"./ReactPropTypeLocations":106,"./ReactReconciler":110,"./ReactUpdates":116,"./emptyObject":144,"./invariant":164,"./shouldUpdateReactComponent":180,"./warning":183,"_process":225}],67:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -15164,7 +15065,7 @@ var ReactContext = {
 module.exports = ReactContext;
 
 }).call(this,require('_process'))
-},{"./Object.assign":55,"./emptyObject":144,"./warning":183,"_process":224}],68:[function(require,module,exports){
+},{"./Object.assign":55,"./emptyObject":144,"./warning":183,"_process":225}],68:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -15377,7 +15278,7 @@ var ReactDOM = mapObject({
 module.exports = ReactDOM;
 
 }).call(this,require('_process'))
-},{"./ReactElement":86,"./ReactElementValidator":87,"./mapObject":171,"_process":224}],70:[function(require,module,exports){
+},{"./ReactElement":86,"./ReactElementValidator":87,"./mapObject":171,"_process":225}],70:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -15951,7 +15852,7 @@ ReactDOMComponent.injection = {
 module.exports = ReactDOMComponent;
 
 }).call(this,require('_process'))
-},{"./CSSPropertyOperations":33,"./DOMProperty":38,"./DOMPropertyOperations":39,"./Object.assign":55,"./ReactBrowserEventEmitter":59,"./ReactComponentBrowserEnvironment":64,"./ReactMount":99,"./ReactMultiChild":100,"./ReactPerf":104,"./escapeTextContentForBrowser":145,"./invariant":164,"./isEventSupported":165,"./keyOf":170,"./warning":183,"_process":224}],72:[function(require,module,exports){
+},{"./CSSPropertyOperations":33,"./DOMProperty":38,"./DOMPropertyOperations":39,"./Object.assign":55,"./ReactBrowserEventEmitter":59,"./ReactComponentBrowserEnvironment":64,"./ReactMount":99,"./ReactMultiChild":100,"./ReactPerf":104,"./escapeTextContentForBrowser":145,"./invariant":164,"./isEventSupported":165,"./keyOf":170,"./warning":183,"_process":225}],72:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -16168,7 +16069,7 @@ ReactPerf.measureMethods(ReactDOMIDOperations, 'ReactDOMIDOperations', {
 module.exports = ReactDOMIDOperations;
 
 }).call(this,require('_process'))
-},{"./CSSPropertyOperations":33,"./DOMChildrenOperations":37,"./DOMPropertyOperations":39,"./ReactMount":99,"./ReactPerf":104,"./invariant":164,"./setInnerHTML":177,"_process":224}],74:[function(require,module,exports){
+},{"./CSSPropertyOperations":33,"./DOMChildrenOperations":37,"./DOMPropertyOperations":39,"./ReactMount":99,"./ReactPerf":104,"./invariant":164,"./setInnerHTML":177,"_process":225}],74:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -16436,7 +16337,7 @@ var ReactDOMInput = ReactClass.createClass({
 module.exports = ReactDOMInput;
 
 }).call(this,require('_process'))
-},{"./AutoFocusMixin":30,"./DOMPropertyOperations":39,"./LinkedValueUtils":52,"./Object.assign":55,"./ReactBrowserComponentMixin":58,"./ReactClass":62,"./ReactElement":86,"./ReactMount":99,"./ReactUpdates":116,"./invariant":164,"_process":224}],77:[function(require,module,exports){
+},{"./AutoFocusMixin":30,"./DOMPropertyOperations":39,"./LinkedValueUtils":52,"./Object.assign":55,"./ReactBrowserComponentMixin":58,"./ReactClass":62,"./ReactElement":86,"./ReactMount":99,"./ReactUpdates":116,"./invariant":164,"_process":225}],77:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -16488,7 +16389,7 @@ var ReactDOMOption = ReactClass.createClass({
 module.exports = ReactDOMOption;
 
 }).call(this,require('_process'))
-},{"./ReactBrowserComponentMixin":58,"./ReactClass":62,"./ReactElement":86,"./warning":183,"_process":224}],78:[function(require,module,exports){
+},{"./ReactBrowserComponentMixin":58,"./ReactClass":62,"./ReactElement":86,"./warning":183,"_process":225}],78:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -17136,7 +17037,7 @@ var ReactDOMTextarea = ReactClass.createClass({
 module.exports = ReactDOMTextarea;
 
 }).call(this,require('_process'))
-},{"./AutoFocusMixin":30,"./DOMPropertyOperations":39,"./LinkedValueUtils":52,"./Object.assign":55,"./ReactBrowserComponentMixin":58,"./ReactClass":62,"./ReactElement":86,"./ReactUpdates":116,"./invariant":164,"./warning":183,"_process":224}],82:[function(require,module,exports){
+},{"./AutoFocusMixin":30,"./DOMPropertyOperations":39,"./LinkedValueUtils":52,"./Object.assign":55,"./ReactBrowserComponentMixin":58,"./ReactClass":62,"./ReactElement":86,"./ReactUpdates":116,"./invariant":164,"./warning":183,"_process":225}],82:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -17368,7 +17269,7 @@ module.exports = {
 };
 
 }).call(this,require('_process'))
-},{"./BeforeInputEventPlugin":31,"./ChangeEventPlugin":35,"./ClientReactRootIndex":36,"./DefaultEventPluginOrder":41,"./EnterLeaveEventPlugin":42,"./ExecutionEnvironment":49,"./HTMLDOMPropertyConfig":51,"./MobileSafariClickEventPlugin":54,"./ReactBrowserComponentMixin":58,"./ReactClass":62,"./ReactComponentBrowserEnvironment":64,"./ReactDOMButton":70,"./ReactDOMComponent":71,"./ReactDOMForm":72,"./ReactDOMIDOperations":73,"./ReactDOMIframe":74,"./ReactDOMImg":75,"./ReactDOMInput":76,"./ReactDOMOption":77,"./ReactDOMSelect":78,"./ReactDOMTextComponent":80,"./ReactDOMTextarea":81,"./ReactDefaultBatchingStrategy":82,"./ReactDefaultPerf":84,"./ReactElement":86,"./ReactEventListener":91,"./ReactInjection":93,"./ReactInstanceHandles":95,"./ReactMount":99,"./ReactReconcileTransaction":109,"./SVGDOMPropertyConfig":117,"./SelectEventPlugin":118,"./ServerReactRootIndex":119,"./SimpleEventPlugin":120,"./createFullPageComponent":140,"_process":224}],84:[function(require,module,exports){
+},{"./BeforeInputEventPlugin":31,"./ChangeEventPlugin":35,"./ClientReactRootIndex":36,"./DefaultEventPluginOrder":41,"./EnterLeaveEventPlugin":42,"./ExecutionEnvironment":49,"./HTMLDOMPropertyConfig":51,"./MobileSafariClickEventPlugin":54,"./ReactBrowserComponentMixin":58,"./ReactClass":62,"./ReactComponentBrowserEnvironment":64,"./ReactDOMButton":70,"./ReactDOMComponent":71,"./ReactDOMForm":72,"./ReactDOMIDOperations":73,"./ReactDOMIframe":74,"./ReactDOMImg":75,"./ReactDOMInput":76,"./ReactDOMOption":77,"./ReactDOMSelect":78,"./ReactDOMTextComponent":80,"./ReactDOMTextarea":81,"./ReactDefaultBatchingStrategy":82,"./ReactDefaultPerf":84,"./ReactElement":86,"./ReactEventListener":91,"./ReactInjection":93,"./ReactInstanceHandles":95,"./ReactMount":99,"./ReactReconcileTransaction":109,"./SVGDOMPropertyConfig":117,"./SelectEventPlugin":118,"./ServerReactRootIndex":119,"./SimpleEventPlugin":120,"./createFullPageComponent":140,"_process":225}],84:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -18148,7 +18049,7 @@ ReactElement.isValidElement = function(object) {
 module.exports = ReactElement;
 
 }).call(this,require('_process'))
-},{"./Object.assign":55,"./ReactContext":67,"./ReactCurrentOwner":68,"./warning":183,"_process":224}],87:[function(require,module,exports){
+},{"./Object.assign":55,"./ReactContext":67,"./ReactCurrentOwner":68,"./warning":183,"_process":225}],87:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014-2015, Facebook, Inc.
@@ -18613,7 +18514,7 @@ var ReactElementValidator = {
 module.exports = ReactElementValidator;
 
 }).call(this,require('_process'))
-},{"./ReactCurrentOwner":68,"./ReactElement":86,"./ReactFragment":92,"./ReactNativeComponent":102,"./ReactPropTypeLocationNames":105,"./ReactPropTypeLocations":106,"./getIteratorFn":155,"./invariant":164,"./warning":183,"_process":224}],88:[function(require,module,exports){
+},{"./ReactCurrentOwner":68,"./ReactElement":86,"./ReactFragment":92,"./ReactNativeComponent":102,"./ReactPropTypeLocationNames":105,"./ReactPropTypeLocations":106,"./getIteratorFn":155,"./invariant":164,"./warning":183,"_process":225}],88:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014-2015, Facebook, Inc.
@@ -18708,7 +18609,7 @@ var ReactEmptyComponent = {
 module.exports = ReactEmptyComponent;
 
 }).call(this,require('_process'))
-},{"./ReactElement":86,"./ReactInstanceMap":96,"./invariant":164,"_process":224}],89:[function(require,module,exports){
+},{"./ReactElement":86,"./ReactInstanceMap":96,"./invariant":164,"_process":225}],89:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -19158,7 +19059,7 @@ var ReactFragment = {
 module.exports = ReactFragment;
 
 }).call(this,require('_process'))
-},{"./ReactElement":86,"./warning":183,"_process":224}],93:[function(require,module,exports){
+},{"./ReactElement":86,"./warning":183,"_process":225}],93:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -19671,7 +19572,7 @@ var ReactInstanceHandles = {
 module.exports = ReactInstanceHandles;
 
 }).call(this,require('_process'))
-},{"./ReactRootIndex":112,"./invariant":164,"_process":224}],96:[function(require,module,exports){
+},{"./ReactRootIndex":112,"./invariant":164,"_process":225}],96:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -20696,7 +20597,7 @@ ReactPerf.measureMethods(ReactMount, 'ReactMount', {
 module.exports = ReactMount;
 
 }).call(this,require('_process'))
-},{"./DOMProperty":38,"./ReactBrowserEventEmitter":59,"./ReactCurrentOwner":68,"./ReactElement":86,"./ReactElementValidator":87,"./ReactEmptyComponent":88,"./ReactInstanceHandles":95,"./ReactInstanceMap":96,"./ReactMarkupChecksum":98,"./ReactPerf":104,"./ReactReconciler":110,"./ReactUpdateQueue":115,"./ReactUpdates":116,"./containsNode":138,"./emptyObject":144,"./getReactRootElementInContainer":158,"./instantiateReactComponent":163,"./invariant":164,"./setInnerHTML":177,"./shouldUpdateReactComponent":180,"./warning":183,"_process":224}],100:[function(require,module,exports){
+},{"./DOMProperty":38,"./ReactBrowserEventEmitter":59,"./ReactCurrentOwner":68,"./ReactElement":86,"./ReactElementValidator":87,"./ReactEmptyComponent":88,"./ReactInstanceHandles":95,"./ReactInstanceMap":96,"./ReactMarkupChecksum":98,"./ReactPerf":104,"./ReactReconciler":110,"./ReactUpdateQueue":115,"./ReactUpdates":116,"./containsNode":138,"./emptyObject":144,"./getReactRootElementInContainer":158,"./instantiateReactComponent":163,"./invariant":164,"./setInnerHTML":177,"./shouldUpdateReactComponent":180,"./warning":183,"_process":225}],100:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -21266,7 +21167,7 @@ var ReactNativeComponent = {
 module.exports = ReactNativeComponent;
 
 }).call(this,require('_process'))
-},{"./Object.assign":55,"./invariant":164,"_process":224}],103:[function(require,module,exports){
+},{"./Object.assign":55,"./invariant":164,"_process":225}],103:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -21378,7 +21279,7 @@ var ReactOwner = {
 module.exports = ReactOwner;
 
 }).call(this,require('_process'))
-},{"./invariant":164,"_process":224}],104:[function(require,module,exports){
+},{"./invariant":164,"_process":225}],104:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -21482,7 +21383,7 @@ function _noMeasure(objName, fnName, func) {
 module.exports = ReactPerf;
 
 }).call(this,require('_process'))
-},{"_process":224}],105:[function(require,module,exports){
+},{"_process":225}],105:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -21510,7 +21411,7 @@ if ("production" !== process.env.NODE_ENV) {
 module.exports = ReactPropTypeLocationNames;
 
 }).call(this,require('_process'))
-},{"_process":224}],106:[function(require,module,exports){
+},{"_process":225}],106:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -22239,7 +22140,7 @@ var ReactReconciler = {
 module.exports = ReactReconciler;
 
 }).call(this,require('_process'))
-},{"./ReactElementValidator":87,"./ReactRef":111,"_process":224}],111:[function(require,module,exports){
+},{"./ReactElementValidator":87,"./ReactRef":111,"_process":225}],111:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -22423,7 +22324,7 @@ module.exports = {
 };
 
 }).call(this,require('_process'))
-},{"./ReactElement":86,"./ReactInstanceHandles":95,"./ReactMarkupChecksum":98,"./ReactServerRenderingTransaction":114,"./emptyObject":144,"./instantiateReactComponent":163,"./invariant":164,"_process":224}],114:[function(require,module,exports){
+},{"./ReactElement":86,"./ReactInstanceHandles":95,"./ReactMarkupChecksum":98,"./ReactServerRenderingTransaction":114,"./emptyObject":144,"./instantiateReactComponent":163,"./invariant":164,"_process":225}],114:[function(require,module,exports){
 /**
  * Copyright 2014-2015, Facebook, Inc.
  * All rights reserved.
@@ -22835,7 +22736,7 @@ var ReactUpdateQueue = {
 module.exports = ReactUpdateQueue;
 
 }).call(this,require('_process'))
-},{"./Object.assign":55,"./ReactCurrentOwner":68,"./ReactElement":86,"./ReactInstanceMap":96,"./ReactLifeCycle":97,"./ReactUpdates":116,"./invariant":164,"./warning":183,"_process":224}],116:[function(require,module,exports){
+},{"./Object.assign":55,"./ReactCurrentOwner":68,"./ReactElement":86,"./ReactInstanceMap":96,"./ReactLifeCycle":97,"./ReactUpdates":116,"./invariant":164,"./warning":183,"_process":225}],116:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -23117,7 +23018,7 @@ var ReactUpdates = {
 module.exports = ReactUpdates;
 
 }).call(this,require('_process'))
-},{"./CallbackQueue":34,"./Object.assign":55,"./PooledClass":56,"./ReactCurrentOwner":68,"./ReactPerf":104,"./ReactReconciler":110,"./Transaction":132,"./invariant":164,"./warning":183,"_process":224}],117:[function(require,module,exports){
+},{"./CallbackQueue":34,"./Object.assign":55,"./PooledClass":56,"./ReactCurrentOwner":68,"./ReactPerf":104,"./ReactReconciler":110,"./Transaction":132,"./invariant":164,"./warning":183,"_process":225}],117:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -23865,7 +23766,7 @@ var SimpleEventPlugin = {
 module.exports = SimpleEventPlugin;
 
 }).call(this,require('_process'))
-},{"./EventConstants":43,"./EventPluginUtils":47,"./EventPropagators":48,"./SyntheticClipboardEvent":121,"./SyntheticDragEvent":123,"./SyntheticEvent":124,"./SyntheticFocusEvent":125,"./SyntheticKeyboardEvent":127,"./SyntheticMouseEvent":128,"./SyntheticTouchEvent":129,"./SyntheticUIEvent":130,"./SyntheticWheelEvent":131,"./getEventCharCode":151,"./invariant":164,"./keyOf":170,"./warning":183,"_process":224}],121:[function(require,module,exports){
+},{"./EventConstants":43,"./EventPluginUtils":47,"./EventPropagators":48,"./SyntheticClipboardEvent":121,"./SyntheticDragEvent":123,"./SyntheticEvent":124,"./SyntheticFocusEvent":125,"./SyntheticKeyboardEvent":127,"./SyntheticMouseEvent":128,"./SyntheticTouchEvent":129,"./SyntheticUIEvent":130,"./SyntheticWheelEvent":131,"./getEventCharCode":151,"./invariant":164,"./keyOf":170,"./warning":183,"_process":225}],121:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -24825,7 +24726,7 @@ var Transaction = {
 module.exports = Transaction;
 
 }).call(this,require('_process'))
-},{"./invariant":164,"_process":224}],133:[function(require,module,exports){
+},{"./invariant":164,"_process":225}],133:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -24920,7 +24821,7 @@ function accumulateInto(current, next) {
 module.exports = accumulateInto;
 
 }).call(this,require('_process'))
-},{"./invariant":164,"_process":224}],135:[function(require,module,exports){
+},{"./invariant":164,"_process":225}],135:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -25220,7 +25121,7 @@ function createFullPageComponent(tag) {
 module.exports = createFullPageComponent;
 
 }).call(this,require('_process'))
-},{"./ReactClass":62,"./ReactElement":86,"./invariant":164,"_process":224}],141:[function(require,module,exports){
+},{"./ReactClass":62,"./ReactElement":86,"./invariant":164,"_process":225}],141:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -25310,7 +25211,7 @@ function createNodesFromMarkup(markup, handleScript) {
 module.exports = createNodesFromMarkup;
 
 }).call(this,require('_process'))
-},{"./ExecutionEnvironment":49,"./createArrayFromMixed":139,"./getMarkupWrap":156,"./invariant":164,"_process":224}],142:[function(require,module,exports){
+},{"./ExecutionEnvironment":49,"./createArrayFromMixed":139,"./getMarkupWrap":156,"./invariant":164,"_process":225}],142:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -25426,7 +25327,7 @@ if ("production" !== process.env.NODE_ENV) {
 module.exports = emptyObject;
 
 }).call(this,require('_process'))
-},{"_process":224}],145:[function(require,module,exports){
+},{"_process":225}],145:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -25539,7 +25440,7 @@ function findDOMNode(componentOrElement) {
 module.exports = findDOMNode;
 
 }).call(this,require('_process'))
-},{"./ReactCurrentOwner":68,"./ReactInstanceMap":96,"./ReactMount":99,"./invariant":164,"./isNode":166,"./warning":183,"_process":224}],147:[function(require,module,exports){
+},{"./ReactCurrentOwner":68,"./ReactInstanceMap":96,"./ReactMount":99,"./invariant":164,"./isNode":166,"./warning":183,"_process":225}],147:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -25597,7 +25498,7 @@ function flattenChildren(children) {
 module.exports = flattenChildren;
 
 }).call(this,require('_process'))
-},{"./traverseAllChildren":182,"./warning":183,"_process":224}],148:[function(require,module,exports){
+},{"./traverseAllChildren":182,"./warning":183,"_process":225}],148:[function(require,module,exports){
 /**
  * Copyright 2014-2015, Facebook, Inc.
  * All rights reserved.
@@ -26084,7 +25985,7 @@ function getMarkupWrap(nodeName) {
 module.exports = getMarkupWrap;
 
 }).call(this,require('_process'))
-},{"./ExecutionEnvironment":49,"./invariant":164,"_process":224}],157:[function(require,module,exports){
+},{"./ExecutionEnvironment":49,"./invariant":164,"_process":225}],157:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -26483,7 +26384,7 @@ function instantiateReactComponent(node, parentCompositeType) {
 module.exports = instantiateReactComponent;
 
 }).call(this,require('_process'))
-},{"./Object.assign":55,"./ReactCompositeComponent":66,"./ReactEmptyComponent":88,"./ReactNativeComponent":102,"./invariant":164,"./warning":183,"_process":224}],164:[function(require,module,exports){
+},{"./Object.assign":55,"./ReactCompositeComponent":66,"./ReactEmptyComponent":88,"./ReactNativeComponent":102,"./invariant":164,"./warning":183,"_process":225}],164:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -26540,7 +26441,7 @@ var invariant = function(condition, format, a, b, c, d, e, f) {
 module.exports = invariant;
 
 }).call(this,require('_process'))
-},{"_process":224}],165:[function(require,module,exports){
+},{"_process":225}],165:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -26755,7 +26656,7 @@ var keyMirror = function(obj) {
 module.exports = keyMirror;
 
 }).call(this,require('_process'))
-},{"./invariant":164,"_process":224}],170:[function(require,module,exports){
+},{"./invariant":164,"_process":225}],170:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -26917,7 +26818,7 @@ function onlyChild(children) {
 module.exports = onlyChild;
 
 }).call(this,require('_process'))
-},{"./ReactElement":86,"./invariant":164,"_process":224}],174:[function(require,module,exports){
+},{"./ReactElement":86,"./invariant":164,"_process":225}],174:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -27280,7 +27181,7 @@ function shouldUpdateReactComponent(prevElement, nextElement) {
 module.exports = shouldUpdateReactComponent;
 
 }).call(this,require('_process'))
-},{"./warning":183,"_process":224}],181:[function(require,module,exports){
+},{"./warning":183,"_process":225}],181:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014-2015, Facebook, Inc.
@@ -27352,7 +27253,7 @@ function toArray(obj) {
 module.exports = toArray;
 
 }).call(this,require('_process'))
-},{"./invariant":164,"_process":224}],182:[function(require,module,exports){
+},{"./invariant":164,"_process":225}],182:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -27605,7 +27506,7 @@ function traverseAllChildren(children, callback, traverseContext) {
 module.exports = traverseAllChildren;
 
 }).call(this,require('_process'))
-},{"./ReactElement":86,"./ReactFragment":92,"./ReactInstanceHandles":95,"./getIteratorFn":155,"./invariant":164,"./warning":183,"_process":224}],183:[function(require,module,exports){
+},{"./ReactElement":86,"./ReactFragment":92,"./ReactInstanceHandles":95,"./getIteratorFn":155,"./invariant":164,"./warning":183,"_process":225}],183:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014-2015, Facebook, Inc.
@@ -27668,7 +27569,7 @@ if ("production" !== process.env.NODE_ENV) {
 module.exports = warning;
 
 }).call(this,require('_process'))
-},{"./emptyFunction":143,"_process":224}],184:[function(require,module,exports){
+},{"./emptyFunction":143,"_process":225}],184:[function(require,module,exports){
 module.exports = require('./lib/React');
 
 },{"./lib/React":57}],185:[function(require,module,exports){
@@ -27690,9 +27591,7 @@ Object.defineProperty(exports, '__esModule', {
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { desc = parent = getter = undefined; _again = false; var object = _x,
-    property = _x2,
-    receiver = _x3; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -27700,9 +27599,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
 
-var _dotComponent = require('dot-component');
+var _dotAccess = require('dot-access');
 
-var _dotComponent2 = _interopRequireDefault(_dotComponent);
+var _dotAccess2 = _interopRequireDefault(_dotAccess);
 
 var _strtpl = require('strtpl');
 
@@ -27747,14 +27646,26 @@ var KeyNotFoundOnContextError = (function (_TypedError) {
     return KeyNotFoundOnContextError;
 })(TypedError);
 
-var DuplicateKeyError = (function (_TypedError2) {
+var KeyNotFoundInCacheError = (function (_TypedError2) {
+    function KeyNotFoundInCacheError(key) {
+        _classCallCheck(this, KeyNotFoundInCacheError);
+
+        _get(Object.getPrototypeOf(KeyNotFoundInCacheError.prototype), 'constructor', this).call(this, 'The cache does not have a key ' + key + '!');
+    }
+
+    _inherits(KeyNotFoundInCacheError, _TypedError2);
+
+    return KeyNotFoundInCacheError;
+})(TypedError);
+
+var DuplicateKeyError = (function (_TypedError3) {
     function DuplicateKeyError(key, o) {
         _classCallCheck(this, DuplicateKeyError);
 
         _get(Object.getPrototypeOf(DuplicateKeyError.prototype), 'constructor', this).call(this, 'The key "' + key + '" appears twice in your schema! This will end the world if we do any swapping or compiling! Schema: ' + JSON.stringify(o));
     }
 
-    _inherits(DuplicateKeyError, _TypedError2);
+    _inherits(DuplicateKeyError, _TypedError3);
 
     return DuplicateKeyError;
 })(TypedError);
@@ -27765,16 +27676,8 @@ var inputs = {
     time: 1, url: 1, week: 1
 };
 
-var cut = function cut(key, target) {
-    return key.replace(target, '');
-};
-
-var SWAP_SYMBOL = '@';
-var SWAP_AND_PARSE_SYMBOL = '@@';
-var CALL_AND_SWAP_SYMBOL = '$@';
 var BUILTIN_SYMBOL = '$$';
 var BUILTIN_STR_SYMBOL = '$#';
-var EAGER_COMPILE_SYMBOL = '$$$';
 
 /**
  * Compiler compiles things that were parsed.
@@ -27784,23 +27687,37 @@ var EAGER_COMPILE_SYMBOL = '$$$';
  *  @:    Swap the value of this property with a value from context
  *  @@:   Swap the value of this property with a value from context then parse that
  *        (Parsing should be handled by the parser).
- *  $@:    Swap the value with a function from context (the function is bind() to context first)
- *  $$:   Swap this value with a builtin value or function.
- *  $#:   Treat the value as a string template, swapping out {{x}} for the value of x.
+ *  !@:   Swap the value with the result of a  function from context
  *  $$$:  Process this property as a type or array of types.
- *
  *
  */
 
 var Compiler = (function () {
-    function Compiler(types, filters) {
+    function Compiler(types, filters, cache) {
         _classCallCheck(this, Compiler);
 
         this.types = types;
         this.filters = filters;
+        this.cache = cache;
+        this.SYMBOLS = {
+            SWAP: '@',
+            SWAP_AND_PARSE: '@@',
+            CALL_AND_SWAP: '!@',
+            IMPORT: '!',
+            CALL_AND_SWAP_AND_PARSE_SYMBOL: '!@@',
+            //BUILTIN_SYMBOL: '$$',
+            //BUILTIN_STR_SYMBOL: '$#',
+            EAGER_COMPILE: '$$$',
+            PARSE_STEP: '$->'
+        };
     }
 
     _createClass(Compiler, [{
+        key: 'cut',
+        value: function cut(key, target) {
+            return key.replace(target, '');
+        }
+    }, {
         key: '_checkDups',
         value: function _checkDups(key, o) {
             if (o.hasOwnProperty(key)) throw new DuplicateKeyError(key, o);
@@ -27812,19 +27729,58 @@ var Compiler = (function () {
             var desiredKey = schema[key];
 
             if (desiredKey === 'this') {
-                schema[cut(key, symbol)] = ctx;
+                schema[this.cut(key, symbol)] = ctx;
             } else if (typeof ctx[desiredKey] === 'function') {
-                schema[cut(key, symbol)] = ctx[desiredKey].bind(ctx);
+                schema[this.cut(key, symbol)] = ctx[desiredKey].bind(ctx);
             } else {
-                schema[cut(key, symbol)] = _dotComponent2['default'].get(ctx, desiredKey);
+                schema[this.cut(key, symbol)] = _dotAccess2['default'].get(ctx, desiredKey);
             }
 
             delete schema[key];
             return schema;
         }
     }, {
+        key: 'import',
+        value: function _import(key, schema) {
+
+            if (this.hasSymbol(key, this.SYMBOLS.IMPORT)) {
+
+                var keyName = this.cut(key, this.SYMBOLS.IMPORT);
+                var needle = schema[key];
+
+                if (Array.isArray(needle)) {
+                    needle = needle.map((function (path) {
+                        if (typeof path == object) return type;
+                        if (!this.cache.hasOwnProperty(path)) throw new KeyNotFoundInCacheError(path);
+                        return this.cache[path];
+                    }).bind(this));
+                } else {
+                    if (!this.cache.hasOwnProperty(needle)) throw new KeyNotFoundInCacheError(needle);
+                    needle = this.cache[needle];
+                }
+
+                this._checkDups(keyName, schema);
+                delete schema[key];
+                schema[keyName] = needle;
+            }
+
+            return schema;
+        }
+    }, {
         key: 'hasSymbol',
+
+        /**
+         * hasSymbol checks if a symbol exists in the key.
+         *
+         * It first checks that no other symbols exists to prevent mixesups.
+         * @param key
+         * @param sym
+         * @returns {boolean}
+         */
         value: function hasSymbol(key, sym) {
+
+            for (var index in this.SYMBOLS) if (this.SYMBOLS.hasOwnProperty(index)) if (this.SYMBOLS[index] !== sym) if (key.indexOf(this.SYMBOLS[index]) > -1) return false;
+
             return key.indexOf(sym) > -1;
         }
     }, {
@@ -27840,9 +27796,9 @@ var Compiler = (function () {
          */
         value: function swapSymbol(key, schema, ctx) {
 
-            if (this.hasSymbol(key, SWAP_SYMBOL)) if (!this.hasSymbol(key, SWAP_AND_PARSE_SYMBOL)) {
-                this._checkDups(cut(key, SWAP_SYMBOL), schema);
-                return this._swap(SWAP_SYMBOL, key, schema, ctx);
+            if (this.hasSymbol(key, this.SYMBOLS.SWAP)) {
+                this._checkDups(this.cut(key, this.SYMBOLS.SWAP), schema);
+                return this._swap(this.SYMBOLS.SWAP, key, schema, ctx);
             }
             return schema;
         }
@@ -27850,10 +27806,10 @@ var Compiler = (function () {
         key: 'swapSymbolAndParse',
         value: function swapSymbolAndParse(key, schema, ctx, fn) {
 
-            if (this.hasSymbol(key, SWAP_AND_PARSE_SYMBOL)) {
-                this._checkDups(cut(key, SWAP_AND_PARSE_SYMBOL), schema);
-                var ret = this._swap(SWAP_AND_PARSE_SYMBOL, key, schema, ctx);
-                ret[cut(key, SWAP_AND_PARSE_SYMBOL)] = fn(ret[cut(key, SWAP_AND_PARSE_SYMBOL)], ctx, this);
+            if (this.hasSymbol(key, this.SYMBOLS.SWAP_AND_PARSE)) {
+                this._checkDups(this.cut(key, this.SYMBOLS.SWAP_AND_PARSE), schema);
+                var ret = this._swap(this.SYMBOLS.SWAP_AND_PARSE, key, schema, ctx);
+                ret[this.cut(key, this.SYMBOLS.SWAP_AND_PARSE)] = fn(ret[this.cut(key, this.SYMBOLS.SWAP_AND_PARSE)], ctx, this);
                 return ret;
             }
 
@@ -27872,9 +27828,9 @@ var Compiler = (function () {
          */
         value: function callAndSwapSymbol(key, schema, ctx) {
 
-            if (this.hasSymbol(key, CALL_AND_SWAP_SYMBOL)) {
+            if (this.hasSymbol(key, this.SYMBOLS.CALL_AND_SWAP)) {
 
-                this._checkDups(cut(key, CALL_AND_SWAP_SYMBOL), schema);
+                this._checkDups(this.cut(key, this.SYMBOLS.CALL_AND_SWAP), schema);
 
                 var desiredKey = schema[key];
                 var args = desiredKey.split(' ');
@@ -27882,34 +27838,7 @@ var Compiler = (function () {
 
                 if (!ctx.hasOwnProperty(desiredKey)) throw new KeyNotFoundOnContextError(desiredKey);
 
-                schema[cut(key, CALL_AND_SWAP_SYMBOL)] = ctx[desiredKey].apply(ctx, args);
-
-                delete schema[key];
-            }
-
-            return schema;
-        }
-    }, {
-        key: 'swapTemplateStrings',
-        value: function swapTemplateStrings(key, schema, ctx) {
-
-            if (this.hasSymbol(key, BUILTIN_STR_SYMBOL)) {
-
-                var realKey = cut(key, BUILTIN_STR_SYMBOL);
-
-                this._checkDups(realKey, schema);
-
-                var value = schema[key];
-
-                if (Array.isArray(value)) {
-                    schema[realKey] = value.map(function (v) {
-                        return _strtpl2['default'](v, ctx);
-                    });
-                } else {
-                    schema[realKey] = _strtpl2['default'](value, ctx);
-                }
-
-                schema[realKey] = _strtpl2['default'](schema[key], ctx);
+                schema[this.cut(key, this.SYMBOLS.CALL_AND_SWAP)] = ctx[desiredKey].apply(ctx, args);
 
                 delete schema[key];
             }
@@ -27924,7 +27853,7 @@ var Compiler = (function () {
 
             if (key === '$$filter') {
 
-                this._checkDups(cut(key, '$$filter'), schema);
+                this._checkDups(this.cut(key, '$$filter'), schema);
 
                 schema.filter = (function (filters) {
 
@@ -27981,9 +27910,9 @@ var Compiler = (function () {
         key: 'eagerCompile',
         value: function eagerCompile(key, schema, ctx, types) {
 
-            if (key.indexOf(EAGER_COMPILE_SYMBOL) > -1) if (!Array.isArray(schema[key])) {
-                this._checkDups(cut(key, EAGER_COMPILE_SYMBOL), schema);
-                schema[cut(key, EAGER_COMPILE_SYMBOL)] = this.compile(schema[key]);
+            if (key.indexOf(this.SYMBOLS.EAGER_COMPILE) > -1) if (!Array.isArray(schema[key])) {
+                this._checkDups(this.cut(key, this.SYMBOLS.EAGER_COMPILE), schema);
+                schema[this.cut(key, this.SYMBOLS.EAGER_COMPILE)] = this.compile(schema[key]);
                 delete schema[key];
             }
             return schema;
@@ -27992,11 +27921,11 @@ var Compiler = (function () {
         key: 'eagerCompileArray',
         value: function eagerCompileArray(key, schema, ctx, types) {
 
-            if (key.indexOf(EAGER_COMPILE_SYMBOL) > -1) if (Array.isArray(schema[key])) {
+            if (key.indexOf(this.SYMBOLS.EAGER_COMPILE) > -1) if (Array.isArray(schema[key])) {
 
-                this._checkDups(cut(key, EAGER_COMPILE_SYMBOL), schema);
+                this._checkDups(this.cut(key, this.SYMBOLS.EAGER_COMPILE), schema);
 
-                schema[cut(key, EAGER_COMPILE_SYMBOL)] = schema[key].map((function (scheme) {
+                schema[this.cut(key, this.SYMBOLS.EAGER_COMPILE)] = schema[key].map((function (scheme) {
                     return this.compile(scheme);
                 }).bind(this));
 
@@ -28007,6 +27936,8 @@ var Compiler = (function () {
     }, {
         key: 'compile',
         value: function compile(schema) {
+
+            if (!schema.type) return schema;
 
             if (schema.type in this.types) return this.types[schema.type](schema);
 
@@ -28022,7 +27953,7 @@ var Compiler = (function () {
 exports['default'] = Compiler;
 module.exports = exports['default'];
 
-},{"dot-component":5,"strtpl":185}],187:[function(require,module,exports){
+},{"dot-access":5,"strtpl":185}],187:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -28035,9 +27966,9 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-var _dotComponent = require('dot-component');
+var _dotAccess = require('dot-access');
 
-var _dotComponent2 = _interopRequireDefault(_dotComponent);
+var _dotAccess2 = _interopRequireDefault(_dotAccess);
 
 var _strtpl = require('strtpl');
 
@@ -28074,7 +28005,7 @@ var Parser = (function () {
         key: 'parseArray',
         value: function parseArray(schema) {
             return schema.map((function (scheme, key) {
-                scheme.key = key;
+                if (scheme.type) scheme.key = key;
                 return this.parse(scheme);
             }).bind(this));
         }
@@ -28087,22 +28018,30 @@ var Parser = (function () {
             for (var key in schema) {
                 if (schema.hasOwnProperty(key)) {
 
+                    schema = this.compiler['import'](key, schema, this);
                     schema = this.compiler.swapSymbolAndParse(key, schema, context, this.parseObject.bind(this));
-                    schema = this.compiler.swapTemplateStrings(key, schema, context);
                     schema = this.compiler.callAndSwapSymbol(key, schema, context);
                     schema = this.compiler.swapSymbol(key, schema, context);
                     schema = this.compiler.swapFilter(key, schema, context);
                     schema = this.compiler.eagerCompile(key, schema, context);
                     schema = this.compiler.eagerCompileArray(key, schema, context);
+
+                    if (this.compiler.hasSymbol(key, '$->')) {
+                        schema[this.compiler.cut(key, '$->')] = this.parseObjectLike(schema[key]);
+                        delete schema[key];
+                    }
                 }
             }
 
-            this.number++;
-            schema.$parser = this;
-            schema.$context = this.context;
-            schema.$number = this.number;
-            schema.$template = this.template.bind(this);
-            schema.$filter = this.compiler.filter.bind(this.compiler);
+            if (schema.type) {
+                this.number++;
+                schema.$parser = this;
+                schema.$context = this.context;
+                schema.$number = this.number;
+                schema.$template = this.template.bind(this);
+                schema.$filter = this.compiler.filter.bind(this.compiler);
+            }
+
             return schema;
         }
     }, {
@@ -28115,7 +28054,12 @@ var Parser = (function () {
          */
         value: function template(value, context) {
             context = context || this.context;
-            return _strtpl2['default'](value, context);
+            return (0, _strtpl2['default'])(value, context);
+        }
+    }, {
+        key: 'filter',
+        value: function filter() {
+            return this.compiler.filter.apply(this.compiler, arguments);
         }
     }, {
         key: 'cloneProps',
@@ -28156,7 +28100,7 @@ var Parser = (function () {
 exports['default'] = Parser;
 module.exports = exports['default'];
 
-},{"./Compiler":186,"dot-component":5,"strtpl":185}],188:[function(require,module,exports){
+},{"./Compiler":186,"dot-access":5,"strtpl":185}],188:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -28194,11 +28138,12 @@ var _filters2 = _interopRequireDefault(_filters);
  */
 
 var Realm = (function () {
-    function Realm(types, filters) {
+    function Realm(types, filters, cache) {
         _classCallCheck(this, Realm);
 
         this.types = types || {};
         this.filters = filters || {};
+        this.cache = cache || {};
     }
 
     _createClass(Realm, [{
@@ -28210,7 +28155,7 @@ var Realm = (function () {
          * @returns {Realm}
          */
         value: function addFilters(filters) {
-            this.filters = _merge2['default'](this.filters, filters);
+            this.filters = (0, _merge2['default'])(this.filters, filters);
             return this;
         }
     }, {
@@ -28222,7 +28167,13 @@ var Realm = (function () {
         * @returns {Realm}
         */
         value: function addTypes(types) {
-            this.types = _merge2['default'](this.types, types);
+            this.types = (0, _merge2['default'])(this.types, types);
+            return this;
+        }
+    }, {
+        key: 'addCache',
+        value: function addCache(cache) {
+            this.cache = (0, _merge2['default'])(this.cache, cache);
             return this;
         }
     }, {
@@ -28236,7 +28187,7 @@ var Realm = (function () {
          */
         value: function getParser(ctx) {
 
-            return new _Parser2['default'](new _Compiler2['default'](this.types, this.filters), ctx);
+            return new _Parser2['default'](new _Compiler2['default'](this.types, this.filters, this.cache || {}), ctx);
         }
     }]);
 
@@ -28348,10 +28299,11 @@ var Button = (function (_React$Component) {
 
 Button.propTypes = {
     name: _react2['default'].PropTypes.string.isRequired,
-    className: _react2['default'].PropTypes.string,
+    onClick: _react2['default'].PropTypes.func,
     textLabel: _react2['default'].PropTypes.string,
     icon: _react2['default'].PropTypes.string,
-    onClick: _react2['default'].PropTypes.func
+    className: _react2['default'].PropTypes.string
+
 };
 
 exports['default'] = Button;
@@ -28423,9 +28375,7 @@ Object.defineProperty(exports, '__esModule', {
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { desc = parent = getter = undefined; _again = false; var object = _x,
-    property = _x2,
-    receiver = _x3; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -28590,7 +28540,8 @@ var Form = (function (_React$Component) {
     _createClass(Form, [{
         key: 'submit',
         value: function submit(e) {
-
+            console.log('a form is being sumbitted ');
+            if (this.props.noSubmit) return e.preventDefault();
             if (this.props.onSubmit) {
                 e.preventDefault();
                 this.props.onSubmit();
@@ -28613,6 +28564,7 @@ var Form = (function (_React$Component) {
 Form.propTypes = {
     $parser: _react2['default'].PropTypes.object,
     onSubmit: _react2['default'].PropTypes.func,
+    noSubmit: _react2['default'].PropTypes.bool,
     defaultValue: _react2['default'].PropTypes.object,
     controls: _react2['default'].PropTypes.arrayOf(_react2['default'].PropTypes.object)
 };
@@ -29484,7 +29436,8 @@ var HorizontalTextArea = (function (_TextArea) {
 HorizontalTextArea.propTypes = {
     name: _react2['default'].PropTypes.string.isRequired,
     defaultValue: _react2['default'].PropTypes.oneOfType([_react2['default'].PropTypes.string, _react2['default'].PropTypes.number]),
-    model: _react2['default'].PropTypes.object.isRequired };
+    model: _react2['default'].PropTypes.object.isRequired
+};
 
 exports['default'] = HorizontalTextArea;
 module.exports = exports['default'];
@@ -29643,7 +29596,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"./Compiler":186,"./Parser":187,"./Realm":188,"./filters":189,"./form":207,"./state":214,"./types":215,"./view":223}],209:[function(require,module,exports){
+},{"./Compiler":186,"./Parser":187,"./Realm":188,"./filters":189,"./form":207,"./state":214,"./types":215,"./view":224}],209:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -29755,9 +29708,12 @@ var StateButton = (function (_Button) {
 
 StateButton.propTypes = {
   name: _react2['default'].PropTypes.string.isRequired,
-  label: _react2['default'].PropTypes.string,
+  target: _react2['default'].PropTypes.object.isRequired,
   stateKey: _react2['default'].PropTypes.string.isRequired,
-  target: _react2['default'].PropTypes.object.isRequired
+  textLabel: _react2['default'].PropTypes.string,
+  icon: _react2['default'].PropTypes.string,
+  className: _react2['default'].PropTypes.string
+
 };
 
 exports['default'] = StateButton;
@@ -29772,9 +29728,7 @@ Object.defineProperty(exports, '__esModule', {
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { desc = parent = getter = undefined; _again = false; var object = _x,
-    property = _x2,
-    receiver = _x3; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -29790,9 +29744,9 @@ var _jhr = require('jhr');
 
 var _jhr2 = _interopRequireDefault(_jhr);
 
-var _dotComponent = require('dot-component');
+var _dotAccess = require('dot-access');
 
-var _dotComponent2 = _interopRequireDefault(_dotComponent);
+var _dotAccess2 = _interopRequireDefault(_dotAccess);
 
 var http = _jhr2['default'].createAgent();
 
@@ -29853,7 +29807,7 @@ var StateRequest = (function (_React$Component) {
           return self.setState({ view: 'error', data: res.data });
         }
 
-        if (props.parent) return parent.setState(state);
+        if (props.parent) return props.parent.setState(state);
       });
     }
   }, {
@@ -29882,20 +29836,21 @@ StateRequest.propTypes = {
   url: _react2['default'].PropTypes.string.isRequired,
   method: _react2['default'].PropTypes.string.isRequired,
   beforeRequest: _react2['default'].PropTypes.func,
-  params: _react2['default'].PropTypes.array,
+  params: _react2['default'].PropTypes.object,
   parent: _react2['default'].PropTypes.object,
   resultKey: _react2['default'].PropTypes.string,
   onError: _react2['default'].PropTypes.func,
   onSuccess: _react2['default'].PropTypes.func,
   stateKey: _react2['default'].PropTypes.string,
   errorState: _react2['default'].PropTypes.string,
-  successState: _react2['default'].PropTypes.string
+  successState: _react2['default'].PropTypes.string,
+  content: _react2['default'].PropTypes.object
 };
 
 exports['default'] = StateRequest;
 module.exports = exports['default'];
 
-},{"dot-component":5,"jhr":28,"react":184}],212:[function(require,module,exports){
+},{"dot-access":5,"jhr":28,"react":184}],212:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -29904,9 +29859,7 @@ Object.defineProperty(exports, '__esModule', {
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { desc = parent = getter = undefined; _again = false; var object = _x,
-    property = _x2,
-    receiver = _x3; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -29942,7 +29895,11 @@ var Switch = (function (_React$Component) {
 
             if (!views.hasOwnProperty(state)) throw new Error('Unknown view state ' + state + '!');
 
-            return this.props.$parser.parse(views[state]);
+            var ret = this.props.$parser.parse(views[state]);
+
+            if (Array.isArray(ret)) ret = _react2['default'].createElement('span', null, ret);
+
+            return ret;
         }
     }]);
 
@@ -30032,15 +29989,16 @@ var Tabs = (function (_React$Component) {
 })(_react2['default'].Component);
 
 Tabs.propTypes = {
+  parent: _react2['default'].PropTypes.object.isRequired,
+  stateKey: _react2['default'].PropTypes.string.isRequired,
+  currentTab: _react2['default'].PropTypes.string,
+  defaultTab: _react2['default'].PropTypes.string,
   tabs: _react2['default'].PropTypes.arrayOf(_react2['default'].PropTypes.shape({
     label: _react2['default'].PropTypes.string.isRequired,
     tabKey: _react2['default'].PropTypes.string.isRequired,
     activeKey: _react2['default'].PropTypes.string
-  })).isRequired,
-  currentTab: _react2['default'].PropTypes.string,
-  defaultTab: _react2['default'].PropTypes.string,
-  parent: _react2['default'].PropTypes.object.isRequired,
-  stateKey: _react2['default'].PropTypes.string.isRequired
+  })).isRequired
+
 };
 
 exports['default'] = Tabs;
@@ -30097,9 +30055,9 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
-var _dotComponent = require('dot-component');
+var _dotAccess = require('dot-access');
 
-var _dotComponent2 = _interopRequireDefault(_dotComponent);
+var _dotAccess2 = _interopRequireDefault(_dotAccess);
 
 var _form2 = require('./form');
 
@@ -30204,6 +30162,12 @@ exports['default'] = {
     formgroup: function formgroup(schema) {
         return _react2['default'].createElement(_view3['default'].FormGroup, cleanView(schema));
     },
+    'if': function _if(schema) {
+        return _react2['default'].createElement(_view3['default'].If, schema);
+    },
+    section: function section(schema) {
+        return _react2['default'].createElement(_view3['default'].Section, schema);
+    },
     location: function location(schema) {
         return _react2['default'].createElement(_state2['default'].Location, schema);
     },
@@ -30223,7 +30187,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"./form":207,"./state":214,"./view":223,"dot-component":5,"react":184}],216:[function(require,module,exports){
+},{"./form":207,"./state":214,"./view":224,"dot-access":5,"react":184}],216:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -30242,9 +30206,9 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
-var _dotComponent = require('dot-component');
+var _dotAccess = require('dot-access');
 
-var _dotComponent2 = _interopRequireDefault(_dotComponent);
+var _dotAccess2 = _interopRequireDefault(_dotAccess);
 
 /**
  *  DefinitionList displays a definition list of the data supplied.
@@ -30280,7 +30244,7 @@ var DefinitionList = (function (_React$Component) {
                     label.label
                 ));
 
-                var value = _dotComponent2['default'].get(data, label.name);
+                var value = _dotAccess2['default'].get(data, label.name);
 
                 if (label.filter) value = self.props.$filter(value, label.filter, data);
 
@@ -30307,22 +30271,25 @@ DefinitionList.propTypes = {
     labels: _react2['default'].PropTypes.arrayOf(_react2['default'].PropTypes.shape({
         label: _react2['default'].PropTypes.string.isRequired,
         name: _react2['default'].PropTypes.string.isRequired,
-        filter: _react2['default'].PropTypes.string })).isRequired,
-    data: _react2['default'].PropTypes.object };
+        filter: _react2['default'].PropTypes.string
+    })).isRequired,
+    data: _react2['default'].PropTypes.object
+
+};
 
 exports['default'] = DefinitionList;
 module.exports = exports['default'];
 
-},{"dot-component":5,"react":184}],217:[function(require,module,exports){
+},{"dot-access":5,"react":184}],217:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -30466,6 +30433,77 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _is = require('is');
+
+var _is2 = _interopRequireDefault(_is);
+
+/**
+ * If conditionally shows its content
+ */
+
+var If = (function (_React$Component) {
+    function If() {
+        _classCallCheck(this, If);
+
+        if (_React$Component != null) {
+            _React$Component.apply(this, arguments);
+        }
+    }
+
+    _inherits(If, _React$Component);
+
+    _createClass(If, [{
+        key: 'render',
+        value: function render() {
+
+            var ret;
+
+            if (!_is2['default'].empty(this.props.condition)) {
+                ret = this.props.$parser.parse(this.props.then);
+            } else {
+                ret = this.props.$parser.parse(this.props['else']);
+            }
+
+            if (!ret) return null;
+
+            if (typeof ret !== 'object') ret = _react2['default'].createElement('span', null, ret);
+
+            return ret;
+        }
+    }]);
+
+    return If;
+})(_react2['default'].Component);
+
+If.propTypes = {
+    $parser: _react2['default'].PropTypes.object.isRequired,
+    condition: _react2['default'].PropTypes.any,
+    then: _react2['default'].PropTypes.any.isRequired,
+    'else': _react2['default'].PropTypes.any
+};
+
+exports['default'] = If;
+module.exports = exports['default'];
+
+},{"is":6,"react":184}],219:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
 /**
  * Panel
  */
@@ -30526,7 +30564,7 @@ Panel.propTypes = {
 exports['default'] = Panel;
 module.exports = exports['default'];
 
-},{"react":184}],219:[function(require,module,exports){
+},{"react":184}],220:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -30564,7 +30602,7 @@ var Section = (function (_React$Component) {
         key: 'render',
         value: function render() {
 
-            return _react2['default'].createElement('section', this.$parser.cloneProps(this.props), this.$parser.parseObjectLike(this.props.content));
+            return _react2['default'].createElement('section', this.props.$parser.cloneProps(this.props), this.props.$parser.parse(this.props.content));
         }
     }]);
 
@@ -30579,7 +30617,7 @@ Section.propTypes = {
 exports['default'] = Section;
 module.exports = exports['default'];
 
-},{"react":184}],220:[function(require,module,exports){
+},{"react":184}],221:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -30588,9 +30626,7 @@ Object.defineProperty(exports, '__esModule', {
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { desc = parent = getter = undefined; _again = false; var object = _x,
-    property = _x2,
-    receiver = _x3; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -30602,9 +30638,9 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
-var _dotComponent = require('dot-component');
+var _dotAccess = require('dot-access');
 
-var _dotComponent2 = _interopRequireDefault(_dotComponent);
+var _dotAccess2 = _interopRequireDefault(_dotAccess);
 
 var compareDate = function compareDate(name) {
 
@@ -30619,8 +30655,8 @@ var compare = function compare(name) {
 
     return function (a, b) {
 
-        var aval = _dotComponent2['default'].get(a, name);
-        var bval = _dotComponent2['default'].get(b, name);
+        var aval = _dotAccess2['default'].get(a, name);
+        var bval = _dotAccess2['default'].get(b, name);
 
         if (typeof aval === 'string') aval = aval.replace(/\s+/, '').toLowerCase();
 
@@ -30701,7 +30737,7 @@ var Table = (function (_React$Component) {
                         data = datum.$index || i;
                     } else {
 
-                        data = _dotComponent2['default'].get(datum, column.name);
+                        data = _dotAccess2['default'].get(datum, column.name);
 
                         if (!data) data = null;
                     }
@@ -30727,13 +30763,15 @@ Table.propTypes = {
     columns: _react2['default'].PropTypes.arrayOf(_react2['default'].PropTypes.shape({
         name: _react2['default'].PropTypes.string.isRequired,
         label: _react2['default'].PropTypes.string.isRequired,
-        filter: _react2['default'].PropTypes.string })).isRequired
+        filter: _react2['default'].PropTypes.string
+
+    })).isRequired
 };
 
 exports['default'] = Table;
 module.exports = exports['default'];
 
-},{"dot-component":5,"react":184}],221:[function(require,module,exports){
+},{"dot-access":5,"react":184}],222:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -30787,7 +30825,7 @@ Tag.propTypes = {
 exports['default'] = Tag;
 module.exports = exports['default'];
 
-},{"react":184}],222:[function(require,module,exports){
+},{"react":184}],223:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -30838,7 +30876,7 @@ View.propTypes = {
 exports['default'] = View;
 module.exports = exports['default'];
 
-},{"react":184}],223:[function(require,module,exports){
+},{"react":184}],224:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -30875,6 +30913,10 @@ var _DefinitionList = require('./DefinitionList');
 
 var _DefinitionList2 = _interopRequireDefault(_DefinitionList);
 
+var _If = require('./If');
+
+var _If2 = _interopRequireDefault(_If);
+
 exports['default'] = {
     FormGroup: _FormGroup2['default'],
     Panel: _Panel2['default'],
@@ -30882,11 +30924,12 @@ exports['default'] = {
     Table: _Table2['default'],
     Tag: _Tag2['default'],
     View: _View2['default'],
-    DefinitionList: _DefinitionList2['default']
+    DefinitionList: _DefinitionList2['default'],
+    If: _If2['default']
 };
 module.exports = exports['default'];
 
-},{"./DefinitionList":216,"./FormGroup":217,"./Panel":218,"./Section":219,"./Table":220,"./Tag":221,"./View":222}],224:[function(require,module,exports){
+},{"./DefinitionList":216,"./FormGroup":217,"./If":218,"./Panel":219,"./Section":220,"./Table":221,"./Tag":222,"./View":223}],225:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};

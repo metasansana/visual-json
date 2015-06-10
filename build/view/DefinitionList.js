@@ -16,9 +16,9 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
-var _dotComponent = require('dot-component');
+var _dotAccess = require('dot-access');
 
-var _dotComponent2 = _interopRequireDefault(_dotComponent);
+var _dotAccess2 = _interopRequireDefault(_dotAccess);
 
 /**
  *  DefinitionList displays a definition list of the data supplied.
@@ -54,7 +54,7 @@ var DefinitionList = (function (_React$Component) {
                     label.label
                 ));
 
-                var value = _dotComponent2['default'].get(data, label.name);
+                var value = _dotAccess2['default'].get(data, label.name);
 
                 if (label.filter) value = self.props.$filter(value, label.filter, data);
 

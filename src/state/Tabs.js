@@ -14,6 +14,11 @@ class Tabs extends React.Component {
       var aProps = {};
       var keyForActive = tab.activeKey || tab.tabKey;
       var currentTab = this.props.currentTab || this.props.defaultTab;
+      var parent = this.props.parent || this.props.$context;
+
+      if(tab.hasOwnProperty('hidden'))
+      if(tab.hidden === true)
+      return null;
 
       if (currentTab === keyForActive)
         props.className = "active";
@@ -25,7 +30,7 @@ class Tabs extends React.Component {
       aProps.onClick = function (tabKey) {
         var state = {};
         state[this.props.stateKey] = tabKey;
-        this.props.parent.setState(state);
+        parent.setState(state);
       }.bind(this, tab.tabKey);
 
       return React.createElement('li', props, React.createElement('a', aProps, tab.label));
@@ -39,7 +44,8 @@ class Tabs extends React.Component {
 }
 
 Tabs.propTypes = {
-  parent: React.PropTypes.object.isRequired,
+  parent: React.PropTypes.object,
+  $context: React.PropTypes.object.isRequired,
   stateKey:React.PropTypes.string.isRequired,
   currentTab:React.PropTypes.string,
   defaultTab:React.PropTypes.string,

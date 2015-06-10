@@ -1,6 +1,6 @@
 import React from 'react';
 import jhr from 'jhr';
-import dot from 'dot-component';
+import dot  from 'dot-access';
 
 var http = jhr.createAgent();
 
@@ -108,8 +108,9 @@ StateRequest.propTypes = {
   onSuccess: React.PropTypes.func,
   stateKey: React.PropTypes.string,
   errorState: React.PropTypes.string,
-  successState: React.PropTypes.string
-}
+  successState: React.PropTypes.string,
+  content: React.PropTypes.object
+};
 
 
 export default StateRequest;

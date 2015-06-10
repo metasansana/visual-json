@@ -62,6 +62,7 @@ var Parser = (function () {
             for (var key in schema) {
                 if (schema.hasOwnProperty(key)) {
 
+                    schema = this.compiler['import'](key, schema, this);
                     schema = this.compiler.swapSymbolAndParse(key, schema, context, this.parseObject.bind(this));
                     schema = this.compiler.callAndSwapSymbol(key, schema, context);
                     schema = this.compiler.swapSymbol(key, schema, context);

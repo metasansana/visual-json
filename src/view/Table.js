@@ -1,5 +1,5 @@
 import React from 'react';
-import dot from 'dot-component';
+import dot  from 'dot-access';
 
 var compareDate = function (name) {
 
@@ -36,14 +36,22 @@ class Table extends React.Component {
 
         super(props);
 
-        this.state = {
+        var state = {
             view: '',
             data: (this.props.data) ? this.props.data : [],
             columns: (this.props.columns) ? this.props.columns : [],
             sortedOn: '',
             lastSorted: '',
             arrow: ''
-        }
+        };
+
+        state.columns  = state.columns.filter(function(col){
+
+            if(!col.hidden)
+            return true;
+        });
+
+        this.state = state;
 
     }
 

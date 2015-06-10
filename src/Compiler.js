@@ -30,6 +30,13 @@ class KeyNotFoundOnContextError extends TypedError {
     }
 }
 
+class KeyNotFoundInCacheError extends TypedError {
+
+    constructor(key) {
+        super('The cache does not have a key ' + key + '!');
+    }
+}
+
 class DuplicateKeyError extends TypedError {
 
     constructor(key, o) {
@@ -63,16 +70,18 @@ var BUILTIN_STR_SYMBOL = '$#';
  */
 class Compiler {
 
-    constructor(types, filters) {
+    constructor(types, filters, cache) {
         this.types = types;
         this.filters = filters;
+        this.cache = cache;
         this.SYMBOLS = {
             SWAP: '@',
             SWAP_AND_PARSE: '@@',
             CALL_AND_SWAP: '!@',
+            IMPORT: '!',
             CALL_AND_SWAP_AND_PARSE_SYMBOL: '!@@',
-//            BUILTIN_SYMBOL: '$$',
-            //          BUILTIN_STR_SYMBOL: '$#',
+            //BUILTIN_SYMBOL: '$$',
+            //BUILTIN_STR_SYMBOL: '$#',
             EAGER_COMPILE: '$$$',
             PARSE_STEP: '$->'
         }
@@ -103,6 +112,37 @@ class Compiler {
 
         delete schema[key];
         return schema;
+    }
+
+    import(key, schema) {
+
+        if (this.hasSymbol(key, this.SYMBOLS.IMPORT)) {
+
+            var keyName = this.cut(key, this.SYMBOLS.IMPORT);
+            var needle = schema[key];
+
+            if(Array.isArray(needle)){
+                needle = needle.map(function(path){
+                    if(typeof path == object)
+                    return type;
+                    if(!this.cache.hasOwnProperty(path))
+                    throw new KeyNotFoundInCacheError(path);
+                    return this.cache[path];
+                }.bind(this));
+            }else{
+                if(!this.cache.hasOwnProperty(needle))
+                    throw new KeyNotFoundInCacheError(needle);
+                needle = this.cache[needle];
+            }
+
+            this._checkDups(keyName, schema);
+            delete schema[key];
+            schema[keyName] = needle;
+
+        }
+
+        return schema;
+
     }
 
     /**

@@ -10,9 +10,9 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
-var _dotComponent = require('dot-component');
+var _dotAccess = require('dot-access');
 
-var _dotComponent2 = _interopRequireDefault(_dotComponent);
+var _dotAccess2 = _interopRequireDefault(_dotAccess);
 
 var _form2 = require('./form');
 

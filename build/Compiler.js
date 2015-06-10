@@ -61,14 +61,26 @@ var KeyNotFoundOnContextError = (function (_TypedError) {
     return KeyNotFoundOnContextError;
 })(TypedError);
 
-var DuplicateKeyError = (function (_TypedError2) {
+var KeyNotFoundInCacheError = (function (_TypedError2) {
+    function KeyNotFoundInCacheError(key) {
+        _classCallCheck(this, KeyNotFoundInCacheError);
+
+        _get(Object.getPrototypeOf(KeyNotFoundInCacheError.prototype), 'constructor', this).call(this, 'The cache does not have a key ' + key + '!');
+    }
+
+    _inherits(KeyNotFoundInCacheError, _TypedError2);
+
+    return KeyNotFoundInCacheError;
+})(TypedError);
+
+var DuplicateKeyError = (function (_TypedError3) {
     function DuplicateKeyError(key, o) {
         _classCallCheck(this, DuplicateKeyError);
 
         _get(Object.getPrototypeOf(DuplicateKeyError.prototype), 'constructor', this).call(this, 'The key "' + key + '" appears twice in your schema! This will end the world if we do any swapping or compiling! Schema: ' + JSON.stringify(o));
     }
 
-    _inherits(DuplicateKeyError, _TypedError2);
+    _inherits(DuplicateKeyError, _TypedError3);
 
     return DuplicateKeyError;
 })(TypedError);
@@ -96,18 +108,20 @@ var BUILTIN_STR_SYMBOL = '$#';
  */
 
 var Compiler = (function () {
-    function Compiler(types, filters) {
+    function Compiler(types, filters, cache) {
         _classCallCheck(this, Compiler);
 
         this.types = types;
         this.filters = filters;
+        this.cache = cache;
         this.SYMBOLS = {
             SWAP: '@',
             SWAP_AND_PARSE: '@@',
             CALL_AND_SWAP: '!@',
+            IMPORT: '!',
             CALL_AND_SWAP_AND_PARSE_SYMBOL: '!@@',
-            //            BUILTIN_SYMBOL: '$$',
-            //          BUILTIN_STR_SYMBOL: '$#',
+            //BUILTIN_SYMBOL: '$$',
+            //BUILTIN_STR_SYMBOL: '$#',
             EAGER_COMPILE: '$$$',
             PARSE_STEP: '$->'
         };
@@ -138,6 +152,33 @@ var Compiler = (function () {
             }
 
             delete schema[key];
+            return schema;
+        }
+    }, {
+        key: 'import',
+        value: function _import(key, schema) {
+
+            if (this.hasSymbol(key, this.SYMBOLS.IMPORT)) {
+
+                var keyName = this.cut(key, this.SYMBOLS.IMPORT);
+                var needle = schema[key];
+
+                if (Array.isArray(needle)) {
+                    needle = needle.map((function (path) {
+                        if (typeof path == object) return type;
+                        if (!this.cache.hasOwnProperty(path)) throw new KeyNotFoundInCacheError(path);
+                        return this.cache[path];
+                    }).bind(this));
+                } else {
+                    if (!this.cache.hasOwnProperty(needle)) throw new KeyNotFoundInCacheError(needle);
+                    needle = this.cache[needle];
+                }
+
+                this._checkDups(keyName, schema);
+                delete schema[key];
+                schema[keyName] = needle;
+            }
+
             return schema;
         }
     }, {

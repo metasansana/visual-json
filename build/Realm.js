@@ -35,11 +35,12 @@ var _filters2 = _interopRequireDefault(_filters);
  */
 
 var Realm = (function () {
-    function Realm(types, filters) {
+    function Realm(types, filters, cache) {
         _classCallCheck(this, Realm);
 
         this.types = types || {};
         this.filters = filters || {};
+        this.cache = cache || {};
     }
 
     _createClass(Realm, [{
@@ -67,6 +68,12 @@ var Realm = (function () {
             return this;
         }
     }, {
+        key: 'addCache',
+        value: function addCache(cache) {
+            this.cache = (0, _merge2['default'])(this.cache, cache);
+            return this;
+        }
+    }, {
         key: 'getParser',
 
         /**
@@ -77,7 +84,7 @@ var Realm = (function () {
          */
         value: function getParser(ctx) {
 
-            return new _Parser2['default'](new _Compiler2['default'](this.types, this.filters), ctx);
+            return new _Parser2['default'](new _Compiler2['default'](this.types, this.filters, this.cache || {}), ctx);
         }
     }]);
 

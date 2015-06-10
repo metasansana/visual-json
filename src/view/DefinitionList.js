@@ -1,5 +1,5 @@
 import React from 'react';
-import dot  from 'dot-component';
+import dot  from 'dot-access';
 
 
 /**
