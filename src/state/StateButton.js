@@ -18,9 +18,9 @@ class StateButton extends Button {
 }
 
 /**
- * name {String} The name of this button.
  * target {Object} The object setState() will be called on.
  * stateKey {String} The key name for the setState() call.
+ * name {String} The name of this button (this is used as the value for the setState() call).
  * textLabel {String} The text label if the button
  * icon {String} If set, it will generate a font awesome icon in the button with this value as the class.
  * className {String} The class name of the button.
