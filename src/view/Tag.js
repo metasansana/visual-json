@@ -11,7 +11,7 @@ class Tag extends React.Component {
 Tag.propTypes = {
     $parser: React.PropTypes.object.isRequired,
     tag:React.PropTypes.string.isRequired,
-    content:React.PropTypes.object
+    content:React.PropTypes.oneOfType([React.PropTypes.object, React.PropTypes.array])
 }
 
 export default Tag;

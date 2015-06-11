@@ -39,11 +39,10 @@ class Parser {
         for (var key in schema) {
             if (schema.hasOwnProperty(key)) {
 
-                schema = this.compiler.import(key, schema, this);
+                schema = this.compiler.swapTemplate(key, schema, context);
                 schema = this.compiler.swapSymbolAndParse(key, schema, context, this.parseObject.bind(this));
                 schema = this.compiler.callAndSwapSymbol(key, schema, context);
                 schema = this.compiler.swapSymbol(key, schema, context);
-                schema = this.compiler.swapFilter(key, schema, context);
                 schema = this.compiler.eagerCompile(key, schema, context);
                 schema = this.compiler.eagerCompileArray(key, schema, context);
 
@@ -74,7 +73,7 @@ class Parser {
      */
     template(value, context) {
         context = context || this.context;
-        return strtpl(value, context);
+        return this.compiler.template(value, context);
     }
 
     filter(){
@@ -83,15 +82,18 @@ class Parser {
 
     /**
      * cloneProp can be used to clone props but removes any '$' values.
-     * @param schema
+     * @param {Object} schema
+     * @param {Object} props
      * @returns {Object}
      */
-    cloneProps(schema) {
+    cloneProps(schema, props) {
 
+        props = props || schema;
         var o = {};
 
         for (var key in schema)
             if (schema.hasOwnProperty(key))
+            if(props.hasOwnProperty(key))
                 if (key[0] !== '$')
                     o[key] = schema[key];
 

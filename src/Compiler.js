@@ -78,12 +78,12 @@ class Compiler {
             SWAP: '@',
             SWAP_AND_PARSE: '@@',
             CALL_AND_SWAP: '!@',
-            IMPORT: '!',
             CALL_AND_SWAP_AND_PARSE_SYMBOL: '!@@',
             //BUILTIN_SYMBOL: '$$',
             //BUILTIN_STR_SYMBOL: '$#',
             EAGER_COMPILE: '$$$',
-            PARSE_STEP: '$->'
+            PARSE_STEP: '$->',
+            "TEMPLATE": '^'
         }
     }
 
@@ -114,35 +114,13 @@ class Compiler {
         return schema;
     }
 
-    import(key, schema) {
-
-        if (this.hasSymbol(key, this.SYMBOLS.IMPORT)) {
-
-            var keyName = this.cut(key, this.SYMBOLS.IMPORT);
-            var needle = schema[key];
-
-            if(Array.isArray(needle)){
-                needle = needle.map(function(path){
-                    if(typeof path == object)
-                    return type;
-                    if(!this.cache.hasOwnProperty(path))
-                    throw new KeyNotFoundInCacheError(path);
-                    return this.cache[path];
-                }.bind(this));
-            }else{
-                if(!this.cache.hasOwnProperty(needle))
-                    throw new KeyNotFoundInCacheError(needle);
-                needle = this.cache[needle];
-            }
-
-            this._checkDups(keyName, schema);
-            delete schema[key];
-            schema[keyName] = needle;
-
-        }
-
-        return schema;
-
+    /**
+     * template swaps value between {{ }} for some value on the context.
+     * @param value
+     * @param context
+     */
+    template(value, context) {
+        return fmt(value, context);
     }
 
     /**
@@ -222,25 +200,19 @@ class Compiler {
         return schema;
     }
 
-    swapFilter(key, schema, ctx) {
 
-        var self = this;
+    /**
+     * swapTemplate applies a string template to the value.
+     */
+    swapTemplate(key, schema, ctx) {
 
-        if (key === '$$filter') {
+        if (this.hasSymbol(key, this.SYMBOLS.TEMPLATE)) {
+            this._checkDups(this.cut(key, this.SYMBOLS.TEMPLATE), schema);
 
-            this._checkDups(this.cut(key, '$$filter'), schema);
-
-            schema.filter = function (filters) {
-
-                return function (value, data) {
-                    return self.filter(value, filters, data);
-                }
-
-            }(schema.$$filter);
-
-            delete schema.$$filter;
-
+            schema[this.cut(key, this.SYMBOLS.TEMPLATE)] = this.template(schema[key], ctx);
+            delete schema[key];
         }
+
         return schema;
 
     }

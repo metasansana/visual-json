@@ -44,7 +44,7 @@ var Tag = (function (_React$Component) {
 Tag.propTypes = {
     $parser: _react2['default'].PropTypes.object.isRequired,
     tag: _react2['default'].PropTypes.string.isRequired,
-    content: _react2['default'].PropTypes.object
+    content: _react2['default'].PropTypes.oneOfType([_react2['default'].PropTypes.object, _react2['default'].PropTypes.array])
 };
 
 exports['default'] = Tag;

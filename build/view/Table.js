@@ -122,6 +122,7 @@ var Table = (function (_React$Component) {
 
                     if (column.name === '$index') {
                         data = datum.$index || i;
+                        datum.index = datum.index || i;
                     } else {
 
                         data = _dotAccess2['default'].get(datum, column.name);
@@ -129,7 +130,7 @@ var Table = (function (_React$Component) {
                         if (!data) data = null;
                     }
 
-                    if (column.filter) data = self.props.$filter(data, column.filter, datum);
+                    if (column.filter) data = self.props.$parser.filter(data, column.filter, datum);
 
                     return _react2['default'].createElement('td', { key: ii }, data);
                 }));
@@ -145,6 +146,7 @@ var Table = (function (_React$Component) {
 })(_react2['default'].Component);
 
 Table.propTypes = {
+    $parser: _react2['default'].PropTypes.object.isRequired,
     $filter: _react2['default'].PropTypes.func,
     data: _react2['default'].PropTypes.array.isRequired,
     columns: _react2['default'].PropTypes.arrayOf(_react2['default'].PropTypes.shape({

@@ -70,7 +70,7 @@ class Table extends React.Component {
             state.data = state.data.sort(compareDate(name));
             state.sortedOn = name;
             state.arrow = '\u21e9';
-        } else {
+        }else{
             state.data = state.data.sort(compare(name));
             state.lastSortedOn = this.state.sortedOn;
             state.sortedOn = name;
@@ -103,6 +103,7 @@ class Table extends React.Component {
 
                     if(column.name === '$index') {
                         data = datum.$index || i;
+                        datum.index = datum.index || i;
 
                     }else{
 
@@ -113,7 +114,7 @@ class Table extends React.Component {
                     }
 
                     if (column.filter)
-                        data = self.props.$filter(data, column.filter, datum);
+                        data = self.props.$parser.filter(data, column.filter, datum);
 
                     return React.createElement('td', {key: ii}, data);
 
@@ -131,6 +132,7 @@ class Table extends React.Component {
 }
 
 Table.propTypes = {
+    $parser: React.PropTypes.object.isRequired,
     $filter: React.PropTypes.func,
     data: React.PropTypes.array.isRequired,
     columns: React.PropTypes.arrayOf(React.PropTypes.shape({

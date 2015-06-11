@@ -62,11 +62,10 @@ var Parser = (function () {
             for (var key in schema) {
                 if (schema.hasOwnProperty(key)) {
 
-                    schema = this.compiler['import'](key, schema, this);
+                    schema = this.compiler.swapTemplate(key, schema, context);
                     schema = this.compiler.swapSymbolAndParse(key, schema, context, this.parseObject.bind(this));
                     schema = this.compiler.callAndSwapSymbol(key, schema, context);
                     schema = this.compiler.swapSymbol(key, schema, context);
-                    schema = this.compiler.swapFilter(key, schema, context);
                     schema = this.compiler.eagerCompile(key, schema, context);
                     schema = this.compiler.eagerCompileArray(key, schema, context);
 
@@ -98,7 +97,7 @@ var Parser = (function () {
          */
         value: function template(value, context) {
             context = context || this.context;
-            return (0, _strtpl2['default'])(value, context);
+            return this.compiler.template(value, context);
         }
     }, {
         key: 'filter',
@@ -110,14 +109,16 @@ var Parser = (function () {
 
         /**
          * cloneProp can be used to clone props but removes any '$' values.
-         * @param schema
+         * @param {Object} schema
+         * @param {Object} props
          * @returns {Object}
          */
-        value: function cloneProps(schema) {
+        value: function cloneProps(schema, props) {
 
+            props = props || schema;
             var o = {};
 
-            for (var key in schema) if (schema.hasOwnProperty(key)) if (key[0] !== '$') o[key] = schema[key];
+            for (var key in schema) if (schema.hasOwnProperty(key)) if (props.hasOwnProperty(key)) if (key[0] !== '$') o[key] = schema[key];
 
             return o;
         }
