@@ -1,7 +1,7 @@
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
-  value: true
+    value: true
 });
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -24,39 +24,48 @@ var _formButton2 = _interopRequireDefault(_formButton);
  * StateButton is used to manipulate state of a context object via the click of a button.'
  *
  * Whatever you supply as the `resultKey` prop, will be set to the value of the buttons name.
- * This is typically usefull when used in combination with a Switch component.
+ * This is typically useful when used in combination with a Switch component.
+ *
  */
 
 var StateButton = (function (_Button) {
-  function StateButton() {
-    _classCallCheck(this, StateButton);
+    function StateButton() {
+        _classCallCheck(this, StateButton);
 
-    if (_Button != null) {
-      _Button.apply(this, arguments);
+        if (_Button != null) {
+            _Button.apply(this, arguments);
+        }
     }
-  }
 
-  _inherits(StateButton, _Button);
+    _inherits(StateButton, _Button);
 
-  _createClass(StateButton, [{
-    key: 'buttonClicked',
-    value: function buttonClicked(e) {
-      var state = {};
-      state[this.props.stateKey] = this.props.name;
-      this.props.target.setState(state);
-    }
-  }]);
+    _createClass(StateButton, [{
+        key: 'buttonClicked',
+        value: function buttonClicked(e) {
+            var state = {};
+            state[this.props.stateKey] = this.props.name;
+            this.props.target.setState(state);
+        }
+    }]);
 
-  return StateButton;
+    return StateButton;
 })(_formButton2['default']);
 
+/**
+ * target {Object} The object setState() will be called on.
+ * stateKey {String} The key name for the setState() call.
+ * name {String} The name of this button (this is used as the value for the setState() call).
+ * textLabel {String} The text label if the button
+ * icon {String} If set, it will generate a font awesome icon in the button with this value as the class.
+ * className {String} The class name of the button.
+ */
 StateButton.propTypes = {
-  name: _react2['default'].PropTypes.string.isRequired,
-  target: _react2['default'].PropTypes.object.isRequired,
-  stateKey: _react2['default'].PropTypes.string.isRequired,
-  textLabel: _react2['default'].PropTypes.string,
-  icon: _react2['default'].PropTypes.string,
-  className: _react2['default'].PropTypes.string
+    name: _react2['default'].PropTypes.string.isRequired,
+    target: _react2['default'].PropTypes.object.isRequired,
+    stateKey: _react2['default'].PropTypes.string.isRequired,
+    textLabel: _react2['default'].PropTypes.string,
+    icon: _react2['default'].PropTypes.string,
+    className: _react2['default'].PropTypes.string
 
 };
 
