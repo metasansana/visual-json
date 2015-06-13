@@ -58,11 +58,12 @@ var Button = (function (_React$Component) {
         value: function render() {
 
             var props = {};
+            var tag = this.props.anchor ? 'a' : 'button';
 
             for (var key in this.props) if (this.props.hasOwnProperty(key)) props[key] = this.props[key];
 
             props.onClick = this.buttonClicked.bind(this);
-            return _react2['default'].createElement('button', props, ' ', this.getIcon(), this.getLabel());
+            return _react2['default'].createElement(tag, props, ' ', this.getIcon(), this.getLabel());
         }
     }]);
 
@@ -71,11 +72,12 @@ var Button = (function (_React$Component) {
 
 Button.propTypes = {
     name: _react2['default'].PropTypes.string.isRequired,
+    anchor: _react2['default'].PropTypes.bool,
+    href: _react2['default'].PropTypes.string,
     onClick: _react2['default'].PropTypes.func,
     textLabel: _react2['default'].PropTypes.string,
     icon: _react2['default'].PropTypes.string,
     className: _react2['default'].PropTypes.string
-
 };
 
 exports['default'] = Button;

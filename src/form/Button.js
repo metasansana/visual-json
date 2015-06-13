@@ -32,13 +32,14 @@ class Button extends React.Component{
     render() {
 
         var props = {};
+        var tag = (this.props.anchor)? 'a':'button';
 
         for(var key in this.props)
         if(this.props.hasOwnProperty(key))
             props[key] = this.props[key];
 
         props.onClick = this.buttonClicked.bind(this);
-        return React.createElement('button', props, ' ', this.getIcon(), this.getLabel());
+        return React.createElement(tag, props, ' ', this.getIcon(), this.getLabel());
 
     }
 
@@ -47,11 +48,12 @@ class Button extends React.Component{
 
 Button.propTypes = {
     name: React.PropTypes.string.isRequired,
+    anchor:React.PropTypes.bool,
+    href:React.PropTypes.string,
     onClick: React.PropTypes.func,
     textLabel: React.PropTypes.string,
     icon: React.PropTypes.string,
-    className: React.PropTypes.string,
-
+    className: React.PropTypes.string
 }
 
 export default Button;

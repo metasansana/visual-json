@@ -5,6 +5,30 @@ import Control from './Control';
 
 class Select extends Control {
 
+    componentDidMount(){
+        console.log('mounty');
+    }
+    componentDidUpdate(){
+        console.log('fuck update');
+    }
+    change(e) {
+        console.log('life changes ',e);
+    }
+    render(){
+        var self = this;
+        var props = self.props;
+
+        props.options = props.options || [];
+
+        var options = props.options.map(function (option, key) {
+            var value  = dot.get(option,props.valueField);
+            var label = dot.get(option,props.labelField);
+            return React.createElement('option', {value: value, label:label, key:key});
+        });
+
+        return React.createElement('select',{className:'form-control',onChange:this.change},options);
+    }
+
     renderComponent(callbacks) {
 
         var self = this;

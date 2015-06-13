@@ -20,6 +20,10 @@ var _merge = require('merge');
 
 var _merge2 = _interopRequireDefault(_merge);
 
+var _dotAccess = require('dot-access');
+
+var _dotAccess2 = _interopRequireDefault(_dotAccess);
+
 var _Control2 = require('./Control');
 
 var _Control3 = _interopRequireDefault(_Control2);
@@ -41,11 +45,25 @@ var Select = (function (_Control) {
 
             var self = this;
             var props = self._defaultProps();
+            var valueField = this.props.valueField || 'value';
+            var labelField = this.props.labelField || 'label';
+
             props.options = props.options || [];
 
-            return _react2['default'].createElement.apply(_react2['default'], ['select', props].concat(props.options.map(function (option) {
-                return _react2['default'].createElement('option', { value: option.value }, option.label);
-            })));
+            var options = props.options.map(function (option) {
+                var value = _dotAccess2['default'].get(option, valueField);
+                var label = _dotAccess2['default'].get(option, labelField);
+                return _react2['default'].createElement('option', { value: value, label: label });
+            });
+
+            if (this.props.blank) {
+                options.unshift(_react2['default'].createElement('option', { value: '', disabled: true }, this.props.blank));
+                props.defaultValue = props.defaultValue || '';
+            }
+
+            options.unshift(props);
+            options.unshift('select');
+            return _react2['default'].createElement.apply(_react2['default'], options);
         }
     }]);
 
@@ -53,11 +71,17 @@ var Select = (function (_Control) {
 })(_Control3['default']);
 
 Select.propTypes = {
+    $parser: _react2['default'].PropTypes.object.isRequired,
     name: _react2['default'].PropTypes.string.isRequired,
     options: _react2['default'].PropTypes.arrayOf(_react2['default'].PropTypes.shape({
-        label: _react2['default'].PropTypes.string.isRequired,
-        value: _react2['default'].PropTypes.oneOfType([_react2['default'].PropTypes.string, _react2['default'].PropTypes.number]).isRequired
+        label: _react2['default'].PropTypes.string,
+        value: _react2['default'].PropTypes.oneOfType([_react2['default'].PropTypes.string, _react2['default'].PropTypes.number])
     })).isRequired,
+    blank: _react2['default'].PropTypes.string,
+    valueField: _react2['default'].PropTypes.string,
+    labelField: _react2['default'].PropTypes.string,
+    valueComponent: _react2['default'].PropTypes.node,
+    labelComponent: _react2['default'].PropTypes.node,
     attrs: _react2['default'].PropTypes.object,
     model: _react2['default'].PropTypes.object.isRequired
 };
