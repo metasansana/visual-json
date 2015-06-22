@@ -104,7 +104,10 @@ class Compiler {
             schema[this.cut(key, symbol)] = ctx;
 
         } else if (typeof ctx[desiredKey] === 'function') {
-            schema[this.cut(key, symbol)] = ctx[desiredKey].bind(ctx);
+            var splat = key.split('.');
+            splat.pop();
+            var boundDest =  dot.get(ctx, splat.join('.')) || ctx;
+            schema[this.cut(key, symbol)] = ctx[desiredKey].bind(boundDest);
 
         } else {
             schema[this.cut(key, symbol)] = dot.get(ctx, desiredKey);
