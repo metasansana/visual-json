@@ -42,9 +42,9 @@ var If = (function (_React$Component) {
             var ret;
 
             if (!_is2['default'].empty(this.props.condition)) {
-                ret = this.props.$parser.parse(this.props.then);
+                ret = this.props.$parser.parse(this.props.then, this.props.$context);
             } else {
-                ret = this.props.$parser.parse(this.props['else']);
+                ret = this.props.$parser.parse(this.props['else'], this.props.$context);
             }
 
             if (!ret) return null;
@@ -60,6 +60,7 @@ var If = (function (_React$Component) {
 
 If.propTypes = {
     $parser: _react2['default'].PropTypes.object.isRequired,
+    $context: _react2['default'].PropTypes.object.isRequired,
     condition: _react2['default'].PropTypes.any,
     then: _react2['default'].PropTypes.any.isRequired,
     'else': _react2['default'].PropTypes.any

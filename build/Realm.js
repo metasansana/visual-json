@@ -83,7 +83,6 @@ var Realm = (function () {
          * @returns {Parser}
          */
         value: function getParser(ctx) {
-
             return new _Parser2['default'](new _Compiler2['default'](this.types, this.filters, this.cache || {}), ctx);
         }
     }]);

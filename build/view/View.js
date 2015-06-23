@@ -34,7 +34,7 @@ var View = (function (_React$Component) {
     _createClass(View, [{
         key: 'render',
         value: function render() {
-            return _react2['default'].createElement('div', { className: 'json-markup-view' }, this.props.$parser.parse(this.props.content));
+            return _react2['default'].createElement('div', { className: 'json-markup-view' }, this.props.$parser.parse(this.props.content, this.props.$context));
         }
     }]);
 
@@ -43,6 +43,7 @@ var View = (function (_React$Component) {
 
 View.propTypes = {
     $parser: _react2['default'].PropTypes.object.isRequired,
+    $context: _react2['default'].PropTypes.object.isRequired,
     content: _react2['default'].PropTypes.oneOfType([_react2['default'].PropTypes.object, _react2['default'].PropTypes.array])
 };
 exports['default'] = View;

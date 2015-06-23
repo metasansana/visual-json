@@ -34,7 +34,7 @@ var Tag = (function (_React$Component) {
     _createClass(Tag, [{
         key: 'render',
         value: function render() {
-            return _react2['default'].createElement(this.props.tag, this.props, this.props.$parser.parse(this.props.content));
+            return _react2['default'].createElement(this.props.tag, this.props, this.props.$parser.parse(this.props.content, this.props.$context));
         }
     }]);
 
@@ -43,6 +43,7 @@ var Tag = (function (_React$Component) {
 
 Tag.propTypes = {
     $parser: _react2['default'].PropTypes.object.isRequired,
+    $context: _react2['default'].PropTypes.object.isRequired,
     tag: _react2['default'].PropTypes.string.isRequired,
     content: _react2['default'].PropTypes.oneOfType([_react2['default'].PropTypes.object, _react2['default'].PropTypes.array])
 };

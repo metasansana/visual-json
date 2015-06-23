@@ -44,18 +44,18 @@ var Panel = (function (_React$Component) {
                 this.props.heading ? _react2['default'].createElement(
                     'div',
                     { className: 'panel-heading' },
-                    parser.parse(this.props.heading)
+                    parser.parse(this.props.heading, this.props.$context)
                 ) : '',
                 this.props.body ? _react2['default'].createElement(
                     'div',
                     { className: 'panel-body' },
-                    parser.parse(this.props.body)
+                    parser.parse(this.props.body, this.props.$context)
                 ) : '',
-                this.props.table ? parser.parse(this.props.table) : null,
+                this.props.table ? parser.parse(this.props.table, this.props.$context) : null,
                 this.props.footer ? _react2['default'].createElement(
                     'div',
                     { className: 'panel-footer' },
-                    parser.parse(this.props.footer)
+                    parser.parse(this.props.footer, this.props.$context)
                 ) : ''
             );
         }
@@ -66,6 +66,7 @@ var Panel = (function (_React$Component) {
 
 Panel.propTypes = {
     $parser: _react2['default'].PropTypes.object.isRequired,
+    $context: _react2['default'].PropTypes.object.isRequired,
     className: _react2['default'].PropTypes.string,
     heading: _react2['default'].PropTypes.oneOfType([_react2['default'].PropTypes.node, _react2['default'].PropTypes.object, _react2['default'].PropTypes.array]),
     body: _react2['default'].PropTypes.oneOfType([_react2['default'].PropTypes.node, _react2['default'].PropTypes.object, _react2['default'].PropTypes.array]),

@@ -91,15 +91,16 @@ class StateRequest extends React.Component {
 
         schema[this.props.resultKey] = this.state.data;
 
-        return this.props.$parser.parse(schema);
+        return this.props.$parser.parse(schema, this.props.$context);
 
     }
 
 }
 
 StateRequest.propTypes = {
-    $template: React.PropTypes.func.isRequired,
     $parser: React.PropTypes.object.isRequired,
+    $context : React.PropTypes.object.isRequired,
+    $template: React.PropTypes.func.isRequired,
     loadLabel: React.PropTypes.node,
     url: React.PropTypes.string.isRequired,
     method: React.PropTypes.string.isRequired,

@@ -22,7 +22,7 @@ class Switch extends React.Component {
         if(!views.hasOwnProperty(state))
         throw new Error('Unknown view state '+state+' not found in '+Object.keys(this.props.views)+'!');
 
-        var ret = this.props.$parser.parse(views[state]);
+        var ret = this.props.$parser.parse(views[state], this.props.$context);
 
         if(Array.isArray(ret))
         ret = React.createElement('span',null, ret);
@@ -35,6 +35,7 @@ class Switch extends React.Component {
 
 Switch.propTypes = {
     $parser: React.PropTypes.object.isRequired,
+    $context : React.PropTypes.object.isRequired,
     currentView: React.PropTypes.string,
     views: React.PropTypes.object.isRequired,
     defaultView: React.PropTypes.string

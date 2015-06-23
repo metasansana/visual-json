@@ -44,7 +44,7 @@ var Switch = (function (_React$Component) {
 
             if (!views.hasOwnProperty(state)) throw new Error('Unknown view state ' + state + ' not found in ' + Object.keys(this.props.views) + '!');
 
-            var ret = this.props.$parser.parse(views[state]);
+            var ret = this.props.$parser.parse(views[state], this.props.$context);
 
             if (Array.isArray(ret)) ret = _react2['default'].createElement('span', null, ret);
 
@@ -57,6 +57,7 @@ var Switch = (function (_React$Component) {
 
 Switch.propTypes = {
     $parser: _react2['default'].PropTypes.object.isRequired,
+    $context: _react2['default'].PropTypes.object.isRequired,
     currentView: _react2['default'].PropTypes.string,
     views: _react2['default'].PropTypes.object.isRequired,
     defaultView: _react2['default'].PropTypes.string

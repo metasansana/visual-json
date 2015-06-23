@@ -146,6 +146,7 @@ var Compiler = (function () {
             if (desiredKey === 'this') {
                 schema[this.cut(key, symbol)] = ctx;
             } else if (typeof ctx[desiredKey] === 'function') {
+
                 var splat = key.split('.');
                 splat.pop();
                 var boundDest = _dotAccess2['default'].get(ctx, splat.join('.')) || ctx;
@@ -211,7 +212,7 @@ var Compiler = (function () {
             if (this.hasSymbol(key, this.SYMBOLS.SWAP_AND_PARSE)) {
                 this._checkDups(this.cut(key, this.SYMBOLS.SWAP_AND_PARSE), schema);
                 var ret = this._swap(this.SYMBOLS.SWAP_AND_PARSE, key, schema, ctx);
-                ret[this.cut(key, this.SYMBOLS.SWAP_AND_PARSE)] = fn(ret[this.cut(key, this.SYMBOLS.SWAP_AND_PARSE)], ctx, this);
+                ret[this.cut(key, this.SYMBOLS.SWAP_AND_PARSE)] = fn(ret[this.cut(key, this.SYMBOLS.SWAP_AND_PARSE)], ctx);
                 return ret;
             }
 

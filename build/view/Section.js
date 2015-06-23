@@ -40,7 +40,7 @@ var Section = (function (_React$Component) {
             secProps.className = 'container-fluid';
 
             content = content.map((function (schema, key) {
-                return _react2['default'].createElement('div', { className: 'row-fluid', key: key }, this.props.$parser.parse(schema));
+                return _react2['default'].createElement('div', { className: 'row-fluid', key: key }, this.props.$parser.parse(schema, this.props.$context));
             }).bind(this));
 
             return _react2['default'].createElement('section', secProps, content);
@@ -52,6 +52,7 @@ var Section = (function (_React$Component) {
 
 Section.propTypes = {
     $parser: _react2['default'].PropTypes.object.isRequired,
+    $context: _react2['default'].PropTypes.object.isRequired,
     content: _react2['default'].PropTypes.oneOfType([_react2['default'].PropTypes.array, _react2['default'].PropTypes.object])
 };
 

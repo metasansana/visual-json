@@ -37,27 +37,25 @@ var Parser = (function () {
 
     _createClass(Parser, [{
         key: 'parseObjectLike',
-        value: function parseObjectLike(schema) {
+        value: function parseObjectLike(schema, context) {
 
-            if (Array.isArray(schema)) return this.parseArray(schema);
+            if (Array.isArray(schema)) return this.parseArray(schema, context);
 
-            if (typeof schema === 'object') return this.parseObject(schema);
+            if (typeof schema === 'object') return this.parseObject(schema, context);
 
             return schema;
         }
     }, {
         key: 'parseArray',
-        value: function parseArray(schema) {
+        value: function parseArray(schema, context) {
             return schema.map((function (scheme, key) {
                 if (scheme.type) scheme.key = key;
-                return this.parse(scheme);
+                return this.parse(scheme, context);
             }).bind(this));
         }
     }, {
         key: 'parseObject',
-        value: function parseObject(schema) {
-
-            var context = this.context;
+        value: function parseObject(schema, context) {
 
             for (var key in schema) {
                 if (schema.hasOwnProperty(key)) {
@@ -70,7 +68,7 @@ var Parser = (function () {
                     schema = this.compiler.eagerCompileArray(key, schema, context);
 
                     if (this.compiler.hasSymbol(key, '$->')) {
-                        schema[this.compiler.cut(key, '$->')] = this.parseObjectLike(schema[key]);
+                        schema[this.compiler.cut(key, '$->')] = this.parseObjectLike(schema[key], context);
                         delete schema[key];
                     }
                 }
@@ -79,7 +77,7 @@ var Parser = (function () {
             if (schema.type) {
                 this.number++;
                 schema.$parser = this;
-                schema.$context = this.context;
+                schema.$context = context;
                 schema.$number = this.number;
                 schema.$template = this.template.bind(this);
                 schema.$filter = this.compiler.filter.bind(this.compiler);
@@ -128,12 +126,12 @@ var Parser = (function () {
         /**
          *
          * @param {Object|Array} schema The schema for the item being processed
-         * @param {Compiler} compiler
+         * @param {Context} context
          * @returns {*}
          */
-        value: function parse(schema) {
+        value: function parse(schema, context) {
             if (!schema) return schema;
-            schema = this.parseObjectLike(JSON.parse(JSON.stringify(schema)));
+            schema = this.parseObjectLike(JSON.parse(JSON.stringify(schema)), context || this.context);
             if (typeof schema !== 'object' || Array.isArray(schema)) return schema;
             return this.compiler.compile(schema);
         }

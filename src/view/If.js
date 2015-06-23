@@ -11,9 +11,9 @@ class If extends React.Component {
         var ret;
 
         if(!is.empty(this.props.condition)) {
-            ret = this.props.$parser.parse(this.props.then);
+            ret = this.props.$parser.parse(this.props.then, this.props.$context);
         }else{
-            ret = this.props.$parser.parse(this.props.else);
+            ret = this.props.$parser.parse(this.props.else, this.props.$context);
         }
 
         if(!ret) return null;
@@ -30,6 +30,7 @@ class If extends React.Component {
 
 If.propTypes = {
     $parser: React.PropTypes.object.isRequired,
+    $context: React.PropTypes.object.isRequired,
     condition: React.PropTypes.any,
     then: React.PropTypes.any.isRequired,
     else: React.PropTypes.any

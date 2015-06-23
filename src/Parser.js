@@ -13,28 +13,26 @@ class Parser {
         this.number = 0;
     }
 
-    parseObjectLike(schema) {
+    parseObjectLike(schema, context) {
 
         if (Array.isArray(schema))
-            return this.parseArray(schema);
+            return this.parseArray(schema, context);
 
         if (typeof schema === 'object')
-            return this.parseObject(schema);
+            return this.parseObject(schema, context);
 
         return schema;
     }
 
-    parseArray(schema) {
+    parseArray(schema, context) {
         return schema.map(function (scheme, key) {
             if(scheme.type)
             scheme.key = key;
-            return this.parse(scheme);
+            return this.parse(scheme, context);
         }.bind(this))
     }
 
-    parseObject(schema) {
-
-        var context = this.context;
+    parseObject(schema, context) {
 
         for (var key in schema) {
             if (schema.hasOwnProperty(key)) {
@@ -47,7 +45,7 @@ class Parser {
                 schema = this.compiler.eagerCompileArray(key, schema, context);
 
                 if (this.compiler.hasSymbol(key, '$->')) {
-                    schema[this.compiler.cut(key, '$->')] = this.parseObjectLike(schema[key]);
+                    schema[this.compiler.cut(key, '$->')] = this.parseObjectLike(schema[key], context);
                     delete schema[key];
                 }
 
@@ -57,7 +55,7 @@ class Parser {
         if(schema.type) {
             this.number++;
             schema.$parser = this;
-            schema.$context = this.context;
+            schema.$context = context;
             schema.$number = this.number;
             schema.$template = this.template.bind(this);
             schema.$filter = this.compiler.filter.bind(this.compiler);
@@ -104,12 +102,12 @@ class Parser {
     /**
      *
      * @param {Object|Array} schema The schema for the item being processed
-     * @param {Compiler} compiler
+     * @param {Context} context
      * @returns {*}
      */
-    parse(schema) {
+    parse(schema, context) {
         if (!schema) return schema;
-        schema = this.parseObjectLike(JSON.parse(JSON.stringify(schema)));
+        schema = this.parseObjectLike(JSON.parse(JSON.stringify(schema)), context || this.context);
         if ((typeof schema !== 'object') || Array.isArray(schema)) return schema;
         return this.compiler.compile(schema);
     }

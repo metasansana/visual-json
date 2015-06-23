@@ -70,6 +70,7 @@ var FormGroup = (function (_React$Component2) {
             var controlSpec;
             var component;
             var parser = this.props.$parser;
+            var $context = this.props.$context;
 
             if (this.props.label) label = _react2['default'].createElement(
                 'label',
@@ -85,7 +86,7 @@ var FormGroup = (function (_React$Component2) {
                     component = _react2['default'].createElement(
                         Wrapper,
                         { wrapClass: controlSpec.wrapClass },
-                        parser.parse(controlSpec.control)
+                        parser.parse(controlSpec.control, $context)
                     );
                 } else {
                     component = controlSpec.control;
@@ -97,7 +98,7 @@ var FormGroup = (function (_React$Component2) {
                     if (spec.wrapClass) return _react2['default'].createElement(
                         Wrapper,
                         { key: i, wrapClass: spec.wrapClass },
-                        parser.parse(spec.control)
+                        parser.parse(spec.control, $context)
                     );
 
                     return spec.control;
@@ -116,6 +117,7 @@ var FormGroup = (function (_React$Component2) {
 
 FormGroup.propTypes = {
     $parser: _react2['default'].PropTypes.object.isRequired,
+    $context: _react2['default'].PropTypes.object.isRequired,
     label: _react2['default'].PropTypes.shape({
         className: _react2['default'].PropTypes.string,
         value: _react2['default'].PropTypes.node.isRequired,

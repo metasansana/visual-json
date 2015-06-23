@@ -103,7 +103,7 @@ var StateRequest = (function (_React$Component) {
 
             schema[this.props.resultKey] = this.state.data;
 
-            return this.props.$parser.parse(schema);
+            return this.props.$parser.parse(schema, this.props.$context);
         }
     }]);
 
@@ -111,8 +111,9 @@ var StateRequest = (function (_React$Component) {
 })(_react2['default'].Component);
 
 StateRequest.propTypes = {
-    $template: _react2['default'].PropTypes.func.isRequired,
     $parser: _react2['default'].PropTypes.object.isRequired,
+    $context: _react2['default'].PropTypes.object.isRequired,
+    $template: _react2['default'].PropTypes.func.isRequired,
     loadLabel: _react2['default'].PropTypes.node,
     url: _react2['default'].PropTypes.string.isRequired,
     method: _react2['default'].PropTypes.string.isRequired,
