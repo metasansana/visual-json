@@ -146,7 +146,10 @@ var Compiler = (function () {
             if (desiredKey === 'this') {
                 schema[this.cut(key, symbol)] = ctx;
             } else if (typeof ctx[desiredKey] === 'function') {
-                schema[this.cut(key, symbol)] = ctx[desiredKey].bind(ctx);
+                var splat = key.split('.');
+                splat.pop();
+                var boundDest = _dotAccess2['default'].get(ctx, splat.join('.')) || ctx;
+                schema[this.cut(key, symbol)] = ctx[desiredKey].bind(boundDest);
             } else {
                 schema[this.cut(key, symbol)] = _dotAccess2['default'].get(ctx, desiredKey);
             }

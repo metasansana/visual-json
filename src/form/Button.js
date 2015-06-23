@@ -36,9 +36,11 @@ class Button extends React.Component{
 
         for(var key in this.props)
         if(this.props.hasOwnProperty(key))
+        if(key !== 'target')
             props[key] = this.props[key];
 
         props.onClick = this.buttonClicked.bind(this);
+        props.href = (tag === 'a')? (props.href)? props.href : 'javascript:': props.href;
         return React.createElement(tag, props, ' ', this.getIcon(), this.getLabel());
 
     }

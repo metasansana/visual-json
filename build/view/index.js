@@ -22,6 +22,10 @@ var _Table = require('./Table');
 
 var _Table2 = _interopRequireDefault(_Table);
 
+var _RichTable = require('./RichTable');
+
+var _RichTable2 = _interopRequireDefault(_RichTable);
+
 var _Tag = require('./Tag');
 
 var _Tag2 = _interopRequireDefault(_Tag);
@@ -43,6 +47,7 @@ exports['default'] = {
     Panel: _Panel2['default'],
     Section: _Section2['default'],
     Table: _Table2['default'],
+    RichTable: _RichTable2['default'],
     Tag: _Tag2['default'],
     View: _View2['default'],
     DefinitionList: _DefinitionList2['default'],

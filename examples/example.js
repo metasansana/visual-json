@@ -30658,11 +30658,11 @@ var compare = function compare(name) {
         var aval = _dotAccess2['default'].get(a, name);
         var bval = _dotAccess2['default'].get(b, name);
 
-        if (typeof aval === 'string') aval = aval.replace(/\s+/, '').toLowerCase();
+        if (typeof a === 'string') a = a.replace(/\s+/, '').toLowerCase();
 
-        if (typeof bval === 'string') bval = bval.replace(/\s+/, '').toLowerCase();
+        if (typeof b === 'string') b = b.replace(/\s+/, '').toLowerCase();
 
-        return aval > bval ? -1 : aval < bval ? 1 : 0;
+        return a > b ? -1 : a < b ? 1 : 0;
     };
 };
 

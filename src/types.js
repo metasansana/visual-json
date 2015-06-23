@@ -93,6 +93,9 @@ export default {
     table: function(schema) {
         return React.createElement(view.Table, cleanView(schema));
     },
+    'rich-table': function(schema) {
+        return React.createElement(view.RichTable, cleanView(schema));
+    },
     formgroup: function (schema) {
         return React.createElement(view.FormGroup, cleanView(schema));
     },

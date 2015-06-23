@@ -84,11 +84,13 @@ class StateRequest extends React.Component {
 
         var schema = {};
         var content = this.props.content;
+
         for (var key in content)
             if (content.hasOwnProperty(key))
                 schema[key] = content[key];
 
         schema[this.props.resultKey] = this.state.data;
+
         return this.props.$parser.parse(schema);
 
     }

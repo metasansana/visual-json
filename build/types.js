@@ -114,6 +114,9 @@ exports['default'] = {
     table: function table(schema) {
         return _react2['default'].createElement(_view3['default'].Table, cleanView(schema));
     },
+    'rich-table': function richTable(schema) {
+        return _react2['default'].createElement(_view3['default'].RichTable, cleanView(schema));
+    },
     formgroup: function formgroup(schema) {
         return _react2['default'].createElement(_view3['default'].FormGroup, cleanView(schema));
     },

@@ -60,9 +60,10 @@ var Button = (function (_React$Component) {
             var props = {};
             var tag = this.props.anchor ? 'a' : 'button';
 
-            for (var key in this.props) if (this.props.hasOwnProperty(key)) props[key] = this.props[key];
+            for (var key in this.props) if (this.props.hasOwnProperty(key)) if (key !== 'target') props[key] = this.props[key];
 
             props.onClick = this.buttonClicked.bind(this);
+            props.href = tag === 'a' ? props.href ? props.href : 'javascript:' : props.href;
             return _react2['default'].createElement(tag, props, ' ', this.getIcon(), this.getLabel());
         }
     }]);

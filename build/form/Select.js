@@ -47,23 +47,31 @@ var Select = (function (_Control) {
             var props = self._defaultProps();
             var valueField = this.props.valueField || 'value';
             var labelField = this.props.labelField || 'label';
-
-            props.options = props.options || [];
-
-            var options = props.options.map(function (option) {
-                var value = _dotAccess2['default'].get(option, valueField);
-                var label = _dotAccess2['default'].get(option, labelField);
-                return _react2['default'].createElement('option', { value: value, label: label });
-            });
+            var options = props.options || [];
 
             if (this.props.blank) {
-                options.unshift(_react2['default'].createElement('option', { value: '', disabled: true }, this.props.blank));
+                options.unshift(_react2['default'].createElement('option', { value: '', disabled: true, key: 0 }, this.props.blank));
                 props.defaultValue = props.defaultValue || '';
             }
 
-            options.unshift(props);
-            options.unshift('select');
-            return _react2['default'].createElement.apply(_react2['default'], options);
+            options = (props.options || []).map(function (option, key) {
+
+                var value, label;
+
+                if (option.key === 0) return option;
+
+                if (typeof option === 'object') {
+                    value = _dotAccess2['default'].get(option, valueField);
+                    label = _dotAccess2['default'].get(option, labelField);
+                } else {
+                    value = option;
+                    label = option;
+                }
+
+                return _react2['default'].createElement('option', { value: value, label: label, key: key });
+            });
+
+            return _react2['default'].createElement('select', props, options);
         }
     }]);
 
@@ -77,7 +85,7 @@ Select.propTypes = {
         label: _react2['default'].PropTypes.string,
         value: _react2['default'].PropTypes.oneOfType([_react2['default'].PropTypes.string, _react2['default'].PropTypes.number])
     })).isRequired,
-    blank: _react2['default'].PropTypes.string,
+    blank: _react2['default'].PropTypes.oneOfType([_react2['default'].PropTypes.string, _react2['default'].PropTypes.bool]),
     valueField: _react2['default'].PropTypes.string,
     labelField: _react2['default'].PropTypes.string,
     valueComponent: _react2['default'].PropTypes.node,

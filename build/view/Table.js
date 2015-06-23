@@ -22,29 +22,9 @@ var _dotAccess = require('dot-access');
 
 var _dotAccess2 = _interopRequireDefault(_dotAccess);
 
-var compareDate = function compareDate(name) {
+var _Waiter = require('./Waiter');
 
-    return function (a, b) {
-        a = new Date(a[name]).getTime();
-        b = new Date(b[name]).getTime();
-        return a > b ? -1 : a < b ? 1 : 0;
-    };
-};
-
-var compare = function compare(name) {
-
-    return function (a, b) {
-
-        var aval = _dotAccess2['default'].get(a, name);
-        var bval = _dotAccess2['default'].get(b, name);
-
-        if (typeof aval === 'string') aval = aval.replace(/\s+/, '').toLowerCase();
-
-        if (typeof bval === 'string') bval = bval.replace(/\s+/, '').toLowerCase();
-
-        return aval > bval ? -1 : aval < bval ? 1 : 0;
-    };
-};
+var _Waiter2 = _interopRequireDefault(_Waiter);
 
 /**
  *  Table
@@ -55,89 +35,88 @@ var Table = (function (_React$Component) {
         _classCallCheck(this, Table);
 
         _get(Object.getPrototypeOf(Table.prototype), 'constructor', this).call(this, props);
-
-        var state = {
-            view: '',
-            data: this.props.data ? this.props.data : [],
-            columns: this.props.columns ? this.props.columns : [],
-            sortedOn: '',
-            lastSorted: '',
-            arrow: ''
+        this.state = {
+            data: this.initializeData(this.props.data),
+            columns: this.initializeColumns(this.props.columns),
+            sortedOn: null,
+            arrow: '',
+            rowsClicked: []
         };
-
-        state.columns = state.columns.filter(function (col) {
-
-            if (!col.hidden) return true;
-        });
-
-        this.state = state;
     }
 
     _inherits(Table, _React$Component);
 
     _createClass(Table, [{
+        key: 'initializeData',
+        value: function initializeData(data) {
+            return JSON.parse(JSON.stringify(data ? data : []));
+        }
+    }, {
+        key: 'initializeColumns',
+        value: function initializeColumns(columns) {
+            return JSON.parse(JSON.stringify(columns ? columns : []));
+        }
+    }, {
         key: 'headingClicked',
-        value: function headingClicked(name, sortAs) {
+        value: function headingClicked(i) {
 
-            var data = this.state.data.slice();
-            var state = { data: data };
+            this.setState(_Waiter2['default'].sortOnColumnNumber(i, this.state.sortedOn, this.state.arrow, this.state.columns, this.state.data));
+        }
+    }, {
+        key: 'renderHeadings',
+        value: function renderHeadings(columns, sortedOn, arrow) {
 
-            //This column was last sorted on this name
-            if (this.state.sortedOn === name) {
-                state.data.reverse();
-                state.lastSortedOn = name;
-                state.arrow = '⇧';
-            } else if (sortAs === 'date') {
-                state.data = state.data.sort(compareDate(name));
-                state.sortedOn = name;
-                state.arrow = '⇩';
-            } else {
-                state.data = state.data.sort(compare(name));
-                state.lastSortedOn = this.state.sortedOn;
-                state.sortedOn = name;
-                state.arrow = '⇩';
-            }
+            var self = this;
+            return _react2['default'].createElement('tr', null, columns.map(function (column, i) {
+                if (column.hidden) return null;
+                return _react2['default'].createElement('th', {
+                    onClick: column.nosort ? undefined : self.headingClicked.bind(self, i),
+                    key: i
+                }, column.label, i === sortedOn ? arrow : null);
+            }));
+        }
+    }, {
+        key: 'renderBody',
+        value: function renderBody(columns, data) {
 
-            this.setState(state);
+            var self = this;
+
+            return data.map(function (rowData, i) {
+
+                return _react2['default'].createElement('tr', { key: i }, columns.map(function (column, ii) {
+
+                    var cellData;
+
+                    if (column.hidden) return null;
+
+                    if (column.name === '$index') {
+                        cellData = i;
+                        rowData.index = i;
+                    } else {
+
+                        cellData = _dotAccess2['default'].get(rowData, column.name);
+
+                        if (!cellData) cellData = null;
+                    }
+
+                    if (column.filter) cellData = self.props.$parser.filter(cellData, column.filter, rowData);
+
+                    return _react2['default'].createElement('td', { key: ii }, cellData);
+                }).filter(function (cell) {
+                    return cell;
+                }));
+            });
         }
     }, {
         key: 'render',
         value: function render() {
 
-            var self = this;
-
-            var headings = _react2['default'].createElement('tr', null, self.state.columns.map(function (column, i) {
-
-                return _react2['default'].createElement('th', {
-                    onClick: self.headingClicked.bind(self, column.name, column.sortAs),
-                    key: i
-                }, column.label, self.state.sortedOn === column.name ? self.state.arrow : '');
-            }));
-
-            var body = self.state.data.map(function (datum, i) {
-
-                return _react2['default'].createElement('tr', { key: i }, self.state.columns.map(function (column, ii) {
-
-                    var data;
-
-                    if (column.name === '$index') {
-                        data = datum.$index || i;
-                        datum.index = datum.index || i;
-                    } else {
-
-                        data = _dotAccess2['default'].get(datum, column.name);
-
-                        if (!data) data = null;
-                    }
-
-                    if (column.filter) data = self.props.$parser.filter(data, column.filter, datum);
-
-                    return _react2['default'].createElement('td', { key: ii }, data);
-                }));
-            });
+            var state = this.state;
+            var headings = this.renderHeadings(state.columns, state.sortedOn, state.arrow);
+            var body = this.renderBody(state.columns, state.data);
 
             return _react2['default'].createElement('table', {
-                className: 'table ' + (self.props.className ? self.props.className : '')
+                className: 'table ' + (this.props.className ? this.props.className : '')
             }, _react2['default'].createElement('thead', null, headings), _react2['default'].createElement('tbody', null, body));
         }
     }]);
@@ -153,7 +132,6 @@ Table.propTypes = {
         name: _react2['default'].PropTypes.string.isRequired,
         label: _react2['default'].PropTypes.string.isRequired,
         filter: _react2['default'].PropTypes.string
-
     })).isRequired
 };
 

@@ -1,31 +1,6 @@
 import React from 'react';
 import dot  from 'dot-access';
-
-var compareDate = function (name) {
-
-    return function (a, b) {
-        a = new Date(a[name]).getTime();
-        b = new Date(b[name]).getTime();
-        return a > b ? -1 : a < b ? 1 : 0;
-    }
-}
-
-var compare = function (name) {
-
-    return function (a, b) {
-
-        var aval = dot.get(a, name);
-        var bval = dot.get(b, name);
-
-        if (typeof aval === 'string')
-            aval = aval.replace(/\s+/, '').toLowerCase();
-
-        if (typeof bval === 'string')
-            bval = bval.replace(/\s+/, '').toLowerCase();
-
-        return (aval > bval) ? -1 : (aval < bval) ? 1 : 0;
-    }
-}
+import Waiter from './Waiter';
 
 /**
  *  Table
@@ -35,95 +10,91 @@ class Table extends React.Component {
     constructor(props) {
 
         super(props);
-
-        var state = {
-            view: '',
-            data: (this.props.data) ? this.props.data : [],
-            columns: (this.props.columns) ? this.props.columns : [],
-            sortedOn: '',
-            lastSorted: '',
-            arrow: ''
+        this.state = {
+            data: this.initializeData(this.props.data),
+            columns: this.initializeColumns(this.props.columns),
+            sortedOn: null,
+            arrow:'',
+            rowsClicked:[]
         };
+    }
 
-        state.columns  = state.columns.filter(function(col){
+    initializeData(data) {
+        return JSON.parse(JSON.stringify((data) ? data : []));
+    }
 
-            if(!col.hidden)
-            return true;
-        });
+    initializeColumns(columns) {
+        return JSON.parse(JSON.stringify((columns) ? columns : []));
+    }
 
-        this.state = state;
+    headingClicked(i) {
+
+        this.setState(Waiter.sortOnColumnNumber(
+            i,
+            this.state.sortedOn,
+            this.state.arrow,
+            this.state.columns,
+            this.state.data
+            ));
+    }
+
+    renderHeadings(columns, sortedOn, arrow) {
+
+        var self = this;
+        return React.createElement('tr', null, columns.map(function (column, i) {
+            if(column.hidden) return null;
+            return React.createElement('th', {
+                onClick: (column.nosort)? undefined :self.headingClicked.bind(self, i),
+                key: i
+            }, column.label, (i === sortedOn) ? arrow : null);
+
+        }));
 
     }
 
-    headingClicked(name, sortAs) {
+    renderBody(columns, data) {
 
-        var data = this.state.data.slice();
-        var state = {data: data};
+        var self = this;
 
-        //This column was last sorted on this name
-        if (this.state.sortedOn === name) {
-            state.data.reverse();
-            state.lastSortedOn = name;
-            state.arrow = '\u21e7';
+        return data.map(function (rowData, i) {
 
-        } else if (sortAs === 'date') {
-            state.data = state.data.sort(compareDate(name));
-            state.sortedOn = name;
-            state.arrow = '\u21e9';
-        }else{
-            state.data = state.data.sort(compare(name));
-            state.lastSortedOn = this.state.sortedOn;
-            state.sortedOn = name;
-            state.arrow = '\u21e9';
-        }
+            return React.createElement('tr', {key: i},
+                columns.map(function (column, ii) {
 
-        this.setState(state);
+                    var cellData;
+
+                    if(column.hidden) return null;
+
+                    if (column.name === '$index') {
+                        cellData = i;
+                        rowData.index = i;
+
+                    } else {
+
+                        cellData = dot.get(rowData, column.name);
+
+                        if (!cellData)
+                            cellData = null;
+                    }
+
+                    if (column.filter)
+                        cellData = self.props.$parser.filter(cellData, column.filter, rowData);
+
+                    return React.createElement('td', {key: ii}, cellData);
+
+                }).filter((cell)=>cell));
+        });
 
     }
 
     render() {
 
-        var self = this;
-
-        var headings = React.createElement('tr', null, self.state.columns.map(function (column, i) {
-
-            return React.createElement('th', {
-                onClick: self.headingClicked.bind(self, column.name, column.sortAs),
-                key: i
-            }, column.label, (self.state.sortedOn === column.name) ? self.state.arrow : '');
-
-        }));
-
-        var body = self.state.data.map(function (datum, i) {
-
-            return React.createElement('tr', {key: i},
-                self.state.columns.map(function (column, ii) {
-
-                    var data;
-
-                    if(column.name === '$index') {
-                        data = datum.$index || i;
-                        datum.index = datum.index || i;
-
-                    }else{
-
-                        data = dot.get(datum, column.name);
-
-                        if (!data)
-                            data = null;
-                    }
-
-                    if (column.filter)
-                        data = self.props.$parser.filter(data, column.filter, datum);
-
-                    return React.createElement('td', {key: ii}, data);
-
-                }));
-
-        });
+        var state = this.state;
+        var headings = this.renderHeadings(state.columns, state.sortedOn, state.arrow);
+        var body = this.renderBody(state.columns, state.data);
 
         return React.createElement('table', {
-                className: 'table ' + ((self.props.className) ? self.props.className : '')
+                className: 'table ' + ((this.props.className) ? this.props.className : '')
             },
             React.createElement('thead', null, headings),
             React.createElement('tbody', null, body));
@@ -138,8 +109,7 @@ Table.propTypes = {
     columns: React.PropTypes.arrayOf(React.PropTypes.shape({
         name: React.PropTypes.string.isRequired,
         label: React.PropTypes.string.isRequired,
-        filter: React.PropTypes.string,
-
+        filter: React.PropTypes.string
     })).isRequired
 };
 

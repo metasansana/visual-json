@@ -99,7 +99,6 @@ class Control extends React.Component {
         return (<b>Not implemented</b>);
     }
 
-
     render() {
         return this.renderComponent();
     }
