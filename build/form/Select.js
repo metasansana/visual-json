@@ -40,6 +40,17 @@ var Select = (function (_Control) {
     _inherits(Select, _Control);
 
     _createClass(Select, [{
+        key: '_defaultValue',
+        value: function _defaultValue(fromProps) {
+
+            var valueField = this.props.valueField;
+            var _ = _Control3['default'].prototype._defaultValue.call(this);
+
+            if (typeof _ === 'object') if (valueField) return _dotAccess2['default'].get(_, valueField);
+
+            return _;
+        }
+    }, {
         key: 'renderComponent',
         value: function renderComponent(callbacks) {
 

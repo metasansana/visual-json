@@ -52,7 +52,7 @@ var Form = (function (_React$Component) {
             var props = this.props.$parser.cloneProps(this.props);
             props.onSubmit = this.submit.bind(this);
             delete props.controls;
-            return _react2['default'].createElement('form', props, this.props.$parser.parse(this.props.controls));
+            return _react2['default'].createElement('form', props, this.props.$parser.parse(this.props.controls, this.props.$context));
         }
     }]);
 

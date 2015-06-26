@@ -5,6 +5,19 @@ import Control from './Control';
 
 class Select extends Control {
 
+    _defaultValue(fromProps) {
+
+        var valueField = this.props.valueField;
+        var _ = Control.prototype._defaultValue.call(this);
+
+        if(typeof _ === 'object')
+        if(valueField)
+        return dot.get(_, valueField);
+
+        return _;
+
+    }
+
     renderComponent(callbacks) {
 
         var self = this;

@@ -40,7 +40,7 @@ var Table = (function (_React$Component) {
             columns: this.initializeColumns(this.props.columns),
             sortedOn: null,
             arrow: '',
-            rowsClicked: []
+            rowsSelected: []
         };
     }
 

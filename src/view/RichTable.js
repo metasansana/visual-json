@@ -10,7 +10,7 @@ class RichTable extends Table {
         data = Table.prototype.initializeData(data).
             map(function(rowData, i){
                 rowData.___checkBox =
-                    React.createElement('input', {type:'checkbox',onChange:this.rowClicked.bind(this, i)});
+                    React.createElement('input', {type:'checkbox',onChange:this.rowSelected.bind(this, i)});
                 return rowData;
             }.bind(this));
 
@@ -31,15 +31,15 @@ class RichTable extends Table {
 
     }
 
-    rowClicked(index){
+    rowSelected(index){
 
-        var rowIndex = this.state.indexOf(index);
-        var crowsClicked = this.state.rowsClicked.slice();
+        var rowIndex = this.state.rowsSelected.indexOf(index);
+        var rowsSelected = this.state.rowsSelected.slice();
 
-        (rowIndex > -1)? rowsClicked.splice(rowIndex, 1) : rowsClicked.push(index);
+        (rowIndex > -1)? rowsSelected.splice(rowIndex, 1) : rowsSelected.push(index);
 
-        this.setState({rowsClicked:rowsClicked}, function() {
-            this.props.onRowClicked && this.props.onRowClicked(index, rowsClicked);
+        this.setState({rowsSelected:rowsSelected}, function() {
+            this.props.onRowSelected && this.props.onRowSelected(index, rowsSelected);
         }.bind(this));
 
 
@@ -48,8 +48,8 @@ class RichTable extends Table {
 }
 
 RichTable.propTypes = {
-    onRowClicked: React.PropTypes.func,
-    onAllRowsClicked: React.PropTypes.func
+    onRowSelected: React.PropTypes.func,
+    onAllRowsSelected: React.PropTypes.func
 };
 
 export default RichTable;

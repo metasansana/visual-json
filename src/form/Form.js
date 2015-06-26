@@ -24,7 +24,8 @@ class Form extends React.Component {
         var props = this.props.$parser.cloneProps(this.props);
         props.onSubmit = this.submit.bind(this);
         delete props.controls;
-        return React.createElement('form', props, this.props.$parser.parse(this.props.controls));
+        return React.createElement('form', props, this.props.$parser.parse(this.props.controls,
+            this.props.$context));
 
     }
 

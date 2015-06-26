@@ -40,7 +40,7 @@ var RichTable = (function (_Table) {
         value: function initializeData(data) {
 
             data = _Table3['default'].prototype.initializeData(data).map((function (rowData, i) {
-                rowData.___checkBox = _react2['default'].createElement('input', { type: 'checkbox', onChange: this.rowClicked.bind(this, i) });
+                rowData.___checkBox = _react2['default'].createElement('input', { type: 'checkbox', onChange: this.rowSelected.bind(this, i) });
                 return rowData;
             }).bind(this));
 
@@ -59,16 +59,16 @@ var RichTable = (function (_Table) {
         key: 'columnClicked',
         value: function columnClicked() {}
     }, {
-        key: 'rowClicked',
-        value: function rowClicked(index) {
+        key: 'rowSelected',
+        value: function rowSelected(index) {
 
-            var rowIndex = this.state.indexOf(index);
-            var crowsClicked = this.state.rowsClicked.slice();
+            var rowIndex = this.state.rowsSelected.indexOf(index);
+            var rowsSelected = this.state.rowsSelected.slice();
 
-            rowIndex > -1 ? rowsClicked.splice(rowIndex, 1) : rowsClicked.push(index);
+            rowIndex > -1 ? rowsSelected.splice(rowIndex, 1) : rowsSelected.push(index);
 
-            this.setState({ rowsClicked: rowsClicked }, (function () {
-                this.props.onRowClicked && this.props.onRowClicked(index, rowsClicked);
+            this.setState({ rowsSelected: rowsSelected }, (function () {
+                this.props.onRowSelected && this.props.onRowSelected(index, rowsSelected);
             }).bind(this));
         }
     }]);
@@ -77,8 +77,8 @@ var RichTable = (function (_Table) {
 })(_Table3['default']);
 
 RichTable.propTypes = {
-    onRowClicked: _react2['default'].PropTypes.func,
-    onAllRowsClicked: _react2['default'].PropTypes.func
+    onRowSelected: _react2['default'].PropTypes.func,
+    onAllRowsSelected: _react2['default'].PropTypes.func
 };
 
 exports['default'] = RichTable;
