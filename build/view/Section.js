@@ -40,7 +40,7 @@ var Section = (function (_React$Component) {
             secProps.className = 'container-fluid';
 
             content = content.map((function (schema, key) {
-                return _react2['default'].createElement('div', { className: 'row-fluid', key: key }, this.props.$parser.parse(schema, this.props.$context));
+                return _react2['default'].createElement('div', { className: 'row', key: key }, _react2['default'].createElement('div', { className: 'col-md-12' }, this.props.$parser.parse(schema, this.props.$context)));
             }).bind(this));
 
             return _react2['default'].createElement('section', secProps, content);
