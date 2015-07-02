@@ -1,5 +1,7 @@
 import dot from 'dot-access';
 import fmt from 'strtpl';
+import jhr from 'jhr';
+
 class TypedError extends Error {
 
     constructor(message) {
@@ -56,6 +58,16 @@ var inputs = {
 var BUILTIN_SYMBOL = '$$';
 var BUILTIN_STR_SYMBOL = '$#';
 
+function make_request(args) {
+
+    return http[args.method].call(http, args.url).
+        catch(function (e) {
+            if (!e instanceof jhr.HTTPError)
+                throw e;
+            return e;
+        });
+}
+
 /**
  * Compiler compiles things that were parsed.
  *
@@ -83,7 +95,8 @@ class Compiler {
             //BUILTIN_STR_SYMBOL: '$#',
             EAGER_COMPILE: '$$$',
             PARSE_STEP: '$->',
-            "TEMPLATE": '^'
+            TEMPLATE: '^',
+            REQUEST: '%'
         }
     }
 
@@ -204,7 +217,6 @@ class Compiler {
         return schema;
     }
 
-
     /**
      * swapTemplate applies a string template to the value.
      */
@@ -254,9 +266,31 @@ class Compiler {
             nextFilterArray.push(context);
             nextFilterArray.push(next);
             return self.filters[nextFilterMethodName].apply(self.filters, nextFilterArray);
-        }
+        };
 
         return next(value);
+
+    }
+
+    swapRequest(key, schema, context) {
+
+        var self = this;
+        var args = schema[key];
+
+        if (this.hasSymbol(key, this.SYMBOLS.REQUEST)) {
+            this._checkDups(this.cut(key, this.SYMBOLS.REQUEST), schema);
+
+            schema[this.cut(key, this.SYMBOLS.REQUEST)] = function (ctx) {
+                ctx = ctx || context;
+                args.url = self.template(args.url, ctx);
+                return make_request(args);
+            };
+
+            delete schema[key];
+        }
+
+        return schema;
+
 
     }
 

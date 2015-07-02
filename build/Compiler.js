@@ -22,6 +22,10 @@ var _strtpl = require('strtpl');
 
 var _strtpl2 = _interopRequireDefault(_strtpl);
 
+var _jhr = require('jhr');
+
+var _jhr2 = _interopRequireDefault(_jhr);
+
 var TypedError = (function (_Error) {
     function TypedError(message) {
         _classCallCheck(this, TypedError);
@@ -94,6 +98,14 @@ var inputs = {
 var BUILTIN_SYMBOL = '$$';
 var BUILTIN_STR_SYMBOL = '$#';
 
+function make_request(args) {
+
+    return http[args.method].call(http, args.url)['catch'](function (e) {
+        if (!e instanceof _jhr2['default'].HTTPError) throw e;
+        return e;
+    });
+}
+
 /**
  * Compiler compiles things that were parsed.
  *
@@ -123,7 +135,8 @@ var Compiler = (function () {
             //BUILTIN_STR_SYMBOL: '$#',
             EAGER_COMPILE: '$$$',
             PARSE_STEP: '$->',
-            'TEMPLATE': '^'
+            TEMPLATE: '^',
+            REQUEST: '%'
         };
     }
 
@@ -304,6 +317,27 @@ var Compiler = (function () {
             };
 
             return next(value);
+        }
+    }, {
+        key: 'swapRequest',
+        value: function swapRequest(key, schema, context) {
+
+            var self = this;
+            var args = schema[key];
+
+            if (this.hasSymbol(key, this.SYMBOLS.REQUEST)) {
+                this._checkDups(this.cut(key, this.SYMBOLS.REQUEST), schema);
+
+                schema[this.cut(key, this.SYMBOLS.REQUEST)] = function (ctx) {
+                    ctx = ctx || context;
+                    args.url = self.template(args.url, ctx);
+                    return make_request(args);
+                };
+
+                delete schema[key];
+            }
+
+            return schema;
         }
     }, {
         key: 'eagerCompile',
