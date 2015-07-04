@@ -1,7 +1,8 @@
 import Utils from './Utils';
+import RequestDirective from './RequestDirective';
 
 /**
- * ResourceTraversal traverses a `$resource` directive in the schema.
+ * ResourceDirective scans a `$resource` directive and executes a request.
  *
  * A request for the resource is executed at $parse time and the resulting response is put
  * into scope.
@@ -17,27 +18,14 @@ import Utils from './Utils';
  *   }
  * The $resource schema must have only one property, this property is used as
  * the name of the resource when adding to scope.
+ * @param {HTTPEngine} engine
  *
- * @todo Provide way to read links and make requests available from them.
- * @param {ResourceDirective} request An instance of RequestDirective used to make the request.
- * @param {ParseScope} scope The to add the resource to.
  */
-class ResourceTraversal {
+class ResourceDirective extends RequestDirective {
 
-    constructor(request, scope) {
-        this.request = request;
-        this.scope = scope;
-    }
+    apply(tree, scope, done) {
 
-    _makeLinkFunction(link) {
-        return function () {
-            return this.request.send(link);
-        }
-    }
-
-    traverse(tree, done) {
-
-        this.request.send(tree.request).
+        this.send(tree.request).
             then(function (res) {
 
                 var data = res.data || res.body;
@@ -48,12 +36,12 @@ class ResourceTraversal {
                         for (var key in tree.links)
                             data.links.forEach(function (link) {
                                 if (link.rel === key)
-                                    links[key] = this._makeLinkFunction(Utils.merge(link,
-                                        this.scope.swapSymbolsWithContext(tree.links[key])));
-
+                                    links[key] = this.makeRequestFunction(Utils.merge(link,
+                                        scope.applySymbols(tree.links[key])));
                             }.bind(this));
 
-                this.scope.addToResource(tree.name, {data: data, links: links});
+                scope.set('$resource', tree.name, {data: data, links: links});
+
                 done();
 
             }.bind(this));
@@ -61,4 +49,4 @@ class ResourceTraversal {
 
 }
 
-export default ResourceTraversal
+export default ResourceDirective
