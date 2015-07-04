@@ -24,8 +24,11 @@ describe('ResourceTraversal', function () {
         };
 
         scope = {
-            addToResource: function (name, value) {
+            addToResource(name, value) {
                 this[name] = value;
+            },
+            swapSymbolsWithContext(value) {
+                return value;
             }
         };
 
@@ -40,7 +43,6 @@ describe('ResourceTraversal', function () {
         it('should work', function () {
 
             traversal.traverse({name:'person', request:{href: '/nowhere'}, links:{'create':{}}}, function () {
-                console.log(scope);
                 expect(scope.person).exist();
                 expect(scope.person.data).eql(response.data);
                 expect(typeof scope.person.links.create).be('function');

@@ -8,10 +8,12 @@ import Utils from './Utils';
  *
  *  @example <caption>Example schema</caption>:
  *   "$resource": {
- *      "person": {
+ *      "name": "person":,
+ *      "request": {
  *        "url": "/api/persons",
  *        "method": "GET"
- *       }
+ *       },
+ *       "links"{}
  *   }
  * The $resource schema must have only one property, this property is used as
  * the name of the resource when adding to scope.
@@ -46,7 +48,9 @@ class ResourceTraversal {
                         for (var key in tree.links)
                             data.links.forEach(function (link) {
                                 if (link.rel === key)
-                                    links[key] = this._makeLinkFunction(Utils.merge(link, tree.links[key]));
+                                    links[key] = this._makeLinkFunction(Utils.merge(link,
+                                        this.scope.swapSymbolsWithContext(tree.links[key])));
+
                             }.bind(this));
 
                 this.scope.addToResource(tree.name, {data: data, links: links});
