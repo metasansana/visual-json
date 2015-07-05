@@ -6,12 +6,14 @@ import DotAccess from 'dot-access';
  * Directives interact with this class to store and retrieve information.
  * @param {Object} globalCtx
  * @param {Object} localCtx
+ * @param {SymbolParser} symbolParser
  */
 class Scope {
 
-    constructor(globalCtx, localCtx) {
+    constructor(globalCtx, localCtx, symbolParser) {
         this.globalCtx = globalCtx;
         this.localCtx = localCtx;
+        this.symbolParser = symbolParser;
     }
 
     /**
@@ -48,8 +50,8 @@ class Scope {
 
     }
 
-    applySymbols() {
-
+    applySymbols(tree) {
+        return this.symbolParser.parse(tree, this);
     }
 
 }
