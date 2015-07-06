@@ -51,10 +51,10 @@ class ParseDirective {
 
                 if (name === '$parse') return this.apply(tree[name], scope, done);
 
-                if (name === '$compile') return directives.getByName('$compile').
+                if (name === '$compile') return directives.getDirectiveByName('$compile').
                     apply(tree[name], scope, done);
 
-                return directives.getByName(name).apply(tree[name], scope, next);
+                return directives.getDirectiveByName(name).apply(tree[name], scope, next);
 
             }
 

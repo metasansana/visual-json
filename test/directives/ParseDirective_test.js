@@ -61,7 +61,7 @@ describe('ParseDirective', function () {
 
             $parse: directive,
 
-            getByName(name) {
+            getDirectiveByName(name) {
                 return this[name];
             }
 
