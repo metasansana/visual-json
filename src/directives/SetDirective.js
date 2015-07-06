@@ -1,15 +1,13 @@
 /**
  * SetDirective traverses a `$set` directive and puts the keys
- * found in scope.
+ * found in the `$local` scope.
  *
- * The keys of the schema are use to tell this directive where to put
- * the values.
  *
  * @example <caption>Example schema</caption>
  * {
  *  "$set": {
- *    "@report": "$resource.report.data.reportID",
- *    "batch": 32
+ *       @id: "$resource.report.data.reportID",
+ *      "oid": "23"
  *  }
  * }
  */
@@ -22,7 +20,7 @@ class SetDirective {
         for(var key in tree)
             if (tree.hasOwnProperty(key))
 
-                scope.set('$set', key, tree[key]);
+                scope.set('$local', key, tree[key]);
 
         done();
     }

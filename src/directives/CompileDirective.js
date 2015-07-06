@@ -1,7 +1,7 @@
 /**
- * CompilerDirective
+ * CompileDirective
  */
-class CompilerDirective {
+class CompileDirective {
 
     constructor(compiler) {
       this.compiler = compiler;
@@ -14,4 +14,4 @@ class CompilerDirective {
     }
 }
 
-export default CompilerDirective
+export default CompileDirective

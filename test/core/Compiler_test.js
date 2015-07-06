@@ -1,5 +1,5 @@
 import expect from 'must';
-import Compiler from '../../src/directives/Compiler';
+import Compiler from '../../src/core/Compiler';
 
 var compiler;
 var typeSystem;
@@ -12,7 +12,7 @@ describe('Compiler', function() {
 
         typeSystem = {
 
-            getTypeFor(){
+            getTypeByName(){
                 return {
                     compile(){
                        return new MockType();
