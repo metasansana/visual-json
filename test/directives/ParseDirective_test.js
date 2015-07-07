@@ -22,7 +22,7 @@ describe('ParseDirective', function () {
             }
         };
 
-        order = ['$resource', '$request', '$compile', '$parse', '$continue'];
+        order = ['$request', '$compile', '$parse', '$continue'];
 
         called = {
             $resource: 0,
@@ -44,18 +44,17 @@ describe('ParseDirective', function () {
             },
 
             $request: {
-                apply(tree, scope, done) {
+                apply(tree, scope) {
                     called.$request++;
                     sequence.push('$request');
-                    done();
                 }
             },
 
             $compile: {
-                apply(tree, scope, done) {
+                apply(tree, scope) {
                     called.$compile++;
                     sequence.push('$compile');
-                    done({content: 'xyz'});
+                    return {content: 'xyz'};
                 }
             },
 
@@ -71,11 +70,11 @@ describe('ParseDirective', function () {
 
     });
 
-    describe('ParseDirective#apply', function () {
+    describe('ParseDirective#applyWithResource', function () {
 
         it('should respect order', function (done) {
 
-            directive.apply({$compile:{},$request: {},$resource: {}}, scope, function() {
+            directive.applyWithResource({$compile: {}, $request: {}, $resource: {}}, scope, function () {
                 expect(sequence).eql(['$resource', '$request', '$compile']);
                 done();
             });
@@ -84,8 +83,12 @@ describe('ParseDirective', function () {
 
         it('should allow $parse', function (done) {
 
-            directive.apply({$request: {}, $resource: {}, $parse:{$resource:{}, $compile:{}}}, scope, function() {
-                expect(sequence).eql(['$resource', '$request',  '$resource', '$compile']);
+            directive.applyWithResource({
+                $request: {},
+                $resource: {},
+                $parse: {$resource: {}, $compile: {}}
+            }, scope, function () {
+                expect(sequence).eql(['$resource', '$request', '$resource', '$compile']);
                 done();
             });
 
@@ -93,14 +96,15 @@ describe('ParseDirective', function () {
 
         it('should allow nested $parse', function (done) {
 
-            directive.apply({
+            directive.applyWithResource({
                 $request: {},
                 $resource: {},
-                $parse:{
-                    $resource:{},
-                    $parse:{$request:{}, $parse:{$request:{}, $resource:{},$compile:{}}}
-                }}, scope, function() {
-                expect(sequence).eql(['$resource','$request','$resource', '$request', '$resource', '$request', '$compile']);
+                $parse: {
+                    $resource: {},
+                    $parse: {$request: {}, $parse: {$request: {}, $resource: {}, $compile: {}}}
+                }
+            }, scope, function () {
+                expect(sequence).eql(['$resource', '$request', '$resource', '$request', '$resource', '$request', '$compile']);
                 done();
             });
 
@@ -108,8 +112,8 @@ describe('ParseDirective', function () {
 
         it('should freak out when there are both $compile and $parse directives', function (done) {
 
-            var run = function() {
-                directive.apply({$compile: {}, $parse: {}}, scope, function () {
+            var run = function () {
+                directive.applyWithResource({$compile: {}, $parse: {}}, scope, function () {
                 });
             };
             expect(run).throw(ParseAndCompileInSameBlockError);
@@ -117,7 +121,61 @@ describe('ParseDirective', function () {
 
         });
 
+        it('should compile if $parse || $compile not specified', function () {
 
+            directive.applyWithResource({type: "blank"}, scope, function () {
+                expect(sequence).eql(['$compile']);
+            });
+
+        });
+
+
+    });
+
+    describe('ParseDirective#apply', function () {
+
+        it('should respect order', function () {
+
+            directive.apply({$compile: {}, $request: {}}, scope);
+            expect(sequence).eql(['$request', '$compile']);
+        });
+
+        it('should allow $parse', function () {
+
+            directive.apply({$request: {}, $parse: {$compile: {}}}, scope);
+
+            expect(sequence).eql(['$request', '$compile']);
+        });
+
+        it('should allow nested $parse', function () {
+
+            directive.apply({
+                $request: {},
+                $resource: {},
+                $parse: {
+                    $parse: {$request: {}, $parse: {$request: {}, $compile: {}}}
+                }
+            }, scope);
+
+            expect(sequence).eql(['$request', '$request', '$request', '$compile']);
+
+        });
+
+        it('should freak out when there are both $compile and $parse directives', function () {
+
+            var run = function () {
+                directive.apply({$compile: {}, $parse: {}}, scope);
+            };
+            expect(run).throw(ParseAndCompileInSameBlockError);
+
+        });
+
+        it('should compile if $parse || $compile not specified', function () {
+
+            directive.apply({type: "blank"}, scope);
+            expect(sequence).eql(['$compile']);
+
+        });
 
     });
 

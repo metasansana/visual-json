@@ -62,10 +62,15 @@ class Environment {
         return this;
     }
 
-    parse(tree, self, cb) {
+    parse(tree, self) {
 
-        this.getDirectiveByName('$parse').apply(tree,
-            new Scope(this.globalCtx, {$self: self, $local:{}}, new SymbolParser()), cb);
+        return this.getDirectiveByName('$parse').apply(tree,
+            new Scope(this.globalCtx, {$self: self, $local:{}}, new SymbolParser()));
+    }
+
+    parseWithResource(tree, self, cb) {
+        return this.getDirectiveByName('$parse').applyWithResource(tree,
+            new Scope(this.globalCtx, {$self: self, $local:{}}, new SymbolParser()),cb);
     }
 
 }

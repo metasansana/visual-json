@@ -7,9 +7,10 @@ class CompileDirective {
       this.compiler = compiler;
     }
 
-    apply(tree, scope, done) {
+    apply(tree, scope) {
 
-        done(this.compiler.compile(scope.applySymbols(tree)));
+        var ret = this.compiler.compile(scope.applySymbols(tree));
+        return ret;
 
     }
 }

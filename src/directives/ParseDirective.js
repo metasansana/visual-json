@@ -24,37 +24,76 @@ class ParseDirective {
         this.provider = provider;
     }
 
-    _checkHasParseAndCompile(tree) {
+    _hasParseAndCompile(tree) {
 
-        if(tree.hasOwnProperty('$compile'))
-        if(tree.hasOwnProperty('$parse'))
-        throw new ParseAndCompileInSameBlockError(tree);
+        return (tree.hasOwnProperty('$compile')) && (tree.hasOwnProperty('$parse'))
+
 
     }
 
-    apply(tree, scope, done) {
+    _hasParseOrCompile(tree) {
+
+        return (tree.hasOwnProperty('$compile')) || (tree.hasOwnProperty('$parse'));
+
+    }
+
+    apply(tree, scope) {
+
+        var ret = null;
+
+        if (this._hasParseAndCompile(tree)) throw new ParseAndCompileInSameBlockError(tree);
+        if (!this._hasParseOrCompile(tree)) tree = {$compile: tree};
+
+        this.order.slice().forEach(function ($) {
+
+            if (tree.hasOwnProperty($)) {
+
+                if ($ === '$parse')
+                    return ret = this.apply(tree[$], scope);
+
+                if ($ === '$compile')
+                    return ret = this.provider.getDirectiveByName('$compile').
+                        apply(tree[$], scope);
+
+                this.provider.getDirectiveByName($).apply(tree[$], scope);
+            }
+
+        }.bind(this));
+
+        return ret;
+
+    }
+
+    applyWithResource(tree, scope, done) {
 
         var schedule = this.order.slice();
         var directives = this.provider;
 
-        this._checkHasParseAndCompile(tree);
+        schedule.unshift('$resource');
+
+        if (this._hasParseAndCompile(tree)) throw new ParseAndCompileInSameBlockError(tree);
+        if (!this._hasParseOrCompile(tree)) tree = {$compile: tree};
 
         var next = function () {
 
-            var name = schedule.shift();
+            var $ = schedule.shift();
 
-            if (!name) throw new
-                Error('ParseDirective: Reached end of directive order with no $compile section! JSON: '+
+            if (!$) throw new
+                Error('ParseDirective: Reached end of directive order with no $compile section! JSON: ' +
                 JSON.stringify(tree));
 
-            if (tree.hasOwnProperty(name)) {
+            if (tree.hasOwnProperty($)) {
 
-                if (name === '$parse') return this.apply(tree[name], scope, done);
+                if ($ === '$parse')
+                    return this.applyWithResource(tree[$], scope, done);
 
-                if (name === '$compile') return directives.getDirectiveByName('$compile').
-                    apply(tree[name], scope, done);
+                if ($ === '$compile')
+                    return done(directives.getDirectiveByName('$compile').apply(tree[$], scope));
 
-                return directives.getDirectiveByName(name).apply(tree[name], scope, next);
+                if ($ === '$resource')
+                    return directives.getDirectiveByName($).apply(tree[$], scope, next);
+
+                directives.getDirectiveByName($).apply(tree[$], scope);
 
             }
 

@@ -19,10 +19,7 @@ class SetDirective {
 
         for(var key in tree)
             if (tree.hasOwnProperty(key))
-
                 scope.set('$local', key, tree[key]);
-
-        done();
     }
 
 }

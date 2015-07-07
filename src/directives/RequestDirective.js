@@ -35,8 +35,6 @@ class RequestDirective {
             if (tree.hasOwnProperty(key))
                 scope.set('$request', key, this.makeRequestFunction(tree[key]));
 
-        done();
-
     }
 
     /**

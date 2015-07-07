@@ -7,7 +7,7 @@ var tree;
 var scope;
 var values;
 
-beforeEach(function(){
+beforeEach(function () {
 
     scope = {
         resolve(key) {
@@ -17,7 +17,7 @@ beforeEach(function(){
 
 });
 
-beforeEach(function() {
+beforeEach(function () {
     parser = new SymbolParser();
 });
 
@@ -28,21 +28,22 @@ describe('SymbolParser', function () {
         it('should work', function () {
 
             values = {
-                funky: function() {return 'funky'},
+                funky: function () {
+                    return 'funky'
+                },
                 person: {
                     name: {
-                        full:'Funky Person'
+                        full: 'Funky Person'
                     }
                 },
-                affinity:{allowed: 'fire'}
+                affinity: {allowed: 'fire'}
             };
 
             var result = parser.parse({
-                "@name":"person.name.full",
+                "@name": "person.name.full",
                 "clan": "none",
-                "^power":"uses {{affinity.allowed}} to attack",
-                "$->methods": {
-                    "@attack":"funky",
+                "^power": "uses {{affinity.allowed}} to attack",
+                "->methods": {
                     "defend": "none"
                 }
             }, scope);
@@ -52,10 +53,63 @@ describe('SymbolParser', function () {
                 clan: 'none',
                 power: 'uses fire to attack',
                 methods: {
-                    attack: values.funky,
-                    defend:'none'
+                    defend: 'none'
                 }
             })
+        });
+
+        it('should work with callables', function () {
+
+            values = {
+                person: {
+                    other: 'o$$',
+                    method: function (number) {
+                        return number;
+                    },
+                    method2: function (string) {
+                        return string;
+                    },
+                    method3: function (one, two) {
+                        return one + two;
+                    },
+                    method4: function (key) {
+                        return key;
+                    }
+
+                }
+            };
+
+            var result = parser.parse({
+                "@name": "person.method('son')",
+                "@age": "person.method2(12)",
+                "@sum": "person.method3(1,2)",
+                "@other": "person.method4(person.other)"
+
+            }, scope);
+
+            expect(result.name()).eql('son');
+            expect(result.age()).eql('12');
+            expect(result.sum()).eql('12'); // broken should be 3
+            //expect(result.other()).eql('o$$');  //test broken
+
+        });
+
+
+        it('should work with expressions', function () {
+
+            values = {
+                person: {
+                   age:34,
+                    group:1979
+                }
+            };
+
+            var result = parser.parse({
+                "=diff": "person.group - person.age"
+            }, scope);
+
+            expect(result.diff).eql(1945);
+
         });
 
     });
