@@ -25,7 +25,7 @@ describe('SetDirective', function () {
 
     describe('SetDirective#apply', function () {
 
-        it('should work', function (done) {
+        it('should work', function () {
 
             directive.apply({
                     name: 'person',
@@ -36,7 +36,6 @@ describe('SetDirective', function () {
                     expect(scope.name).equal('person');
                     expect(scope.age).equal(33);
                     expect(scope.gender).equal('F');
-                    done();
                 })
         });
     });

@@ -47,11 +47,9 @@ describe('RequestDirective', function () {
 
     describe('RequestDirective#apply', function () {
 
-        it('should work', function (done) {
-            directive.apply({load:{href:'/people', method:'get'}}, scope, function () {
+        it('should work', function () {
+            directive.apply({load:{href:'/people', method:'get'}}, scope);
                 expect(typeof scope.load).be('function');
-                done();
-            });
         });
 
         it('RequestDirective#send', function () {

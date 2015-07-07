@@ -1,8 +1,8 @@
 import expect from 'must';
-import Compiler from '../../src/core/Compiler';
+import CompileDirective from '../../src/directives/CompileDirective';
 
 var compiler;
-var typeSystem;
+var env;
 
 class MockType {};
 
@@ -10,7 +10,7 @@ describe('Compiler', function() {
 
     beforeEach(function() {
 
-        typeSystem = {
+        env = {
 
             getTypeByName(){
                 return {
@@ -23,10 +23,10 @@ describe('Compiler', function() {
     });
 
     beforeEach(function() {
-       compiler = new Compiler(typeSystem);
+       compiler = new CompileDirective(env);
     });
 
-    describe('Compiler#compile', function() {
+    describe('CompileDirective#compile', function() {
 
         it('should compile an object', function() {
 
