@@ -1,6 +1,6 @@
 import React from 'react/addons';
-import CheckBox from '../CheckBox';
-import StackedCheckBox from '../StackedCheckBox';
+import Radio from '../Radio';
+import StackedRadio from '../StackedRadio';
 
 var Test = React.addons.TestUtils;
 var set;
@@ -39,46 +39,46 @@ beforeEach(function () {
     set = jest.genMockFunction();
 });
 
-describe('CheckBox', function () {
+describe('Radio', function () {
 
     beforeEach(function () {
-        Component = CheckBox;
-        correctMarkup = '<label><input name="name" type="checkbox">A Box</label>';
-        correctMarkupWithDefaults = '<label><input name="selected" type="checkbox"></label>';
+        Component = Radio;
+        correctMarkup = '<label><input name="name" type="radio">A Box</label>';
+        correctMarkupWithDefaults = '<label><input name="selected" type="radio"></label>';
     });
 
-    describe('CheckBox#render', function () {
+    describe('Radio#render', function () {
 
         it('it should render the correct markup', testCorrectMarkup({name: "name", set: set}, 'A Box'));
         it('it should render the correct markup with defaults', testCorrectMarkupWithDefaults({
             name: "selected",
-            type: 'checkbox',
+            type: 'radio',
             set: set,
             checked: false
         },null))
 
     });
 
-    describe('CheckBox events', function () {
+    describe('Radio events', function () {
         it('should call `set` onChange', testChange);
     });
 
 });
 
-describe('StackedCheckBox', function () {
+describe('StackedRadio', function () {
 
     beforeEach(function () {
-        Component = StackedCheckBox;
-        correctMarkup = '<div class="checkbox"><label><input name="name" type="checkbox">A Box</label></div>';
-        correctMarkupWithDefaults = '<div class="checkbox"><label><input name="selected" type="checkbox"></label></div>';
+        Component = StackedRadio;
+        correctMarkup = '<div class="radio"><label><input name="name" type="radio">A Box</label></div>';
+        correctMarkupWithDefaults = '<div class="radio"><label><input name="selected" type="radio"></label></div>';
     });
 
-    describe('StackedCheckBox#render', function () {
+    describe('StackedRadio#render', function () {
 
         it('it should render the correct markup', testCorrectMarkup({name: "name", set: set}, 'A Box'));
         it('it should render the correct markup with defaults', testCorrectMarkupWithDefaults({
             name: "selected",
-            type: 'checkbox',
+            type: 'radio',
             set: set,
             checked: false
         },null))

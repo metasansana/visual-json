@@ -1,24 +1,30 @@
 import React from 'react';
-import Radio from './Radio';
+import Control from './Control';
 
 /**
- * CheckBox
+ * Radio
  */
-class CheckBox extends Radio {
+class Radio extends Control {
 
-    constructor(props){
+    constructor(props) {
         super(props);
-        this.NATIVE_TYPE = 'checkbox';
+        this.NATIVE_TYPE = 'radio';
         this.INLINE_CLASS = 'checkbox-inline'
     }
 
-    changed(){
-        this.props.set(this.props.name, !this.props.checked);
-    }
+    renderComponent(props, children) {
 
+        var {inline} = props;
+
+        return React.createElement('label', {
+                className: (inline) ? this.INLINE_CLASS : null
+            },
+            React.createElement('input', props), children);
+
+    }
 }
 
-CheckBox.propTypes = {
+Radio.propTypes = {
     type: React.PropTypes.string,
     name: React.PropTypes.string.isRequired,
     className: React.PropTypes.string,
@@ -30,4 +36,4 @@ CheckBox.propTypes = {
     onFocus: React.PropTypes.func
 };
 
-export default CheckBox
+export default Radio;
