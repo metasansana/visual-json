@@ -20,7 +20,7 @@ class TableRow extends React.Component {
             return React.createElement('td', {key: key + inflation},
                 (column.dataComponent) ?
                     React.createElement(column.dataComponent, {
-                        data: datum, column: column, options: column.dataComponentOptions
+                        data: datum, column: column, index:key, options: column.dataComponentOptions
                     }, datum) : datum)
         }.bind(this));
 
@@ -43,6 +43,7 @@ TableRow.propTypes = {
         name: React.PropTypes.string.isRequired,
         label: React.PropTypes.string.isRequired,
         headingComponent: React.PropTypes.component,
+        headingComponentOptions: React.PropTypes.component,
         dataComponent: React.PropTypes.component,
         dataComponentOptions: React.PropTypes.object,
         transform: React.PropTypes.string,
