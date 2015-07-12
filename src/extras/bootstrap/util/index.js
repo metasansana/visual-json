@@ -6,5 +6,10 @@ export default {
     skipKeys(component, props, children) {
         return React.createElement.apply(null,
             [component, props].concat(children));
+    },
+    transferKeys(spec, src, dest) {
+        Object.keys(spec).forEach(key=>dest[key]=src[key]);
+        return dest;
     }
+
 }

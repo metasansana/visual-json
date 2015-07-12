@@ -17,6 +17,7 @@ StackedRadio.propTypes = {
     name: React.PropTypes.string.isRequired,
     className: React.PropTypes.string,
     checked: React.PropTypes.bool,
+    value: React.PropTypes.any,
     set: React.PropTypes.func,
     onChange: React.PropTypes.func,
     onBlur: React.PropTypes.func,

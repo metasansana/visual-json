@@ -9,7 +9,7 @@ class Radio extends Control {
     constructor(props) {
         super(props);
         this.NATIVE_TYPE = 'radio';
-        this.INLINE_CLASS = 'checkbox-inline'
+        this.INLINE_CLASS = 'radio-inline'
     }
 
     renderComponent(props, children) {
@@ -30,6 +30,7 @@ Radio.propTypes = {
     name: React.PropTypes.string.isRequired,
     className: React.PropTypes.string,
     checked: React.PropTypes.bool,
+    value: React.PropTypes.any,
     inline: React.PropTypes.bool,
     set: React.PropTypes.func,
     onChange: React.PropTypes.func,

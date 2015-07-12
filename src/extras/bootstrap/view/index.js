@@ -5,7 +5,6 @@ import Panel from './Panel';
 import PanelBody from './PanelBody';
 import PanelHeading from './PanelHeading';
 import PanelFooter from './PanelFooter';
-import RichTable from './RichTable';
 import Row from './Row';
 import Table from './Table';
 import NavList from './NavList';
