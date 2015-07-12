@@ -1,5 +1,4 @@
 import React from 'react';
-import util from '../util';
 import HorizontalControl from './HorizontalControl';
 import Input from './Input';
 

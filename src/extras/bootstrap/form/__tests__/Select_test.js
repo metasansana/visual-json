@@ -75,8 +75,8 @@ describe('HorizontalSelect', function () {
 
     beforeEach(function () {
         Component = HorizontalSelect;
-        correctMarkup = '<div class="form-group"><label class="col-md-4">Name</label><div class="col-md-8"><select name="name" class="form-control" type="select"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option></select></div></div>';
-        correctMarkupWithDefaults = '<div class="form-group"><label class="col-md-4">Defaults</label><div class="col-md-8"><select class="form-control" name="defaults" type="select"><option value="why">why</option><option value="you">you</option><option value="yes">yes</option><option value="sir">sir</option></select></div></div>';
+        correctMarkup = '<div class="form-group"><label class="col-md-4">Name</label><div class="col-md-8"><select name="name" type="select" class="form-control"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option></select></div></div>';
+        correctMarkupWithDefaults = '<div class="form-group"><label class="col-md-4">Defaults</label><div class="col-md-8"><select name="defaults" type="select" class="form-control"><option value="why">why</option><option value="you">you</option><option value="yes">yes</option><option value="sir">sir</option></select></div></div>';
     });
 
     describe('HorizontalSelect#render', function () {
@@ -101,8 +101,8 @@ describe('VerticalSelect', function () {
 
     beforeEach(function () {
         Component = VerticalSelect;
-        correctMarkup = '<div class="form-group"><label>Name</label><select name="name" class="form-control" type="select"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option></select></div>';
-        correctMarkupWithDefaults = '<div class="form-group"><label>Defaults</label><select class="form-control" name="defaults" type="select"><option value="why">why</option><option value="you">you</option><option value="yes">yes</option><option value="sir">sir</option></select></div>';
+        correctMarkup = '<div class="form-group"><label>Name</label><select name="name" type="select" class="form-control"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option></select></div>';
+        correctMarkupWithDefaults = '<div class="form-group"><label>Defaults</label><select name="defaults" type="select" class="form-control"><option value="why">why</option><option value="you">you</option><option value="yes">yes</option><option value="sir">sir</option></select></div>';
     });
 
     describe('VerticalSelect#render', function () {

@@ -15,6 +15,7 @@ class Radio extends Control {
     renderComponent(props, children) {
 
         var {inline} = props;
+        delete props.className;
 
         return React.createElement('label', {
                 className: (inline) ? this.INLINE_CLASS : null
