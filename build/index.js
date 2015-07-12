@@ -26,6 +26,10 @@ var _filters = require('./filters');
 
 var _filters2 = _interopRequireDefault(_filters);
 
+var _extras = require('./extras');
+
+var _extras2 = _interopRequireDefault(_extras);
+
 var _Compiler = require('./Compiler');
 
 var _Compiler2 = _interopRequireDefault(_Compiler);
@@ -38,14 +42,20 @@ var _Realm = require('./Realm');
 
 var _Realm2 = _interopRequireDefault(_Realm);
 
+var _coreEnvironment = require('./core/Environment');
+
+var _coreEnvironment2 = _interopRequireDefault(_coreEnvironment);
+
 exports['default'] = {
     Compiler: _Compiler2['default'],
     Parser: _Parser2['default'],
     Realm: _Realm2['default'],
+    Environment: _coreEnvironment2['default'],
     form: _form2['default'],
     state: _state2['default'],
     view: _view2['default'],
     types: _types2['default'],
-    filters: _filters2['default']
+    filters: _filters2['default'],
+    extras: _extras2['default']
 };
 module.exports = exports['default'];

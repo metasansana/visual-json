@@ -38,7 +38,7 @@ var Realm = (function () {
     function Realm(types, filters, cache) {
         _classCallCheck(this, Realm);
 
-        this.types = types || {};
+        this.env = types || {};
         this.filters = filters || {};
         this.cache = cache || {};
     }
@@ -64,7 +64,7 @@ var Realm = (function () {
         * @returns {Realm}
         */
         value: function addTypes(types) {
-            this.types = (0, _merge2['default'])(this.types, types);
+            this.env = (0, _merge2['default'])(this.env, types);
             return this;
         }
     }, {
@@ -80,10 +80,10 @@ var Realm = (function () {
          *
          * @param {Object} json
          * @param {Object} ctx
-         * @returns {Parser}
+         * @returns {ParseTraversal}
          */
         value: function getParser(ctx) {
-            return new _Parser2['default'](new _Compiler2['default'](this.types, this.filters, this.cache || {}), ctx);
+            return new _Parser2['default'](new _Compiler2['default'](this.env, this.filters, this.cache || {}), ctx);
         }
     }]);
 

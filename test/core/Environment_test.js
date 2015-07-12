@@ -38,7 +38,7 @@ describe('Environment', function () {
                     "@points": "$self.state.score"
                 }
 
-            }, self);
+            }, self, {});
 
             expect(output).equal("<profile>Patrick Mickle(24)</profile>");
 
@@ -72,7 +72,7 @@ describe('Environment', function () {
                     "@points": "$self.state.score"
                 }
 
-            }, self, function (output) {
+            }, self, {}, function (output) {
 
                 expect(output).equal("<profile>Patrick Mickle(24)</profile>");
                 done();

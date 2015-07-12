@@ -73,7 +73,7 @@
             "name": "area",
             "@model":"this",
             "labelValue": "About You",
-            "rows": 6
+            "rowsSelected": 6
           }
         ]
       }

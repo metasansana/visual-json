@@ -30,7 +30,7 @@ var Parser = (function () {
     function Parser(compiler, context) {
         _classCallCheck(this, Parser);
 
-        this.compiler = compiler;
+        this.env = compiler;
         this.context = context;
         this.number = 0;
     }
@@ -60,15 +60,15 @@ var Parser = (function () {
             for (var key in schema) {
                 if (schema.hasOwnProperty(key)) {
 
-                    schema = this.compiler.swapTemplate(key, schema, context);
-                    schema = this.compiler.swapSymbolAndParse(key, schema, context, this.parseObject.bind(this));
-                    schema = this.compiler.callAndSwapSymbol(key, schema, context);
-                    schema = this.compiler.swapSymbol(key, schema, context);
-                    schema = this.compiler.eagerCompile(key, schema, context);
-                    schema = this.compiler.eagerCompileArray(key, schema, context);
+                    schema = this.env.swapTemplate(key, schema, context);
+                    schema = this.env.swapSymbolAndParse(key, schema, context, this.parseObject.bind(this));
+                    schema = this.env.callAndSwapSymbol(key, schema, context);
+                    schema = this.env.swapSymbol(key, schema, context);
+                    schema = this.env.eagerCompile(key, schema, context);
+                    schema = this.env.eagerCompileArray(key, schema, context);
 
-                    if (this.compiler.hasSymbol(key, '$->')) {
-                        schema[this.compiler.cut(key, '$->')] = this.parseObjectLike(schema[key], context);
+                    if (this.env.hasSymbol(key, '$->')) {
+                        schema[this.env.cut(key, '$->')] = this.parseObjectLike(schema[key], context);
                         delete schema[key];
                     }
                 }
@@ -80,7 +80,7 @@ var Parser = (function () {
                 schema.$context = context;
                 schema.$number = this.number;
                 schema.$template = this.template.bind(this);
-                schema.$filter = this.compiler.filter.bind(this.compiler);
+                schema.$filter = this.env.filter.bind(this.env);
             }
 
             return schema;
@@ -95,12 +95,12 @@ var Parser = (function () {
          */
         value: function template(value, context) {
             context = context || this.context;
-            return this.compiler.template(value, context);
+            return this.env.template(value, context);
         }
     }, {
         key: 'filter',
         value: function filter() {
-            return this.compiler.filter.apply(this.compiler, arguments);
+            return this.env.filter.apply(this.env, arguments);
         }
     }, {
         key: 'cloneProps',
@@ -133,7 +133,7 @@ var Parser = (function () {
             if (!schema) return schema;
             schema = this.parseObjectLike(JSON.parse(JSON.stringify(schema)), context || this.context);
             if (typeof schema !== 'object' || Array.isArray(schema)) return schema;
-            return this.compiler.compile(schema);
+            return this.env.compile(schema);
         }
     }]);
 

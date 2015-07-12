@@ -70,7 +70,7 @@ describe('Table', function () {
             var elm = _reactAddons2['default'].createElement(_Table2['default'], props);
             var table = Test.renderIntoDocument(elm);
             var node = Test.findRenderedDOMComponentWithTag(table, 'table').getDOMNode();
-            var cells = node.rows[0].cells;
+            var cells = node.rowsSelected[0].cells;
 
             //Test.Simulate.click(cells[0]);
             //expect(node.innerHTML).toEqual('<thead data-reactid=".0.0"><tr data-reactid=".0.0.0"><th data-reactid=".0.0.0.$0"><span data-reactid=".0.0.0.$0.0">Name</span><span data-reactid=".0.0.0.$0.1">⇩</span></th><th data-reactid=".0.0.0.$1"><span data-reactid=".0.0.0.$1.0">Age</span><span data-reactid=".0.0.0.$1.1"></span></th><th data-reactid=".0.0.0.$2"><span data-reactid=".0.0.0.$2.0">Date</span><span data-reactid=".0.0.0.$2.1"></span></th></tr></thead><tbody data-reactid=".0.1"><tr data-reactid=".0.1.$0"><td data-reactid=".0.1.$0.$0">D</td><td data-reactid=".0.1.$0.$1">1</td><td data-reactid=".0.1.$0.$2">Mon Jan 01 2001 00:00:00 GMT-0400 (AST)</td></tr><tr data-reactid=".0.1.$1"><td data-reactid=".0.1.$1.$0">C</td><td data-reactid=".0.1.$1.$1">1</td><td data-reactid=".0.1.$1.$2">Thu Mar 08 2001 00:00:00 GMT-0400 (AST)</td></tr><tr data-reactid=".0.1.$2"><td data-reactid=".0.1.$2.$0">B</td><td data-reactid=".0.1.$2.$1">7</td><td data-reactid=".0.1.$2.$2">Thu Jul 24 1902 00:00:00 GMT-0400 (AST)</td></tr><tr data-reactid=".0.1.$3"><td data-reactid=".0.1.$3.$0">A</td><td data-reactid=".0.1.$3.$1">3</td><td data-reactid=".0.1.$3.$2">Thu Jan 01 2009 00:00:00 GMT-0400 (AST)</td></tr></tbody>');

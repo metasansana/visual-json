@@ -123,7 +123,7 @@ var Compiler = (function () {
     function Compiler(types, filters, cache) {
         _classCallCheck(this, Compiler);
 
-        this.types = types;
+        this.env = types;
         this.filters = filters;
         this.cache = cache;
         this.SYMBOLS = {
@@ -372,11 +372,11 @@ var Compiler = (function () {
 
             if (!schema.type) return schema;
 
-            if (schema.type in this.types) return this.types[schema.type](schema);
+            if (schema.type in this.env) return this.env[schema.type](schema);
 
-            if (schema.type in inputs) return this.types.input(schema);
+            if (schema.type in inputs) return this.env.input(schema);
 
-            return this.types['default'](schema);
+            return this.env['default'](schema);
         }
     }]);
 
