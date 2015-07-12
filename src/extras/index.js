@@ -1,7 +1,5 @@
-import bootstrap from './bootstrap';
-import ReactType from './ReactType';
+import react from './react';
 
 export default {
-    bootstrap:bootstrap,
-    ReactType: ReactType
+    react: react
 }

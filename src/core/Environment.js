@@ -1,7 +1,6 @@
 import jhr from 'jhr';
 import merge from 'merge';
 import Scope from './Scope';
-import Compiler from './Compiler';
 import SymbolParser from './SymbolParser';
 import ResourceDirective from '../directives/ResourceDirective';
 import SetDirective from '../directives/SetDirective';
@@ -24,14 +23,14 @@ class Environment {
             $resource: new ResourceDirective(agent),
             $set: new SetDirective(),
             $request: new RequestDirective(agent),
-            $compile: new CompileDirective(new Compiler(this)),
+            $compile: new CompileDirective(this),
             $parse: new ParseDirective(['$resource', '$set', '$request', '$compile', '$parse'], this)
         };
 
-        this.globalCtx = {
+        this.envCtx = {
             $window: window,
             $document: document,
-            $global: {}
+            $env: {}
         };
 
         this.types = types || {};
@@ -45,15 +44,14 @@ class Environment {
     }
     
     getTypeByName(name) {
-
         if (!this.types.hasOwnProperty(name))
             throw new UnknownTypeError(name);
         return this.types[name];
         
     }
 
-    addGlobal(key, name) {
-        this.globalCtx.globals[key] = name;
+    addVar(key, name) {
+        this.envCtx.env[key] = name;
         return this;
     }
 
@@ -62,15 +60,15 @@ class Environment {
         return this;
     }
 
-    parse(tree, self) {
+    parse(tree, self, locals) {
 
         return this.getDirectiveByName('$parse').apply(tree,
-            new Scope(this.globalCtx, {$self: self, $local:{}}, new SymbolParser()));
+            new Scope(this.envCtx, {$self: self, $local:locals||{}}, new SymbolParser()));
     }
 
-    parseWithResource(tree, self, cb) {
+    parseWithResource(tree, self, locals, cb) {
         return this.getDirectiveByName('$parse').applyWithResource(tree,
-            new Scope(this.globalCtx, {$self: self, $local:{}}, new SymbolParser()),cb);
+            new Scope(this.envCtx, {$self: self, $local:locals||{}}, new SymbolParser()),cb);
     }
 
 }

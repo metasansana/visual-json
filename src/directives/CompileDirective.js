@@ -3,15 +3,25 @@
  */
 class CompileDirective {
 
-    constructor(compiler) {
-      this.compiler = compiler;
+    constructor(env) {
+      this.env = env;
+    }
+
+    compile(tree, scope) {
+
+        if(!Array.isArray(tree))
+            tree = [tree];
+
+        var ret = tree.map(function(node, key) {
+            return this.env.getTypeByName(node.type).compile(node, scope, this, key);
+        }.bind(this));
+
+        if(ret.length === 1) return ret[0];
+        return ret;
     }
 
     apply(tree, scope) {
-
-        var ret = this.compiler.compile(scope.applySymbols(tree));
-        return ret;
-
+        return this.compile(scope.applySymbols(tree), scope);
     }
 }
 

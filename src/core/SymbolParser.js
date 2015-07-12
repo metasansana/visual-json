@@ -1,5 +1,16 @@
 import dot from 'dot-access';
 
+const OPERATORS = {
+    '==': (x,y)=>(x===y),
+    '!=': (x,y)=>(x!=y),
+    '>': (x,y)=>(x>y),
+    '>=': (x,y)=>(x>=y),
+    '<': (x,y)=>(x<y),
+    '<=': (x,y)=>(x<=y),
+    '-': (x,y)=>(x-y),
+    '+': (x,y)=>(x+y)
+};
+
 /**
  * SymbolParser is used for populating a tree with
  * keyword symbols.
@@ -10,10 +21,25 @@ class SymbolParser {
 
         this.SYMBOLS = {
             SWAP: '@',
-            STEP: '$->',
+            STEP: '->',
             TEMPLATE: '^',
-            INVOKE: '()'
+            EVALUATE:'=',
+            DIRECTIVE:'@$'
         }
+    }
+
+    _stringToArgs(str, scope) {
+
+        return (str.substring(str.indexOf('(') + 1, str.length - 1)).split(',').
+            map(function (val) {
+                if (typeof val === 'string')
+                    if (!val[0] === "'") {
+                        val = scope.resolve(val);
+                    }else{
+                        val = val.replace(/'/g, "");
+                    }
+                return val;
+            });
     }
 
     _clean(value) {
@@ -25,6 +51,18 @@ class SymbolParser {
             }
 
         return value;
+    }
+
+    evaluate(str, scope) {
+
+        var exp = str.split(' ');
+        if(exp.length === 1)
+        return (scope.resolve(exp[0]));
+
+        if(!OPERATORS.hasOwnProperty(exp[1]))
+        throw new Error('evaluate(): Unknown operator: '+exp[1]+' !');
+        return OPERATORS[exp[1]](scope.resolve(exp[0]), scope.resolve(exp[2]));
+
     }
 
     endsWith(searchString, subjectString, position) {
@@ -65,22 +103,27 @@ class SymbolParser {
 
     applySwap(key, value, scope, newKey, newTree) {
 
+        var isCallable = false;
+        var args;
+
         if (this.startsWith(this.SYMBOLS.SWAP, key)) {
 
-            var willInvoke = this.endsWith(this.SYMBOLS.INVOKE, value);
+            if (value[value.length - 1] === ')') isCallable = true;
 
-            var target = scope.resolve((willInvoke) ? value.slice(0, this.SYMBOLS.INVOKE.length) : value);
+            if (isCallable)
+                args = this._stringToArgs(value, scope);
+
+            var target = scope.resolve((isCallable)?
+                value.substring(0, value.indexOf('(')) : value);
 
             if (typeof target === 'function') {
 
                 var paths = value.split('.');
+                paths.pop();
 
-                if (paths[0][0] !== '$') {
-                    paths.pop();
+                target = (args)?
+                    target.bind.apply(target, [null].concat(args)):
                     target.bind(scope.resolve(paths.join('.')));
-                }
-
-                if (willInvoke) newTree[newKey] = target();
 
             }
 
@@ -89,12 +132,28 @@ class SymbolParser {
         }
     }
 
+    applyDirectiveSwap(key, template, scope, newKey, newTree) {
+
+        if(this.startsWith(this.SYMBOLS.DIRECTIVE. key)) {
+
+
+
+        }
+
+    }
+
     applyTemplate(key, template, scope, newKey, newTree) {
 
         if (this.startsWith(this.SYMBOLS.TEMPLATE, key))
             newTree[newKey] = template.replace(/\{\{([\w\.\-]*)\}\}/g, function (s, k) {
                 return scope.resolve(k);
             });
+    }
+
+    applyEval(key, value, scope, newKey, newTree) {
+
+        if(this.startsWith(this.SYMBOLS.EVALUATE, key))
+        newTree[newKey] = this.evaluate(value, scope);
     }
 
     parseObjectLike(schema, scope) {
@@ -124,14 +183,15 @@ class SymbolParser {
         for (var key in tree)
             if (tree.hasOwnProperty(key)) {
 
-                if(this.hasKeySymbol(key)) {
+                if (this.hasKeySymbol(key)) {
 
                     newKey = this._clean(key);
                     this.applyStep(key, tree[key], scope, newKey, newTree);
                     this.applySwap(key, tree[key], scope, newKey, newTree);
                     this.applyTemplate(key, tree[key], scope, newKey, newTree);
+                    this.applyEval(key, tree[key], scope, newKey, newTree);
 
-                }else {
+                } else {
 
                     newTree[key] = tree[key];
 

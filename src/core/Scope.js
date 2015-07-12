@@ -10,10 +10,19 @@ import DotAccess from 'dot-access';
  */
 class Scope {
 
-    constructor(globalCtx, localCtx, symbolParser) {
-        this.globalCtx = globalCtx;
+    constructor(envCtx, localCtx, symbolParser) {
+        this.envCtx = envCtx;
         this.localCtx = localCtx;
         this.symbolParser = symbolParser;
+    }
+
+    replaceSelf(self) {
+
+        var newLocalCtx;
+
+        for(var key in this.localCtx)
+        if(this.localCtx.hasOwnProperty(key))
+        newLocalCtx[key] = key;
     }
 
     /**
@@ -43,7 +52,7 @@ class Scope {
         value = DotAccess.get(this.localCtx, path);
         if(value) return value;
 
-        value = DotAccess.get(this.globalCtx, path);
+        value = DotAccess.get(this.envCtx, path);
         if(value) return value;
 
         return null;
