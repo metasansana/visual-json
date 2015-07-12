@@ -83,7 +83,7 @@ function make_request(args) {
 class Compiler {
 
     constructor(types, filters, cache) {
-        this.types = types;
+        this.env = types;
         this.filters = filters;
         this.cache = cache;
         this.SYMBOLS = {
@@ -328,13 +328,13 @@ class Compiler {
         if (!schema.type)
             return schema;
 
-        if (schema.type in this.types)
-            return this.types[schema.type](schema);
+        if (schema.type in this.env)
+            return this.env[schema.type](schema);
 
         if (schema.type in inputs)
-            return this.types.input(schema);
+            return this.env.input(schema);
 
-        return this.types.default(schema);
+        return this.env.default(schema);
 
     }
 

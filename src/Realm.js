@@ -10,7 +10,7 @@ import filters from './filters';
 class Realm {
 
     constructor(types, filters, cache){
-        this.types = types || {};
+        this.env = types || {};
         this.filters = filters || {};
         this.cache = cache || {};
     }
@@ -31,7 +31,7 @@ class Realm {
      * @returns {Realm}
      */
     addTypes(types){
-        this.types = merge(this.types, types);
+        this.env = merge(this.env, types);
         return this;
     }
 
@@ -44,10 +44,10 @@ class Realm {
      *
      * @param {Object} json
      * @param {Object} ctx
-     * @returns {Parser}
+     * @returns {ParseTraversal}
      */
     getParser(ctx) {
-        return new Parser(new Compiler(this.types, this.filters, this.cache || {}), ctx);
+        return new Parser(new Compiler(this.env, this.filters, this.cache || {}), ctx);
     }
 
 }
