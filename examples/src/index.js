@@ -35,7 +35,7 @@ class Context extends React.Component {
     render() {
         return env.parse({
             type: "container",
-            "!children": [
+            "children": [
                 {
                     type: "panel",
                     "!!body": {
@@ -64,7 +64,7 @@ class Context extends React.Component {
                     heading: "Form",
                     "!!body": {
                         type: "form",
-                        "!children": [{
+                        "children": [{
                             type: 'checkbox',
                             name: 'plainCheckbox',
                             '@set': '$self.set',
@@ -115,14 +115,14 @@ class Context extends React.Component {
                     "!!body": {
                         type: "form",
                         className: 'form-horizontal',
-                        "!children": [{
+                        "children": [{
                             type: 'horizontal-group',
                             "labelValue": "A Horizontal Checkbox",
-                            '!children': [
+                            'children': [
                                 {
                                     "type": "column",
                                     "className": "col-md-8",
-                                    "!children": [
+                                    "children": [
                                         {
                                             type: 'checkbox',
                                             name: 'plainCheckbox',
