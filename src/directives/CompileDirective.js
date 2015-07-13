@@ -13,6 +13,7 @@ class CompileDirective {
             tree = [tree];
 
         var ret = tree.map(function(node, key) {
+            if(typeof node !== 'object') return node;
             return this.env.getTypeByName(node.type).compile(node, scope, this, key);
         }.bind(this));
 
