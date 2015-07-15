@@ -1,5 +1,5 @@
 import expect from 'must';
-import CompileDirective from '../../src/directives/CompileDirective';
+import Compiler from '../../src/core/Compiler';
 
 var compiler;
 var env;
@@ -23,10 +23,10 @@ describe('Compiler', function() {
     });
 
     beforeEach(function() {
-       compiler = new CompileDirective(env);
+       compiler = new Compiler(env);
     });
 
-    describe('CompileDirective#compile', function() {
+    describe('Compiler#compile', function() {
 
         it('should compile an object', function() {
 
