@@ -56,7 +56,7 @@ var ResourceDirective = (function (_RequestDirective) {
         key: 'apply',
         value: function apply(tree, scope, done) {
 
-            this.send(tree.request).then((function (res) {
+            this.send(scope.applySymbols(tree.request)).then((function (res) {
 
                 var data = res.data || res.body;
                 var links = _coreUtils2['default'].createSafeMap();

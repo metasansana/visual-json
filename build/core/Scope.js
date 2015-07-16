@@ -33,12 +33,22 @@ var Scope = (function () {
     }
 
     _createClass(Scope, [{
+        key: 'clone',
+
+        /**
+         * clone provides a new Scope with a copy of this one's global and local context.
+         * @returns {Scope}
+         */
+        value: function clone() {
+            var newLocal = {};
+            for (var key in this.localCtx) if (this.localCtx.hasOwnProperty(key)) newLocal[key] = this.localCtx[key];
+            return new Scope(this.envCtx, newLocal, this.symbolParser);
+        }
+    }, {
         key: 'replaceSelf',
         value: function replaceSelf(self) {
-
-            var newLocalCtx;
-
-            for (var key in this.localCtx) if (this.localCtx.hasOwnProperty(key)) newLocalCtx[key] = key;
+            this.localCtx.$self = self;
+            return this;
         }
     }, {
         key: 'set',
@@ -70,10 +80,10 @@ var Scope = (function () {
             var value;
 
             value = _dotAccess2['default'].get(this.localCtx, path);
-            if (value) return value;
+            if (value !== undefined) return value;
 
             value = _dotAccess2['default'].get(this.envCtx, path);
-            if (value) return value;
+            if (value !== undefined) return value;
 
             return null;
         }

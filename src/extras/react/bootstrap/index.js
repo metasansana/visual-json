@@ -3,7 +3,8 @@ import form from './form';
 import view from './view';
 
 var types = {
-    form: new ReactType(form.Form),
+
+    'nav-link': new ReactType(form.NavLink),
     link: new ReactType(form.Anchor),
     button: new ReactType(form.Button),
     'button-group': new ReactType(form.ButtonGroup),
@@ -11,6 +12,7 @@ var types = {
     'dropdown-header': new ReactType(form.DropDownHeader),
     'dropdown-divider': new ReactType(form.DropDownDivider),
     'dropdown-item': new ReactType(form.DropDownItem),
+    form: new ReactType(form.Form),
     input: new ReactType(form.Input),
     text: new ReactType(form.Input),
     radio: new ReactType(form.Radio),
@@ -41,6 +43,9 @@ var types = {
     container: new ReactType(view.Container),
     tab: new ReactType(view.Tab),
     'nav-list': new ReactType(view.NavList),
+    'html-element': new ReactType(view.HTMLElement),
+    'breadcrumb': new ReactType(view.BreadCrumb),
+    'list-item': new ReactType(view.ListItem),
     icon: new ReactType(view.IconFont)
 };
 

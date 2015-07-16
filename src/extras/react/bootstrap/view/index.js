@@ -10,6 +10,9 @@ import Table from './Table';
 import NavList from './NavList';
 import Tab from './Tab';
 import IconFont from './IconFont';
+import HTMLElement from './HTMLElement';
+import BreadCrumb from './BreadCrumb';
+import ListItem from './ListItem';
 
 export default {
     Column: Column,
@@ -23,5 +26,8 @@ export default {
     Table: Table,
     NavList: NavList,
     Tab: Tab,
-    IconFont: IconFont
+    IconFont: IconFont,
+    HTMLElement: HTMLElement,
+    BreadCrumb: BreadCrumb,
+    ListItem: ListItem
 }

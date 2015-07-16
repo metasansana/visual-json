@@ -15,7 +15,7 @@ class ReactType {
 
     compile(tree, scope, env) {
 
-        var childs = tree.get('children') || [];
+        var childs = env.parse(tree.getTree('children'), scope.clone()) || [];
 
         if (this.component.propTypes.$environment)
             tree.set('$environment', env);

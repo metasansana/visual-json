@@ -8,7 +8,8 @@ import Compiler from './Compiler';
 import Parser from './Parser';
 import Realm from './Realm';
 import Environment from './core/Environment';
-
+import 'babel/polyfill';
+window.PENIS = 'O=><>';
 export default {
     Compiler: Compiler,
     Parser: Parser,

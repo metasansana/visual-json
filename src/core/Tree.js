@@ -16,6 +16,10 @@ class Tree {
         return this.schema[key];
     }
 
+    getTree(key){
+        return new Tree(this.schema[key], key);
+    }
+
     set(key, value) {
         this.schema[key] = value;
         return this;

@@ -22,10 +22,12 @@ import HorizontalGroup from './HorizontalGroup';
 import VerticalInput from './VerticalInput';
 import VerticalTextArea from './VerticalTextArea';
 import VerticalSelect from './VerticalSelect';
+import NavLink from './NavLink';
 
 export default {
     Form: Form,
     Anchor: Anchor,
+    NavLink: NavLink,
     Button: Button,
     ButtonGroup: ButtonGroup,
     ButtonDropDown: ButtonDropDown,

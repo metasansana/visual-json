@@ -6,16 +6,11 @@ Object.defineProperty(exports, '__esModule', {
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-var _bootstrap = require('./bootstrap');
+var _react = require('./react');
 
-var _bootstrap2 = _interopRequireDefault(_bootstrap);
-
-var _ReactType = require('./ReactType');
-
-var _ReactType2 = _interopRequireDefault(_ReactType);
+var _react2 = _interopRequireDefault(_react);
 
 exports['default'] = {
-    bootstrap: _bootstrap2['default'],
-    ReactType: _ReactType2['default']
+    react: _react2['default']
 };
 module.exports = exports['default'];

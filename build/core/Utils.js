@@ -24,6 +24,23 @@ var Utils = (function () {
     }
 
     _createClass(Utils, [{
+        key: 'endsWith',
+        value: function endsWith(subjectString, searchString, position) {
+
+            if (position === undefined || position > subjectString.length) {
+                position = subjectString.length;
+            }
+            position -= searchString.length;
+            var lastIndex = subjectString.indexOf(searchString, position);
+            return lastIndex !== -1 && lastIndex === position;
+        }
+    }, {
+        key: 'startsWith',
+        value: function startsWith(subjectString, searchString, position) {
+            position = position || 0;
+            return subjectString.indexOf(searchString, position) === position;
+        }
+    }, {
         key: 'clone',
         value: function clone(o) {
             return JSON.parse(JSON.stringify(o));

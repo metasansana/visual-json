@@ -25,7 +25,7 @@ class ResourceDirective extends RequestDirective {
 
     apply(tree, scope, done) {
 
-        this.send(tree.request).
+        this.send(scope.applySymbols(tree.request)).
             then(function (res) {
 
                 var data = res.data || res.body;
