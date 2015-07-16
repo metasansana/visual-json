@@ -1,23 +1,15 @@
 import expect from 'must';
 import Parser from '../../src/core/Parser';
+import Tree from '../../src/core/Tree';
 
 var parser;
-var directives;
 var scope;
-var compiler;
+var env;
+var directives;
 
 describe('Parser', function () {
 
     beforeEach(function () {
-
-        scope = {
-            set(dest, name, value) {
-                this[name] = value;
-            },
-            applySymbols(value) {
-                return value;
-            }
-        };
 
         directives = [
             {
@@ -37,38 +29,60 @@ describe('Parser', function () {
             }
         ];
 
-        compiler = {
-            compile(a) {
-                this.compiled = true;
+        env = {
+            parseCalled: 0,
+            compileCalled: 0,
+            parse(tree, scope) {
+                this.parseCalled++;
+                return this.compile(tree, scope);
+            },
+            compile(tree, scope) {
+                this.compileCalled++;
+                return tree;
+            },
+            getPlugins() {
+                return directives;
+            }
+
+        };
+
+        scope = {
+            called: {
+                applySymbols: []
+            },
+            applySymbols(a){
+
+                this.called.applySymbols.push[a];
                 return a;
+
+            },
+            clone() {
+                return this;
             }
         };
 
-        parser = new Parser(compiler, directives);
+        parser = new Parser(env);
 
     });
 
     describe('Parser#parse', function () {
 
-        it('should work', function () {
-
-            parser.parse(scope, {});
-
-            expect(compiler.compiled).eql(true);
+        it('should apply directives', function () {
+            parser.parse(new Tree({}, null), scope);
+            expect(env.compileCalled).eql(1);
             directives.map(d=>expect(d.called).eql(true));
-
-
         });
 
-        it('should return non trees', function() {
+        it('should obey the ignore directive', function () {
+            parser.parse(new Tree({"type": "mock", "visual:ignore": true}, null), scope);
+            expect(env.compileCalled).eql(0);
+        });
 
-            expect(parser.parse(scope, '<html>')).eql('<html>');
+        it('should return non trees', function () {
+            expect(parser.parse(new Tree('<html>'), scope)).eql('<html>');
         });
 
     });
-
-
-
 });
 
 

@@ -16,13 +16,22 @@ class Scope {
         this.symbolParser = symbolParser;
     }
 
+    /**
+     * clone provides a new Scope with a copy of this one's global and local context.
+     * @returns {Scope}
+     */
+    clone() {
+        var newLocal = {};
+        for (var key in this.localCtx)
+            if (this.localCtx.hasOwnProperty(key))
+                newLocal[key] = this.localCtx[key];
+        return new Scope(this.envCtx, newLocal, this.symbolParser)
+    }
+
+
     replaceSelf(self) {
-
-        var newLocalCtx;
-
-        for(var key in this.localCtx)
-        if(this.localCtx.hasOwnProperty(key))
-        newLocalCtx[key] = key;
+        this.localCtx.$self = self;
+        return this;
     }
 
     /**
@@ -34,7 +43,7 @@ class Scope {
      * @param value The value
      * @returns {Scope}
      */
-    set(dest, key, value){
+    set(dest, key, value) {
         this.localCtx[dest] = this.localCtx[dest] || {};
         this.localCtx[dest][key] = value;
         return this;
@@ -50,10 +59,10 @@ class Scope {
         var value;
 
         value = DotAccess.get(this.localCtx, path);
-        if(value) return value;
+        if (value !== undefined) return value;
 
         value = DotAccess.get(this.envCtx, path);
-        if(value) return value;
+        if (value !== undefined) return value;
 
         return null;
 

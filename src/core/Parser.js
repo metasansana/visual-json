@@ -1,30 +1,29 @@
-
 /**
  * Parser
- *
  */
 class Parser {
 
-    constructor(compiler, directives) {
-        this.directives = directives;
-        this.compiler = compiler;
+    constructor(env) {
+        this.env = env;
     }
 
-    parse(scope, tree) {
+    parse(tree, scope) {
 
-        if (typeof tree !== 'object') return tree;
+        if(tree.isPrimitive()) return tree.toObject();
 
-        tree = scope.applySymbols(tree);
+        if(tree.isObject()) {
 
-        this.directives.slice().map(function ($) {
-            $.apply(tree, scope);
-        });
+            if(tree.getDirectiveTreeBySymbol(Parser.IGNORE_SYMBOL).toObject()) return;
 
-        return this.compiler.compile(tree, scope, this);
+            this.env.getPlugins().map(function ($) {
+                $.apply(tree, scope);
+            });
+        }
 
+        return this.env.compile(tree, scope);
     }
-
-
 }
 
+Parser.IGNORE_SYMBOL = 'visual:ignore';
+Parser.SET_SYMBOL = 'visual:set';
 export default Parser
