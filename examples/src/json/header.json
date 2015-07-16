@@ -1,0 +1,26 @@
+{
+  "type": "container",
+  "children": [
+    {
+      "type": "html-element",
+      "tag": "h1",
+      "children": "Dashboard"
+    },
+    {
+      "type": "breadcrumb",
+      "children": [
+        {
+          "type": "nav-link",
+          "href": "#",
+          "children": "Home"
+        },
+        {
+          "type": "list-item",
+          "className":"active",
+          "children": "Dashboard"
+        }
+      ]
+    }
+  ]
+}
+

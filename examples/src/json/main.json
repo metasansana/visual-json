@@ -1,0 +1,11 @@
+{
+  "type": "container",
+  "children": [
+    {
+      "$ref": "./header.json"
+    },
+    {
+      "$ref": "./dashboard.json"
+    }
+  ]
+}
