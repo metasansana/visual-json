@@ -9,9 +9,11 @@ import Row from './Row';
 import Table from './Table';
 import NavList from './NavList';
 import Tab from './Tab';
+import IconFont from './IconFont';
 
 export default {
     Column: Column,
+    Row: Row,
     Container: Container,
     DefinitionList: DefinitionList,
     Panel: Panel,
@@ -20,5 +22,6 @@ export default {
     PanelFooter: PanelFooter,
     Table: Table,
     NavList: NavList,
-    Tab: Tab
+    Tab: Tab,
+    IconFont: IconFont
 }

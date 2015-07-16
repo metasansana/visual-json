@@ -4,8 +4,13 @@ import view from './view';
 
 var types = {
     form: new ReactType(form.Form),
+    link: new ReactType(form.Anchor),
     button: new ReactType(form.Button),
     'button-group': new ReactType(form.ButtonGroup),
+    'button-dropdown': new ReactType(form.ButtonDropDown),
+    'dropdown-header': new ReactType(form.DropDownHeader),
+    'dropdown-divider': new ReactType(form.DropDownDivider),
+    'dropdown-item': new ReactType(form.DropDownItem),
     input: new ReactType(form.Input),
     text: new ReactType(form.Input),
     radio: new ReactType(form.Radio),
@@ -29,12 +34,14 @@ var types = {
     'panel-body': new ReactType(view.PanelBody),
     'panel-footer': new ReactType(view.PanelFooter),
     column: new ReactType(view.Column),
+    row: new ReactType(view.Row),
     dl: new ReactType(view.DefinitionList),
     view: new ReactType(view.View),
     table: new ReactType(view.Table),
     container: new ReactType(view.Container),
     tab: new ReactType(view.Tab),
-    'nav-list': new ReactType(view.NavList)
+    'nav-list': new ReactType(view.NavList),
+    icon: new ReactType(view.IconFont)
 };
 
 export default {
