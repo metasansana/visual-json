@@ -58,6 +58,10 @@ class Environment {
         return this.parser.parse(tree, scope);
     }
 
+    parseFromObject(o, scope){
+        return this.parser.parse(new Tree(o), scope);
+    }
+
     compile(tree, scope) {
         return this.compiler.compile(tree, scope);
     }
