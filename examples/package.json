@@ -1,0 +1,17 @@
+{
+  "name": "examples",
+  "scripts": {
+    "standalone": "./node_modules/.bin/browserify -s visual -x react -t babelify -t uglifyify ../src/index.js > public/assets/js/visual.js",
+    "vendor": "./node_modules/.bin/browserify -t uglifyify -r react > public/assets/js/vendor.js",
+    "build": "./node_modules/.bin/browserify --debug --baseDir './' -t pointify -t babelify -x react src/index.js > public/assets/js/example.js"
+  },
+  "devDependencies": {
+    "react": "^0.13.3",
+    "babelify": "^6.1.3",
+    "browserify": "^10.2.6",
+    "browserify-shim": "^3.8.9",
+    "pointify": "0.0.6",
+    "react": "^0.13.3",
+    "uglifyify": "^3.0.1"
+  }
+}

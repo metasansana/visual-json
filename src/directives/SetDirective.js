@@ -5,7 +5,7 @@
  *
  * @example <caption>Example schema</caption>
  * {
- *  "$set": {
+ *  "visual:set": {
  *       @id: "$resource.report.data.reportID",
  *      "oid": "23"
  *  }
@@ -13,15 +13,24 @@
  */
 class SetDirective {
 
-    apply(tree, scope, done) {
+    /**
+     *
+     * @param {Tree} tree
+     * @param {Scope} scope
+     */
+    apply(tree, scope) {
 
-        tree = scope.applySymbols(tree);
+        var $ = tree.getDirectiveTreeBySymbol(SetDirective.SYMBOL);
 
-        for(var key in tree)
-            if (tree.hasOwnProperty(key))
-                scope.set('$local', key, tree[key]);
+        if($.isEmpty()) return;
+
+        $.forEachKey(function(value, key){
+           scope.set('$local', key, value);
+        });
+
     }
 
 }
 
+SetDirective.SYMBOL = 'visual:set';
 export default SetDirective

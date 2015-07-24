@@ -23,20 +23,19 @@ describe('Environment', function () {
             };
 
             env.addType('profile', {
-                compile(o) {
+                compile(tree, scope) {
+                    var o = tree.toObject();
                     return "<profile>" + o.name + "(" + o.points + ")</profile>";
                 }
             });
 
-            var output = env.parse({
-                "$set": {
+            var output = env.generate({
+                "type": "profile",
+                "visual:set": {
                     "name": "Patrick Mickle"
                 },
-                "$compile": {
-                    "type": "profile",
-                    "@name": "$local.name",
-                    "@points": "$self.state.score"
-                }
+                "@name": "$local.name",
+                "@points": "$self.state.score"
 
             }, self, {});
 
@@ -46,41 +45,5 @@ describe('Environment', function () {
 
     });
 
-    describe('Environment#parseWithResource', function () {
-
-        it('should work', function (done) {
-
-            self = {
-                state: {
-                    score: 24
-                }
-            };
-
-            env.addType('profile', {
-                compile(o) {
-                    return "<profile>" + o.name + "(" + o.points + ")</profile>";
-                }
-            });
-
-            env.parseWithResource({
-                "$set": {
-                    "name": "Patrick Mickle"
-                },
-                "$compile": {
-                    "type": "profile",
-                    "@name": "$local.name",
-                    "@points": "$self.state.score"
-                }
-
-            }, self, {}, function (output) {
-
-                expect(output).equal("<profile>Patrick Mickle(24)</profile>");
-                done();
-
-            })
-
-        });
-
-    })
 
 });

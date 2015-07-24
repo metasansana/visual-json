@@ -145,7 +145,7 @@ class SymbolParser {
     applyTemplate(key, template, scope, newKey, newTree) {
 
         if (this.startsWith(this.SYMBOLS.TEMPLATE, key))
-            newTree[newKey] = template.replace(/\{\{([\w\.\-]*)\}\}/g, function (s, k) {
+            newTree[newKey] = template.replace(/\{\{([\w\$\.\-]*)}}/g, function (s, k) {
                 return scope.resolve(k);
             });
     }

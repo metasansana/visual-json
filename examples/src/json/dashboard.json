@@ -1,0 +1,61 @@
+{
+  "type": "panel",
+  "className": "panel panel-primary",
+  "children": {
+    "type": "table",
+    "className": "table table-hover table-condensed",
+    "@onRowSelected": "$self.onRow",
+    "@onAllRowsSelected": "$self.onAll",
+    "columns": [
+      {
+        "name": "name",
+        "label": "Name"
+      },
+      {
+        "name": "age",
+        "label": "Age"
+      },
+      {
+        "name": "job",
+        "label": "Job"
+      },
+      {
+        "name": "food",
+        "label": "Food"
+      }
+    ],
+    "data": [
+      {
+        "name": "Lester",
+        "age": 18,
+        "job": "None"
+      },
+      {
+        "name": "Agard",
+        "age": 38,
+        "job": "None"
+      },
+      {
+        "name": "Blake",
+        "age": 38,
+        "job": "Steward"
+      },
+      {
+        "name": "Zlake",
+        "age": 38,
+        "job": "Eward",
+        "food": "pie"
+      },
+      {
+        "name": "Kenya",
+        "age": 38,
+        "job": "Shop",
+        "food": "apples"
+      }
+    ]
+  }
+}
+
+    
+
+

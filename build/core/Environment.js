@@ -10,13 +10,9 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-var _jhr = require('jhr');
+var _Tree = require('./Tree');
 
-var _jhr2 = _interopRequireDefault(_jhr);
-
-var _merge = require('merge');
-
-var _merge2 = _interopRequireDefault(_merge);
+var _Tree2 = _interopRequireDefault(_Tree);
 
 var _Scope = require('./Scope');
 
@@ -26,33 +22,21 @@ var _SymbolParser = require('./SymbolParser');
 
 var _SymbolParser2 = _interopRequireDefault(_SymbolParser);
 
-var _directivesResourceDirective = require('../directives/ResourceDirective');
-
-var _directivesResourceDirective2 = _interopRequireDefault(_directivesResourceDirective);
-
 var _directivesSetDirective = require('../directives/SetDirective');
 
 var _directivesSetDirective2 = _interopRequireDefault(_directivesSetDirective);
 
-var _directivesRequestDirective = require('../directives/RequestDirective');
-
-var _directivesRequestDirective2 = _interopRequireDefault(_directivesRequestDirective);
-
-var _directivesCompileDirective = require('../directives/CompileDirective');
-
-var _directivesCompileDirective2 = _interopRequireDefault(_directivesCompileDirective);
-
-var _directivesParseDirective = require('../directives/ParseDirective');
-
-var _directivesParseDirective2 = _interopRequireDefault(_directivesParseDirective);
-
-var _UnknownDirectiveError = require('./UnknownDirectiveError');
-
-var _UnknownDirectiveError2 = _interopRequireDefault(_UnknownDirectiveError);
-
 var _UnknownTypeError = require('./UnknownTypeError');
 
 var _UnknownTypeError2 = _interopRequireDefault(_UnknownTypeError);
+
+var _Compiler = require('./Compiler');
+
+var _Compiler2 = _interopRequireDefault(_Compiler);
+
+var _Parser = require('./Parser');
+
+var _Parser2 = _interopRequireDefault(_Parser);
 
 /**
  * Environment
@@ -62,36 +46,22 @@ var Environment = (function () {
     function Environment(types) {
         _classCallCheck(this, Environment);
 
-        var agent = _jhr2['default'].createAgent();
-
-        this.directives = {
-            $resource: new _directivesResourceDirective2['default'](agent),
-            $set: new _directivesSetDirective2['default'](),
-            $request: new _directivesRequestDirective2['default'](agent),
-            $compile: new _directivesCompileDirective2['default'](this),
-            $parse: new _directivesParseDirective2['default'](['$resource', '$set', '$request', '$compile', '$parse'], this)
-        };
-
+        this.types = types || {};
+        this.plugins = [new _directivesSetDirective2['default']()];
+        this.compiler = new _Compiler2['default'](this);
+        this.parser = new _Parser2['default'](this);
         this.envCtx = {
             $window: window,
             $document: document,
             $env: {}
         };
-
-        this.types = types || {};
     }
 
     _createClass(Environment, [{
-        key: 'getDirectiveByName',
-        value: function getDirectiveByName(name) {
-            if (!this.directives.hasOwnProperty(name)) throw new _UnknownDirectiveError2['default'](name);
-            return this.directives[name];
-        }
-    }, {
-        key: 'getTypeByName',
-        value: function getTypeByName(name) {
-            if (!this.types.hasOwnProperty(name)) throw new _UnknownTypeError2['default'](name);
-            return this.types[name];
+        key: 'addType',
+        value: function addType(key, name) {
+            this.types[key] = name;
+            return this;
         }
     }, {
         key: 'addVar',
@@ -100,21 +70,41 @@ var Environment = (function () {
             return this;
         }
     }, {
-        key: 'addType',
-        value: function addType(key, name) {
-            this.types[key] = name;
+        key: 'addPlugin',
+        value: function addPlugin(directive) {
+            this.plugins.push(directive);
             return this;
         }
     }, {
-        key: 'parse',
-        value: function parse(tree, self, locals) {
-
-            return this.getDirectiveByName('$parse').apply(tree, new _Scope2['default'](this.envCtx, { $self: self, $local: locals || {} }, new _SymbolParser2['default']()));
+        key: 'getTypeByName',
+        value: function getTypeByName(name) {
+            if (!this.types.hasOwnProperty(name)) throw new _UnknownTypeError2['default'](name);
+            return this.types[name];
         }
     }, {
-        key: 'parseWithResource',
-        value: function parseWithResource(tree, self, locals, cb) {
-            return this.getDirectiveByName('$parse').applyWithResource(tree, new _Scope2['default'](this.envCtx, { $self: self, $local: locals || {} }, new _SymbolParser2['default']()), cb);
+        key: 'getPlugins',
+        value: function getPlugins() {
+            return this.plugins.slice();
+        }
+    }, {
+        key: 'getScope',
+        value: function getScope(self, locals) {
+            return new _Scope2['default'](this.envCtx, { $self: self, $local: locals || {} }, new _SymbolParser2['default']());
+        }
+    }, {
+        key: 'parse',
+        value: function parse(tree, scope) {
+            return this.parser.parse(tree, scope);
+        }
+    }, {
+        key: 'compile',
+        value: function compile(tree, scope) {
+            return this.compiler.compile(tree, scope);
+        }
+    }, {
+        key: 'generate',
+        value: function generate(tree, self, locals) {
+            return this.parser.parse(new _Tree2['default'](tree, null), this.getScope(self, locals));
         }
     }]);
 
