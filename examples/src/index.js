@@ -8,43 +8,23 @@ var x = {
     type: "container",
     "children": [
         {
-            type: "panel",
-            "compile:body": {
-                type: 'table',
-                className: "table table-hover table-condensed",
-                '@onRowSelected': '$self.onRow',
-                '@onAllRowsSelected': '$self.onAll',
-                columns: [
-                    {name: 'name', label: 'Name'},
-                    {name: 'age', label: 'Age'},
-                    {name: 'job', label: 'Job'},
-                    {name: 'food', label: 'Food'}
-
-                ],
-                data: [
-                    {name: 'Lester', age: 18, job: 'None'},
-                    {name: 'Agard', age: 38, job: 'None'},
-                    {name: 'Blake', age: 38, job: 'Steward'},
-                    {name: 'Zlake', age: 38, job: 'Eward', food: 'pie'},
-                    {name: 'Kenya', age: 38, job: 'Shop', food: 'apples'}
-                ]
-            }
+            
         }, {
             type: "panel",
             heading: "Form",
             "compile:body": {
                 type: "form",
                 "children": [{
-                    type: 'checkbox',
-                    name: 'plainCheckbox',
-                    '@set': '$self.set',
-                    '@value': '$self.state.plainCheckbox'
+                    type: "checkbox",
+                    name: "plainCheckbox",
+                    "@set": "$self.set",
+                    "@value": "$self.state.plainCheckbox"
                 }, {
-                    type: 'radio',
-                    name: 'plainRadio',
-                    '@set': '$self.set',
-                    '@checked': '$self.state.plainRadio',
-                    'value': "Pelau",
+                    type: "radio",
+                    name: "plainRadio",
+                    "@set": "$self.set",
+                    "@checked": "$self.state.plainRadio",
+                    "value": "Pelau",
                 },
                     {
                         "type": "vertical-input",

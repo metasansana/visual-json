@@ -34,7 +34,7 @@
   "browserify": {},
   "scripts": {
     "test": "./node_modules/.bin/jest",
-    "build": "rm -R build; ./node_modules/.bin/babel -i srv/*/__tests__,node_modules -D -w src -d build",
+    "build": "rm -R build; ./node_modules/.bin/babel -i srv/*/__tests__,node_modules -D src -d build",
     "bundle": "rm -R dist/visual-bundle.js; ./node_modules/.bin/browserify -x react -t babelify -t uglifyify src/index.js > dist/visual-bundle.js",
     "dist": "rm -R dist/visual.js; ./node_modules/.bin/browserify -t babelify -t uglifyify --standalone visual src/index.js > dist/visual.js",
     "dist-debug": "rm -R dist/visual.js; ./node_modules/.bin/browserify --debug -t babelify --standalone visual src/index.js > dist/visual.js",
