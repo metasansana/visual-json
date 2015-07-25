@@ -41,7 +41,7 @@ class Compiler {
                 if (!winner) throw new Error('compile_switch: No winner found!');
 
                 if (stem.key === 'children') {
-                    tree.set(stem.key, new Tree(winner, stem.key), scope.clone());
+                    tree.set(stem.key, winner, scope.clone());
                 } else {
                     tree.set(stem.key, this.env.parse(new Tree(winner, stem.key), scope.clone()));
                 }
