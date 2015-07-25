@@ -58,7 +58,7 @@ var Compiler = (function () {
 
                 winner = $case.hasOwnProperty(value) ? $case[value] : $case[stem.get('default')];
 
-                if (!winner) throw new Error();
+                if (!winner) throw new Error('compile_switch: No winner found!');
 
                 if (stem.key === 'children') {
                     tree.set(stem.key, new _Tree2['default'](winner, stem.key), scope.clone());
