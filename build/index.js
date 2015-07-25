@@ -48,7 +48,6 @@ var _coreEnvironment2 = _interopRequireDefault(_coreEnvironment);
 
 require('babel/polyfill');
 
-window.PENIS = 'O=><>';
 exports['default'] = {
     Compiler: _Compiler2['default'],
     Parser: _Parser2['default'],

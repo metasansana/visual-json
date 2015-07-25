@@ -16,7 +16,7 @@ class Compiler {
             return tree.map(branch=>this.env.parse(branch, scope.clone()));
 
         tree.getDirectiveTreesBySymbol(Compiler.COMPILE_SYMBOL).
-          map(branch=>tree.set(branch.key, this.env.parse(branch, scope.clone())));
+            map(branch=>tree.set(branch.key, this.env.parse(branch, scope.clone())));
 
         tree.getDirectiveTreesBySymbol(Compiler.SOURCE_SYMBOL).
             map(branch=>tree.set(branch.key, this.env.getTypeByName(branch.toObject()).getSource()));
@@ -40,7 +40,11 @@ class Compiler {
 
                 if (!winner) throw new Error();
 
-                tree.set(stem.key, this.env.parse(new Tree(winner, stem.key), scope.clone()));
+                if (stem.key === 'children') {
+                    tree.set(stem.key, new Tree(winner, stem.key), scope.clone());
+                } else {
+                    tree.set(stem.key, this.env.parse(new Tree(winner, stem.key), scope.clone()));
+                }
 
             });
 

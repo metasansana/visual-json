@@ -97,6 +97,11 @@ var Environment = (function () {
             return this.parser.parse(tree, scope);
         }
     }, {
+        key: 'parseFromObject',
+        value: function parseFromObject(o, scope) {
+            return this.parser.parse(new _Tree2['default'](o), scope);
+        }
+    }, {
         key: 'compile',
         value: function compile(tree, scope) {
             return this.compiler.compile(tree, scope);

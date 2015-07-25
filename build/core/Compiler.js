@@ -60,7 +60,11 @@ var Compiler = (function () {
 
                 if (!winner) throw new Error();
 
-                tree.set(stem.key, _this.env.parse(new _Tree2['default'](winner, stem.key), scope.clone()));
+                if (stem.key === 'children') {
+                    tree.set(stem.key, new _Tree2['default'](winner, stem.key), scope.clone());
+                } else {
+                    tree.set(stem.key, _this.env.parse(new _Tree2['default'](winner, stem.key), scope.clone()));
+                }
             });
 
             tree.receiveSymbols(scope);
