@@ -1,12 +1,14 @@
-import RequestDirective from '../../src/directives/RequestDirective';
+import ResourceDirective from '../../src/plugins/ResourceDirective';
 import expect from 'must';
+import Promise from 'bluebird';
 
+var request;
 var scope;
 var response;
 var directive;
 var engine;
 
-describe('RequestDirective', function () {
+describe('ResourceDirective', function () {
 
     beforeEach(function () {
         response = {data: {a: 1, b: 2, c: 3, links: [{rel: 'create', href: '/create'}]}};
@@ -31,39 +33,35 @@ describe('RequestDirective', function () {
     beforeEach(function () {
 
         scope = {
-            set(dest, name, value) {
+            set(key, name, value) {
                 this[name] = value;
             },
             applySymbols(value) {
                 return value;
             }
         };
-
     });
+
 
     beforeEach(function () {
-        directive = new RequestDirective(engine);
+        directive = new ResourceDirective(engine);
     });
 
-    describe('RequestDirective#apply', function () {
+    describe('ResourceDirective#apply', function () {
 
-        it('should work', function () {
-            directive.apply({load:{href:'/people', method:'get'}}, scope);
-                expect(typeof scope.load).be('function');
-        });
+        it('should work', function (done) {
 
-        it('RequestDirective#send', function () {
-
-            directive.send({
-                url: '/',
-                method: 'PATCH',
-                params: 24
-            }).then(function (res) {
-                expect(res.url).equal('/');
-                expect(res.params).equal(24);
-                return res;
-            });
-
+            directive.apply({
+                    name: 'person',
+                    request: {href: '/nowhere', method: 'get'},
+                    links: {'create': {}}
+                }, scope,
+                function () {
+                    expect(scope.person).exist();
+                    expect(scope.person.data).eql(response.data);
+                    expect(typeof scope.person.links.create).be('function');
+                    done();
+                })
         });
     });
 });

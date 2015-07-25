@@ -1,4 +1,4 @@
-import SetDirective from '../../src/directives/SetDirective';
+import SetDirective from '../../src/plugins/SetDirective';
 import expect from 'must';
 
 var directive;

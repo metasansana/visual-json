@@ -5,13 +5,13 @@ import Tree from '../../src/core/Tree';
 var parser;
 var scope;
 var env;
-var directives;
+var plugins;
 
 describe('Parser', function () {
 
     beforeEach(function () {
 
-        directives = [
+        plugins = [
             {
                 apply(){
                     this.called = true;
@@ -41,7 +41,7 @@ describe('Parser', function () {
                 return tree;
             },
             getPlugins() {
-                return directives;
+                return plugins;
             }
 
         };
@@ -67,10 +67,10 @@ describe('Parser', function () {
 
     describe('Parser#parse', function () {
 
-        it('should apply directives', function () {
+        it('should apply plugins', function () {
             parser.parse(new Tree({}, null), scope);
             expect(env.compileCalled).eql(1);
-            directives.map(d=>expect(d.called).eql(true));
+            plugins.map(d=>expect(d.called).eql(true));
         });
 
         it('should obey the ignore directive', function () {

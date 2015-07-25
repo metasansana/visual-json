@@ -22,9 +22,9 @@ var _SymbolParser = require('./SymbolParser');
 
 var _SymbolParser2 = _interopRequireDefault(_SymbolParser);
 
-var _directivesSetDirective = require('../directives/SetDirective');
+var _pluginsSetDirective = require('../plugins/SetDirective');
 
-var _directivesSetDirective2 = _interopRequireDefault(_directivesSetDirective);
+var _pluginsSetDirective2 = _interopRequireDefault(_pluginsSetDirective);
 
 var _UnknownTypeError = require('./UnknownTypeError');
 
@@ -47,7 +47,7 @@ var Environment = (function () {
         _classCallCheck(this, Environment);
 
         this.types = types || {};
-        this.plugins = [new _directivesSetDirective2['default']()];
+        this.plugins = [new _pluginsSetDirective2['default']()];
         this.compiler = new _Compiler2['default'](this);
         this.parser = new _Parser2['default'](this);
         this.envCtx = {
