@@ -18,7 +18,7 @@ class Request {
      * @param schema
      * @returns {Promise.<T>}
      */
-    promiseRequestFromJSON(schema) {
+    send(schema) {
 
         var method = (schema.method) ? schema.method.toLowerCase() : 'get';
         var url = schema.url;
@@ -27,7 +27,7 @@ class Request {
         params = adapter.getParameters(params);
 
         if(!this.engine) throw new Error('Request: No engine specified! Did you call setEngine()?');
-        return engine[method].call(engine, url, params);
+        return this.engine[method].call(this.engine, url, params);
 
     }
 

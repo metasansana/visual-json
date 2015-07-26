@@ -55,7 +55,6 @@ class Compiler {
 
     }
 
-
 }
 
 Compiler.COMPILE_SYMBOL = 'compile:';

@@ -46,7 +46,9 @@ var _coreEnvironment = require('./core/Environment');
 
 var _coreEnvironment2 = _interopRequireDefault(_coreEnvironment);
 
-require('babel/polyfill');
+var _plugins = require('./plugins');
+
+var _plugins2 = _interopRequireDefault(_plugins);
 
 exports['default'] = {
     Compiler: _Compiler2['default'],
@@ -58,6 +60,7 @@ exports['default'] = {
     view: _view2['default'],
     types: _types2['default'],
     filters: _filters2['default'],
-    extras: _extras2['default']
+    extras: _extras2['default'],
+    plugins: _plugins2['default']
 };
 module.exports = exports['default'];

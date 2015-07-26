@@ -29,14 +29,14 @@ var Request = (function () {
     }
 
     _createClass(Request, [{
-        key: 'promiseRequestFromJSON',
+        key: 'send',
 
         /**
          *
          * @param schema
          * @returns {Promise.<T>}
          */
-        value: function promiseRequestFromJSON(schema) {
+        value: function send(schema) {
 
             var method = schema.method ? schema.method.toLowerCase() : 'get';
             var url = schema.url;
@@ -45,7 +45,7 @@ var Request = (function () {
             params = adapter.getParameters(params);
 
             if (!this.engine) throw new Error('Request: No engine specified! Did you call setEngine()?');
-            return engine[method].call(engine, url, params);
+            return this.engine[method].call(this.engine, url, params);
         }
     }, {
         key: 'setEngine',

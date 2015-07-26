@@ -6,7 +6,7 @@ var response;
 var directive;
 var engine;
 
-describe('RequestDirective', function () {
+describe('RequestPlugin', function () {
 
     beforeEach(function () {
         response = {data: {a: 1, b: 2, c: 3, links: [{rel: 'create', href: '/create'}]}};
@@ -45,14 +45,14 @@ describe('RequestDirective', function () {
         directive = new RequestDirective(engine);
     });
 
-    describe('RequestDirective#apply', function () {
+    describe('RequestPlugin#apply', function () {
 
         it('should work', function () {
             directive.apply({load:{href:'/people', method:'get'}}, scope);
                 expect(typeof scope.load).be('function');
         });
 
-        it('RequestDirective#send', function () {
+        it('RequestPlugin#send', function () {
 
             directive.send({
                 url: '/',

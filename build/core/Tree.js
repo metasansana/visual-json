@@ -103,6 +103,7 @@ var Tree = (function () {
     }, {
         key: 'map',
         value: function map(cb) {
+            if (this.isEmpty()) return;
             var json = this.isArray() ? this.schema : [this.schema];
             return json.map(function (schema, key) {
                 return new Tree(schema, key);

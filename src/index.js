@@ -8,7 +8,7 @@ import Compiler from './Compiler';
 import Parser from './Parser';
 import Realm from './Realm';
 import Environment from './core/Environment';
-import 'babel/polyfill';
+import plugins from './plugins';
 
 export default {
     Compiler: Compiler,
@@ -20,5 +20,6 @@ export default {
     view: view,
     types: types,
     filters: filters,
-    extras: extras
+    extras: extras,
+    plugins: plugins
 };

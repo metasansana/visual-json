@@ -74,6 +74,7 @@ class Tree {
     }
 
     map(cb) {
+        if(this.isEmpty()) return;
         var json = (this.isArray()) ? this.schema : [this.schema];
         return json.map((schema, key)=>new Tree(schema, key)).map(cb);
     }
