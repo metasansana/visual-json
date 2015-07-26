@@ -31,7 +31,7 @@ class Environment {
     }
 
     addVar(key, name) {
-        this.envCtx[key] = name;
+        this.envCtx.$env[key] = name;
         return this;
     }
 
