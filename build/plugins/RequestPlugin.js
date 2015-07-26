@@ -51,18 +51,25 @@ var RequestPlugin = (function () {
          * @returns {Promise.<T>}
          */
         value: function send(schema) {
-
-            var method = schema.method ? schema.method.toLowerCase() : 'get';
+            var method = schema.method;
             var url = schema.url;
             var params = schema.params;
-            var adapter = schema.adapter || Adapter;
+            var adapter = schema.adapter;
             var onError = schema.onError;
+            var before = schema.before;
+            var after = schema.after;
+
+            var request;
+
+            method = method ? method.toLowerCase() : 'get';
+            adapter = adapter || Adapter;
             params = adapter.getParameters(params);
 
             if (!this.engine) throw new Error('Request: No engine specified! Did you call setEngine()?');
 
-            var request = this.engine[method].call(this.engine, url, params);
-
+            if (before) before();
+            request = this.engine[method].call(this.engine, url, params);
+            if (after) request.then(after);
             if (onError) request['catch'](onError);
 
             return request;
