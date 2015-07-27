@@ -131,11 +131,16 @@ var SymbolParser = (function () {
 
             var isCallable = false;
             var args;
+            var applyAfter = false;
 
             if (this.startsWith(this.SYMBOLS.SWAP, key)) {
 
-                if (value[value.length - 1] === ')') isCallable = true;
+                if (value[0] === '@') {
+                    value = value.slice(1);
+                    applyAfter = true;
+                }
 
+                if (value[value.length - 1] === ')') isCallable = true;
                 if (isCallable) args = this._stringToArgs(value, scope);
 
                 var target = scope.resolve(isCallable ? value.substring(0, value.indexOf('(')) : value);
@@ -148,7 +153,7 @@ var SymbolParser = (function () {
                     target = args ? target.bind.apply(target, [null].concat(args)) : target.bind(scope.resolve(paths.join('.')));
                 }
 
-                return newTree[newKey] = target;
+                return newTree[newKey] = applyAfter ? this.parse(target, scope) : target;
             }
         }
     }, {

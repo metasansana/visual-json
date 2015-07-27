@@ -64,14 +64,17 @@ var RequestPlugin = (function () {
             method = method ? method.toLowerCase() : 'get';
             adapter = adapter || Adapter;
             params = adapter.getParameters(params);
+            after = Array.isArray(after) ? after : [after];
 
             if (!this.engine) throw new Error('Request: No engine specified! Did you call setEngine()?');
-
             if (before) before();
-            request = this.engine[method].call(this.engine, url, params);
-            if (after) request.then(after);
-            if (onError) request['catch'](onError);
 
+            request = this.engine[method].call(this.engine, url, params);
+
+            if (onError) request['catch'](onError);
+            after.forEach(function (cb) {
+                return request.then(cb);
+            });
             return request;
         }
     }, {

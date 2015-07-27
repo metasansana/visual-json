@@ -53,7 +53,8 @@ var Environment = (function () {
         this.envCtx = {
             $window: window,
             $document: document,
-            $env: {}
+            $env: {},
+            $types: this.types
         };
     }
 

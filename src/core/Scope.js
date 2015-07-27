@@ -58,13 +58,16 @@ class Scope {
 
         var value;
 
+        if(this.symbolParser.startsWith('$types', path)){
+            value = DotAccess.get(this.envCtx, path);
+            return value.getSource();
+        }
+
         value = DotAccess.get(this.localCtx, path);
         if (value !== undefined) return value;
 
         value = DotAccess.get(this.envCtx, path);
         if (value !== undefined) return value;
-
-        return null;
 
     }
 

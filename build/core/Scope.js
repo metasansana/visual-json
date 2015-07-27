@@ -79,13 +79,16 @@ var Scope = (function () {
 
             var value;
 
+            if (this.symbolParser.startsWith('$types', path)) {
+                value = _dotAccess2['default'].get(this.envCtx, path);
+                return value.getSource();
+            }
+
             value = _dotAccess2['default'].get(this.localCtx, path);
             if (value !== undefined) return value;
 
             value = _dotAccess2['default'].get(this.envCtx, path);
             if (value !== undefined) return value;
-
-            return null;
         }
     }, {
         key: 'applySymbols',

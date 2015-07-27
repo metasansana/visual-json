@@ -20,7 +20,8 @@ class Environment {
         this.envCtx = {
             $window: window,
             $document: document,
-            $env: {}
+            $env: {},
+            $types: this.types
         };
 
     }
