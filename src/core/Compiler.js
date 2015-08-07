@@ -61,5 +61,4 @@ Compiler.COMPILE_SYMBOL = 'compile:';
 Compiler.COMPILE_SWITCH_SYMBOL = 'compile_switch:';
 Compiler.COMPILE_IF_SYMBOL = 'compile_if:';
 Compiler.SOURCE_SYMBOL = 'src:';
-
 export default Compiler

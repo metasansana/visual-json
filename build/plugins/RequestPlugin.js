@@ -71,10 +71,11 @@ var RequestPlugin = (function () {
 
             request = this.engine[method].call(this.engine, url, params);
 
-            if (onError) request['catch'](onError);
             after.forEach(function (cb) {
-                return request.then(cb);
+                request = request.then(cb);
             });
+
+            if (onError) request['catch'](onError);
             return request;
         }
     }, {

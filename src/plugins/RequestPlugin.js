@@ -46,8 +46,11 @@ class RequestPlugin {
 
         request = this.engine[method].call(this.engine, url, params);
 
-        if (onError)request.catch(onError);
-        after.forEach(cb=>request.then(cb));
+        after.forEach(cb=>{
+            request = request.then(cb)
+        });
+
+        if (onError) request.catch(onError);
         return request;
 
     }
