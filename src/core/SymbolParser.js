@@ -1,14 +1,14 @@
 import dot from 'dot-access';
 
 const OPERATORS = {
-    '==': (x,y)=>(x===y),
-    '!=': (x,y)=>(x!=y),
-    '>': (x,y)=>(x>y),
-    '>=': (x,y)=>(x>=y),
-    '<': (x,y)=>(x<y),
-    '<=': (x,y)=>(x<=y),
-    '-': (x,y)=>(x-y),
-    '+': (x,y)=>(x+y)
+    '==': (x, y)=>(x === y),
+    '!=': (x, y)=>(x != y),
+    '>': (x, y)=>(x > y),
+    '>=': (x, y)=>(x >= y),
+    '<': (x, y)=>(x < y),
+    '<=': (x, y)=>(x <= y),
+    '-': (x, y)=>(x - y),
+    '+': (x, y)=>(x + y)
 };
 
 /**
@@ -23,8 +23,8 @@ class SymbolParser {
             SWAP: '@',
             STEP: '->',
             TEMPLATE: '^',
-            EVALUATE:'=',
-            DIRECTIVE:'@$'
+            EVALUATE: '=',
+            DIRECTIVE: '@$'
         }
     }
 
@@ -35,7 +35,7 @@ class SymbolParser {
                 if (typeof val === 'string')
                     if (!val[0] === "'") {
                         val = scope.resolve(val);
-                    }else{
+                    } else {
                         val = val.replace(/'/g, "");
                     }
                 return val;
@@ -56,11 +56,15 @@ class SymbolParser {
     evaluate(str, scope) {
 
         var exp = str.split(' ');
-        if(exp.length === 1)
-        return (scope.resolve(exp[0]));
+        if (exp.length === 1) {
+            if (exp[0][0] === '!')
+                return !(scope.resolve(exp[0].slice(1)));
+            return (scope.resolve(exp[0]));
+        }
 
-        if(!OPERATORS.hasOwnProperty(exp[1]))
-        throw new Error('evaluate(): Unknown operator: '+exp[1]+' !');
+
+        if (!OPERATORS.hasOwnProperty(exp[1]))
+            throw new Error('evaluate(): Unknown operator: ' + exp[1] + ' !');
         return OPERATORS[exp[1]](scope.resolve(exp[0]), scope.resolve(exp[2]));
 
     }
@@ -109,7 +113,7 @@ class SymbolParser {
 
         if (this.startsWith(this.SYMBOLS.SWAP, key)) {
 
-            if(value[0] === '@'){
+            if (value[0] === '@') {
                 value = value.slice(1);
                 applyAfter = true;
             }
@@ -117,7 +121,7 @@ class SymbolParser {
             if (value[value.length - 1] === ')') isCallable = true;
             if (isCallable) args = this._stringToArgs(value, scope);
 
-            var target = scope.resolve((isCallable)?
+            var target = scope.resolve((isCallable) ?
                 value.substring(0, value.indexOf('(')) : value);
 
             if (typeof target === 'function') {
@@ -125,21 +129,20 @@ class SymbolParser {
                 var paths = value.split('.');
                 paths.pop();
 
-                target = (args)?
-                    target.bind.apply(target, [null].concat(args)):
+                target = (args) ?
+                    target.bind.apply(target, [null].concat(args)) :
                     target.bind(scope.resolve(paths.join('.')));
 
             }
 
-            return newTree[newKey] = (applyAfter)? this.parse(target, scope):target
+            return newTree[newKey] = (applyAfter) ? this.parse(target, scope) : target
 
         }
     }
 
     applyDirectiveSwap(key, template, scope, newKey, newTree) {
 
-        if(this.startsWith(this.SYMBOLS.DIRECTIVE. key)) {
-
+        if (this.startsWith(this.SYMBOLS.DIRECTIVE.key)) {
 
 
         }
@@ -156,8 +159,8 @@ class SymbolParser {
 
     applyEval(key, value, scope, newKey, newTree) {
 
-        if(this.startsWith(this.SYMBOLS.EVALUATE, key))
-        newTree[newKey] = this.evaluate(value, scope);
+        if (this.startsWith(this.SYMBOLS.EVALUATE, key))
+            newTree[newKey] = this.evaluate(value, scope);
     }
 
     parseObjectLike(schema, scope) {

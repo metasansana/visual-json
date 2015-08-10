@@ -87,7 +87,10 @@ var SymbolParser = (function () {
         value: function evaluate(str, scope) {
 
             var exp = str.split(' ');
-            if (exp.length === 1) return scope.resolve(exp[0]);
+            if (exp.length === 1) {
+                if (exp[0][0] === '!') return !scope.resolve(exp[0].slice(1));
+                return scope.resolve(exp[0]);
+            }
 
             if (!OPERATORS.hasOwnProperty(exp[1])) throw new Error('evaluate(): Unknown operator: ' + exp[1] + ' !');
             return OPERATORS[exp[1]](scope.resolve(exp[0]), scope.resolve(exp[2]));
