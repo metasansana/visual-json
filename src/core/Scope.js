@@ -58,6 +58,11 @@ class Scope {
 
         var value;
 
+        if(!path) path = '$self';
+
+        if(path[0] !== '$')
+        path = '$self.'+path;
+
         if(this.symbolParser.startsWith('$types', path)){
             value = DotAccess.get(this.envCtx, path);
             return value.getSource();
