@@ -14,6 +14,8 @@ var _dotAccess = require('dot-access');
 
 var _dotAccess2 = _interopRequireDefault(_dotAccess);
 
+var _stringExpression = require('string-expression');
+
 var OPERATORS = {
     '==': function _(x, y) {
         return x === y;
@@ -41,6 +43,8 @@ var OPERATORS = {
     }
 };
 
+var exp = new _stringExpression.Interpreter();
+
 /**
  * SymbolParser is used for populating a tree with
  * keyword symbols.
@@ -60,19 +64,6 @@ var SymbolParser = (function () {
     }
 
     _createClass(SymbolParser, [{
-        key: '_stringToArgs',
-        value: function _stringToArgs(str, scope) {
-
-            return str.substring(str.indexOf('(') + 1, str.length - 1).split(',').map(function (val) {
-                if (typeof val === 'string') if (!val[0] === '\'') {
-                    val = scope.resolve(val);
-                } else {
-                    val = val.replace(/'/g, '');
-                }
-                return val;
-            });
-        }
-    }, {
         key: '_clean',
         value: function _clean(value) {
 
@@ -81,19 +72,6 @@ var SymbolParser = (function () {
             }
 
             return value;
-        }
-    }, {
-        key: 'evaluate',
-        value: function evaluate(str, scope) {
-
-            var exp = str.split(' ');
-            if (exp.length === 1) {
-                if (exp[0][0] === '!') return !scope.resolve(exp[0].slice(1));
-                return scope.resolve(exp[0]);
-            }
-
-            if (!OPERATORS.hasOwnProperty(exp[1])) throw new Error('evaluate(): Unknown operator: ' + exp[1] + ' !');
-            return OPERATORS[exp[1]](scope.resolve(exp[0]), scope.resolve(exp[2]));
         }
     }, {
         key: 'endsWith',
@@ -132,8 +110,6 @@ var SymbolParser = (function () {
         key: 'applySwap',
         value: function applySwap(key, value, scope, newKey, newTree) {
 
-            var isCallable = false;
-            var args;
             var applyAfter = false;
 
             if (this.startsWith(this.SYMBOLS.SWAP, key)) {
@@ -143,19 +119,7 @@ var SymbolParser = (function () {
                     applyAfter = true;
                 }
 
-                if (value[value.length - 1] === ')') isCallable = true;
-                if (isCallable) args = this._stringToArgs(value, scope);
-
-                var target = scope.resolve(isCallable ? value.substring(0, value.indexOf('(')) : value);
-
-                if (typeof target === 'function') {
-
-                    var paths = value.split('.');
-                    paths.pop();
-
-                    target = args ? target.bind.apply(target, [null].concat(args)) : target.bind(scope.resolve(paths.join('.')));
-                }
-
+                var target = exp.evaluateWithContext(value, scope);
                 return newTree[newKey] = applyAfter ? this.parse(target, scope) : target;
             }
         }
