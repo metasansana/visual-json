@@ -115,7 +115,7 @@ class SymbolParser {
     applyEval(key, value, scope, newKey, newTree) {
 
         if (this.startsWith(this.SYMBOLS.EVALUATE, key))
-            newTree[newKey] = this.evaluate(value, scope);
+            newTree[newKey] = exp.evaluateWithContext(value, scope);
     }
 
     parseObjectLike(schema, scope) {

@@ -2,6 +2,8 @@ import Tree from './Tree';
 import Scope from './Scope';
 import SymbolParser from './SymbolParser';
 import SetPlugin from '../plugins/SetPlugin';
+import SourcePlugin from '../plugins/SourcePlugin';
+import ParseFunctionPlugin from '../plugins/ParseFunctionPlugin';
 import UnknownTypeError from './UnknownTypeError';
 import Compiler from './Compiler';
 import Parser from './Parser';
@@ -14,7 +16,7 @@ class Environment {
     constructor(types) {
 
         this.types = types || {};
-        this.plugins = [new SetPlugin()];
+        this.plugins = [new SetPlugin(), new SourcePlugin(), new ParseFunctionPlugin(this)];
         this.compiler = new Compiler(this);
         this.parser = new Parser(this);
         this.envCtx = {

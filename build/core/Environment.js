@@ -26,6 +26,14 @@ var _pluginsSetPlugin = require('../plugins/SetPlugin');
 
 var _pluginsSetPlugin2 = _interopRequireDefault(_pluginsSetPlugin);
 
+var _pluginsSourcePlugin = require('../plugins/SourcePlugin');
+
+var _pluginsSourcePlugin2 = _interopRequireDefault(_pluginsSourcePlugin);
+
+var _pluginsParseFunctionPlugin = require('../plugins/ParseFunctionPlugin');
+
+var _pluginsParseFunctionPlugin2 = _interopRequireDefault(_pluginsParseFunctionPlugin);
+
 var _UnknownTypeError = require('./UnknownTypeError');
 
 var _UnknownTypeError2 = _interopRequireDefault(_UnknownTypeError);
@@ -47,7 +55,7 @@ var Environment = (function () {
         _classCallCheck(this, Environment);
 
         this.types = types || {};
-        this.plugins = [new _pluginsSetPlugin2['default']()];
+        this.plugins = [new _pluginsSetPlugin2['default'](), new _pluginsSourcePlugin2['default'](), new _pluginsParseFunctionPlugin2['default'](this)];
         this.compiler = new _Compiler2['default'](this);
         this.parser = new _Parser2['default'](this);
         this.envCtx = {

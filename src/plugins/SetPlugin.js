@@ -1,5 +1,5 @@
 /**
- * SetDirective traverses a `$set` directive and puts the keys
+ * SetPlugin traverses a `$set` directive and puts the keys
  * found in the `$local` scope.
  *
  *
@@ -11,7 +11,7 @@
  *  }
  * }
  */
-class SetDirective {
+class SetPlugin {
 
     /**
      *
@@ -20,7 +20,7 @@ class SetDirective {
      */
     apply(tree, scope) {
 
-        var $ = tree.getDirectiveTreeBySymbol(SetDirective.SYMBOL);
+        var $ = tree.getDirectiveTreeBySymbol(SetPlugin.SYMBOL);
 
         if($.isEmpty()) return;
 
@@ -32,5 +32,5 @@ class SetDirective {
 
 }
 
-SetDirective.SYMBOL = 'visual:set';
-export default SetDirective
+SetPlugin.SYMBOL = 'visual:set';
+export default SetPlugin

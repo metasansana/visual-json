@@ -1,14 +1,7 @@
 /**
- * SetPlugin traverses a `$set` directive and puts the keys
- * found in the `$local` scope.
- *
- *
- * @example <caption>Example schema</caption>
+ * SourcePlugin provides the source of the tree being parsed.
  * {
- *  "visual:set": {
- *       @id: "$resource.report.data.reportID",
- *      "oid": "23"
- *  }
+ *  visual:source: true
  * }
  */
 'use strict';
@@ -21,12 +14,12 @@ var _createClass = (function () { function defineProperties(target, props) { for
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-var SetPlugin = (function () {
-  function SetPlugin() {
-    _classCallCheck(this, SetPlugin);
+var SourcePlugin = (function () {
+  function SourcePlugin() {
+    _classCallCheck(this, SourcePlugin);
   }
 
-  _createClass(SetPlugin, [{
+  _createClass(SourcePlugin, [{
     key: 'apply',
 
     /**
@@ -36,19 +29,15 @@ var SetPlugin = (function () {
      */
     value: function apply(tree, scope) {
 
-      var $ = tree.getDirectiveTreeBySymbol(SetPlugin.SYMBOL);
-
+      var $ = tree.getDirectiveTreeBySymbol(SourcePlugin.SYMBOL);
       if ($.isEmpty()) return;
-
-      $.forEachKey(function (value, key) {
-        scope.set('$local', key, value);
-      });
+      scope.set('$source', 'code', tree.isObject());
     }
   }]);
 
-  return SetPlugin;
+  return SourcePlugin;
 })();
 
-SetPlugin.SYMBOL = 'visual:set';
-exports['default'] = SetPlugin;
+SourcePlugin.Symbol = 'visual:source';
+exports['default'] = SourcePlugin;
 module.exports = exports['default'];

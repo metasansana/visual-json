@@ -25,11 +25,9 @@ var Parser = (function () {
             if (tree.isPrimitive()) return tree.toObject();
 
             if (tree.isObject()) {
-
                 if (tree.getDirectiveTreeBySymbol(Parser.IGNORE_SYMBOL).toObject()) return;
-
                 this.env.getPlugins().map(function ($) {
-                    $.apply(tree, scope);
+                    return $.apply(tree, scope);
                 });
             }
 

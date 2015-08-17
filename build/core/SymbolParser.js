@@ -141,7 +141,7 @@ var SymbolParser = (function () {
         key: 'applyEval',
         value: function applyEval(key, value, scope, newKey, newTree) {
 
-            if (this.startsWith(this.SYMBOLS.EVALUATE, key)) newTree[newKey] = this.evaluate(value, scope);
+            if (this.startsWith(this.SYMBOLS.EVALUATE, key)) newTree[newKey] = exp.evaluateWithContext(value, scope);
         }
     }, {
         key: 'parseObjectLike',
