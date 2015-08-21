@@ -94,6 +94,12 @@ var Control = (function (_React$Component) {
             return props;
         }
     }, {
+        key: 'shouldComponentUpdate',
+        value: function shouldComponentUpdate(nextProps, nextState) {
+            console.log('SCU', this.props.defaultValue !== nextProps.defaultValue, this.props, nextProps);
+            return this.props.defaultValue !== nextProps.defaultValue;
+        }
+    }, {
         key: 'componentDidMount',
         value: function componentDidMount() {
             this.props.model.set(this.props.name, this._defaultValue(), this);
