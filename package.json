@@ -13,7 +13,7 @@
   "keywords": [
     "powerforms"
   ],
-  "devDependencies": {
+  "dependencies": {
     "string-expression": "metasansana/string-expression"
   },
   "devDependencies": {
