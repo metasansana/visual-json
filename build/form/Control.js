@@ -96,7 +96,6 @@ var Control = (function (_React$Component) {
     }, {
         key: 'shouldComponentUpdate',
         value: function shouldComponentUpdate(nextProps, nextState) {
-            console.log('SCU', this.props.defaultValue !== nextProps.defaultValue, this.props, nextProps);
             return this.props.defaultValue !== nextProps.defaultValue;
         }
     }, {

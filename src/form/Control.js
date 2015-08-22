@@ -84,7 +84,6 @@ class Control extends React.Component {
     }
 
     shouldComponentUpdate(nextProps, nextState) {
-        console.log('SCU',(this.props.defaultValue !== nextProps.defaultValue),this.props,nextProps);
         return (this.props.defaultValue !== nextProps.defaultValue);
     }
 
