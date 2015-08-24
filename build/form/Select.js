@@ -20,9 +20,9 @@ var _merge = require('merge');
 
 var _merge2 = _interopRequireDefault(_merge);
 
-var _dotAccess = require('dot-access');
+var _propertySeek = require('property-seek');
 
-var _dotAccess2 = _interopRequireDefault(_dotAccess);
+var _propertySeek2 = _interopRequireDefault(_propertySeek);
 
 var _Control2 = require('./Control');
 
@@ -46,7 +46,7 @@ var Select = (function (_Control) {
             var valueField = this.props.valueField;
             var _ = _Control3['default'].prototype._defaultValue.call(this);
 
-            if (typeof _ === 'object') if (valueField) return _dotAccess2['default'].get(_, valueField);
+            if (typeof _ === 'object') if (valueField) return _propertySeek2['default'].get(_, valueField);
 
             return _;
         }
@@ -72,8 +72,8 @@ var Select = (function (_Control) {
                 if (option.key === 0) return option;
 
                 if (typeof option === 'object') {
-                    value = _dotAccess2['default'].get(option, valueField);
-                    label = _dotAccess2['default'].get(option, labelField);
+                    value = _propertySeek2['default'].get(option, valueField);
+                    label = _propertySeek2['default'].get(option, labelField);
                 } else {
                     value = option;
                     label = option;

@@ -1,4 +1,4 @@
-import dot from 'dot-access';
+import dot from 'property-seek';
 import fmt from 'strtpl';
 import jhr from 'jhr';
 

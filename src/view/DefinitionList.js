@@ -1,5 +1,5 @@
 import React from 'react';
-import dot  from 'dot-access';
+import dot  from 'property-seek';
 
 
 /**

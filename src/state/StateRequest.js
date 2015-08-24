@@ -1,6 +1,6 @@
 import React from 'react';
 import jhr from 'jhr';
-import dot  from 'dot-access';
+import dot  from 'property-seek';
 
 var http = jhr.createAgent();
 

@@ -10,9 +10,9 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
-var _dotAccess = require('dot-access');
+var _propertySeek = require('property-seek');
 
-var _dotAccess2 = _interopRequireDefault(_dotAccess);
+var _propertySeek2 = _interopRequireDefault(_propertySeek);
 
 var _form2 = require('./form');
 

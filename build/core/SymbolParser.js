@@ -10,9 +10,9 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-var _dotAccess = require('dot-access');
+var _propertySeek = require('property-seek');
 
-var _dotAccess2 = _interopRequireDefault(_dotAccess);
+var _propertySeek2 = _interopRequireDefault(_propertySeek);
 
 var _stringExpression = require('string-expression');
 

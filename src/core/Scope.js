@@ -1,4 +1,4 @@
-import DotAccess from 'dot-access';
+import Seek from 'property-seek';
 
 /**
  * Scope retains all the variable information during parsing.
@@ -64,14 +64,14 @@ class Scope {
         path = '$self.'+path;
 
         if(this.symbolParser.startsWith('$types', path)){
-            value = DotAccess.get(this.envCtx, path);
+            value = Seek.get(this.envCtx, path);
             return value.getSource();
         }
 
-        value = DotAccess.get(this.localCtx, path);
+        value = Seek.get(this.localCtx, path);
         if (value !== undefined) return value;
 
-        value = DotAccess.get(this.envCtx, path);
+        value = Seek.get(this.envCtx, path);
         if (value !== undefined) return value;
 
     }

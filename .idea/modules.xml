@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/powerforms.iml" filepath="$PROJECT_DIR$/.idea/powerforms.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/visual-json.iml" filepath="$PROJECT_DIR$/.idea/visual-json.iml" />
     </modules>
   </component>
 </project>

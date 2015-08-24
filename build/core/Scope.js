@@ -10,9 +10,9 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-var _dotAccess = require('dot-access');
+var _propertySeek = require('property-seek');
 
-var _dotAccess2 = _interopRequireDefault(_dotAccess);
+var _propertySeek2 = _interopRequireDefault(_propertySeek);
 
 /**
  * Scope retains all the variable information during parsing.
@@ -84,14 +84,14 @@ var Scope = (function () {
             if (path[0] !== '$') path = '$self.' + path;
 
             if (this.symbolParser.startsWith('$types', path)) {
-                value = _dotAccess2['default'].get(this.envCtx, path);
+                value = _propertySeek2['default'].get(this.envCtx, path);
                 return value.getSource();
             }
 
-            value = _dotAccess2['default'].get(this.localCtx, path);
+            value = _propertySeek2['default'].get(this.localCtx, path);
             if (value !== undefined) return value;
 
-            value = _dotAccess2['default'].get(this.envCtx, path);
+            value = _propertySeek2['default'].get(this.envCtx, path);
             if (value !== undefined) return value;
         }
     }, {

@@ -1,4 +1,4 @@
-import dot from 'dot-access';
+import dot from 'property-seek';
 import {Interpreter} from 'string-expression';
 
 const OPERATORS = {

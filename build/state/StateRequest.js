@@ -22,9 +22,9 @@ var _jhr = require('jhr');
 
 var _jhr2 = _interopRequireDefault(_jhr);
 
-var _dotAccess = require('dot-access');
+var _propertySeek = require('property-seek');
 
-var _dotAccess2 = _interopRequireDefault(_dotAccess);
+var _propertySeek2 = _interopRequireDefault(_propertySeek);
 
 var http = _jhr2['default'].createAgent();
 

@@ -14,9 +14,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
 
-var _dotAccess = require('dot-access');
+var _propertySeek = require('property-seek');
 
-var _dotAccess2 = _interopRequireDefault(_dotAccess);
+var _propertySeek2 = _interopRequireDefault(_propertySeek);
 
 var _strtpl = require('strtpl');
 
@@ -162,10 +162,10 @@ var Compiler = (function () {
 
                 var splat = key.split('.');
                 splat.pop();
-                var boundDest = _dotAccess2['default'].get(ctx, splat.join('.')) || ctx;
+                var boundDest = _propertySeek2['default'].get(ctx, splat.join('.')) || ctx;
                 schema[this.cut(key, symbol)] = ctx[desiredKey].bind(boundDest);
             } else {
-                schema[this.cut(key, symbol)] = _dotAccess2['default'].get(ctx, desiredKey);
+                schema[this.cut(key, symbol)] = _propertySeek2['default'].get(ctx, desiredKey);
             }
 
             delete schema[key];
