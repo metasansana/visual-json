@@ -92,7 +92,6 @@ class Tree {
     }
 
     getDirectiveTreesBySymbol(symbol) {
-
         return Object.keys(this.schema).map(function (key) {
             if (Utils.startsWith(key, symbol))
                 return new Tree(this.schema[key], key.split(':').pop());

@@ -123,7 +123,6 @@ var Tree = (function () {
     }, {
         key: 'getDirectiveTreesBySymbol',
         value: function getDirectiveTreesBySymbol(symbol) {
-
             return Object.keys(this.schema).map((function (key) {
                 if (_Utils2['default'].startsWith(key, symbol)) return new Tree(this.schema[key], key.split(':').pop());
                 return false;
