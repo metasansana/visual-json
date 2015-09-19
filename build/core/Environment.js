@@ -87,7 +87,11 @@ var Environment = (function () {
     }, {
         key: 'getTypeByName',
         value: function getTypeByName(name) {
-            if (!this.types.hasOwnProperty(name)) throw new _UnknownTypeError2['default'](name);
+
+            if (!this.types.hasOwnProperty(name)) {
+                if (this.types.hasOwnProperty('unknown')) return this.types.unknown;
+                throw new _UnknownTypeError2['default'](name);
+            }
             return this.types[name];
         }
     }, {

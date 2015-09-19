@@ -44,9 +44,14 @@ class Environment {
     }
 
     getTypeByName(name) {
-        if (!this.types.hasOwnProperty(name))
+
+        if (!this.types.hasOwnProperty(name)) {
+          if(this.types.hasOwnProperty('unknown'))
+           return this.types.unknown;
             throw new UnknownTypeError(name);
+        }
         return this.types[name];
+
     }
 
     getPlugins() {
