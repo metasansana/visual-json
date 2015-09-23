@@ -46,8 +46,8 @@ class Environment {
     getTypeByName(name) {
 
         if (!this.types.hasOwnProperty(name)) {
-          if(this.types.hasOwnProperty('unknown'))
-           return this.types.unknown;
+            if (this.types.hasOwnProperty('unknown'))
+                return this.types.unknown;
             throw new UnknownTypeError(name);
         }
         return this.types[name];
@@ -59,14 +59,17 @@ class Environment {
     }
 
     getScope(self, locals) {
-        return new Scope(this.envCtx, {$self: self, $local: locals || {}}, new SymbolParser());
+        return new Scope(this.envCtx, {
+            $self: self,
+            $local: locals || {}
+        }, new SymbolParser());
     }
 
-    parse(tree, scope) {
-        return this.parser.parse(tree, scope);
+    parse(tree, scope, index) {
+        return this.parser.parse(tree, scope, index);
     }
 
-    parseFromObject(o, scope){
+    parseFromObject(o, scope) {
         return this.parser.parse(new Tree(o), scope);
     }
 

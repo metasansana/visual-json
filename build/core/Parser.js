@@ -20,7 +20,7 @@ var Parser = (function () {
 
     _createClass(Parser, [{
         key: 'parse',
-        value: function parse(tree, scope) {
+        value: function parse(tree, scope, count) {
 
             if (tree.isPrimitive()) return tree.toObject();
 
@@ -31,7 +31,7 @@ var Parser = (function () {
                 });
             }
 
-            return this.env.compile(tree, scope);
+            return this.env.compile(tree, scope, count);
         }
     }]);
 

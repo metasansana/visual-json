@@ -8,50 +8,49 @@ class Compiler {
         this.env = env;
     }
 
-    compile(tree, scope) {
+    compile(tree, scope, index) {
 
         if (tree.isPrimitive()) return tree.toObject();
 
         if (tree.isArray())
-            return tree.map(branch=>this.env.parse(branch, scope.clone()));
+            return tree.map((branch, i) => this.env.parse(branch, scope.clone(), i));
 
         tree.getDirectiveTreesBySymbol(Compiler.COMPILE_SYMBOL).
-            map(branch=>tree.set(branch.key, this.env.parse(branch, scope.clone())));
+        map(branch => tree.set(branch.key, this.env.parse(branch, scope.clone())));
 
         tree.getDirectiveTreesBySymbol(Compiler.SOURCE_SYMBOL).
-            map(branch=>tree.set(branch.key, this.env.getTypeByName(branch.toObject()).getSource()));
+        map(branch => tree.set(branch.key, this.env.getTypeByName(branch.toObject()).getSource()));
 
         tree.getDirectiveTreesBySymbol(Compiler.COMPILE_SWITCH_SYMBOL).
-            map(stem=> {
+        map(stem => {
 
-                var $case = stem.get('case');
+            var $case = stem.get('case');
 
-                if (!$case)
-                    throw new Error('Compiler: To use a switch directive, you must have a \'case\' block!');
+            if (!$case)
+                throw new Error('Compiler: To use a switch directive, you must have a \'case\' block!');
 
-                stem.receiveSymbols(scope);
+            stem.receiveSymbols(scope);
 
-                var winner;
-                var value = stem.get('value');
-                var $case = stem.get('case');
+            var winner;
+            var value = stem.get('value');
+            $case = stem.get('case');
 
-                winner = ($case.hasOwnProperty(value)) ?
-                    $case[value] : $case[stem.get('default')];
+            winner = ($case.hasOwnProperty(value)) ?
+                $case[value] : $case[stem.get('default')];
 
-                if (!winner) throw new Error('compile_switch: No winner found!');
+            if (!winner) throw new Error('compile_switch: No winner found!');
 
-                if (stem.key === 'children') {
-                    tree.set(stem.key, winner, scope.clone());
-                } else {
-                    tree.set(stem.key, this.env.parse(new Tree(winner, stem.key), scope.clone()));
-                }
+            if (stem.key === 'children') {
+                tree.set(stem.key, winner, scope.clone());
+            } else {
+                tree.set(stem.key, this.env.parse(new Tree(winner, stem.key), scope.clone()));
+            }
 
-            });
+        });
 
         tree.receiveSymbols(scope);
-
         return this.env.getTypeByName(tree.get('type')).
-            compile(tree, scope, this.env);
+        compile(tree, scope, this.env, index);
 
     }
 

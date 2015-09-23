@@ -102,12 +102,15 @@ var Environment = (function () {
     }, {
         key: 'getScope',
         value: function getScope(self, locals) {
-            return new _Scope2['default'](this.envCtx, { $self: self, $local: locals || {} }, new _SymbolParser2['default']());
+            return new _Scope2['default'](this.envCtx, {
+                $self: self,
+                $local: locals || {}
+            }, new _SymbolParser2['default']());
         }
     }, {
         key: 'parse',
-        value: function parse(tree, scope) {
-            return this.parser.parse(tree, scope);
+        value: function parse(tree, scope, index) {
+            return this.parser.parse(tree, scope, index);
         }
     }, {
         key: 'parseFromObject',

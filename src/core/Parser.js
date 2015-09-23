@@ -7,16 +7,16 @@ class Parser {
         this.env = env;
     }
 
-    parse(tree, scope) {
+    parse(tree, scope, count) {
 
-        if(tree.isPrimitive()) return tree.toObject();
+        if (tree.isPrimitive()) return tree.toObject();
 
-        if(tree.isObject()) {
-            if(tree.getDirectiveTreeBySymbol(Parser.IGNORE_SYMBOL).toObject()) return;
-            this.env.getPlugins().map(($)=>$.apply(tree, scope));
+        if (tree.isObject()) {
+            if (tree.getDirectiveTreeBySymbol(Parser.IGNORE_SYMBOL).toObject()) return;
+            this.env.getPlugins().map(($) => $.apply(tree, scope));
         }
 
-        return this.env.compile(tree, scope);
+        return this.env.compile(tree, scope, count);
     }
 }
 

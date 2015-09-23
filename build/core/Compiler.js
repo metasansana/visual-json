@@ -27,13 +27,13 @@ var Compiler = (function () {
 
     _createClass(Compiler, [{
         key: 'compile',
-        value: function compile(tree, scope) {
+        value: function compile(tree, scope, index) {
             var _this = this;
 
             if (tree.isPrimitive()) return tree.toObject();
 
-            if (tree.isArray()) return tree.map(function (branch) {
-                return _this.env.parse(branch, scope.clone());
+            if (tree.isArray()) return tree.map(function (branch, i) {
+                return _this.env.parse(branch, scope.clone(), i);
             });
 
             tree.getDirectiveTreesBySymbol(Compiler.COMPILE_SYMBOL).map(function (branch) {
@@ -54,7 +54,7 @@ var Compiler = (function () {
 
                 var winner;
                 var value = stem.get('value');
-                var $case = stem.get('case');
+                $case = stem.get('case');
 
                 winner = $case.hasOwnProperty(value) ? $case[value] : $case[stem.get('default')];
 
@@ -68,8 +68,7 @@ var Compiler = (function () {
             });
 
             tree.receiveSymbols(scope);
-
-            return this.env.getTypeByName(tree.get('type')).compile(tree, scope, this.env);
+            return this.env.getTypeByName(tree.get('type')).compile(tree, scope, this.env, index);
         }
     }]);
 
