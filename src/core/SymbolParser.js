@@ -1,15 +1,18 @@
 import dot from 'property-seek';
-import {Interpreter} from 'string-expression';
+import {
+    Interpreter
+}
+from 'string-expression';
 
 const OPERATORS = {
-    '==': (x, y)=>(x === y),
-    '!=': (x, y)=>(x != y),
-    '>': (x, y)=>(x > y),
-    '>=': (x, y)=>(x >= y),
-    '<': (x, y)=>(x < y),
-    '<=': (x, y)=>(x <= y),
-    '-': (x, y)=>(x - y),
-    '+': (x, y)=>(x + y)
+    '==': (x, y) => (x === y),
+    '!=': (x, y) => (x !== y),
+    '>': (x, y) => (x > y),
+    '>=': (x, y) => (x >= y),
+    '<': (x, y) => (x < y),
+    '<=': (x, y) => (x <= y),
+    '-': (x, y) => (x - y),
+    '+': (x, y) => (x + y)
 };
 
 var exp = new Interpreter();
@@ -107,7 +110,7 @@ class SymbolParser {
     applyTemplate(key, template, scope, newKey, newTree) {
 
         if (this.startsWith(this.SYMBOLS.TEMPLATE, key))
-            newTree[newKey] = template.replace(/\{\{([\w\$\.\-]*)}}/g, function (s, k) {
+            newTree[newKey] = template.replace(/\{([\w\$\.\-]*)}/g, function(s, k) {
                 return scope.resolve(k);
             });
     }
@@ -130,7 +133,7 @@ class SymbolParser {
     }
 
     parseArray(schema, scope) {
-        return schema.map(function (scheme, key) {
+        return schema.map(function(scheme, key) {
             if (scheme.type)
                 scheme.key = key;
             return this.parse(scheme, scope);
@@ -176,4 +179,3 @@ class SymbolParser {
 }
 
 export default SymbolParser
-

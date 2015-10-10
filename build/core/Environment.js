@@ -104,8 +104,9 @@ var Environment = (function () {
         value: function getScope(self, locals) {
             return new _Scope2['default'](this.envCtx, {
                 $self: self,
+                'this': self,
                 $local: locals || {}
-            }, new _SymbolParser2['default']());
+            }, new _SymbolParser2['default'](), this);
         }
     }, {
         key: 'parse',

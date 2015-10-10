@@ -1,4 +1,5 @@
 import Seek from 'property-seek';
+import Tree from './Tree';
 
 /**
  * Scope retains all the variable information during parsing.
@@ -10,10 +11,11 @@ import Seek from 'property-seek';
  */
 class Scope {
 
-    constructor(envCtx, localCtx, symbolParser) {
+    constructor(envCtx, localCtx, symbolParser, env) {
         this.envCtx = envCtx;
         this.localCtx = localCtx;
         this.symbolParser = symbolParser;
+        this.env = env;
     }
 
     /**
@@ -25,7 +27,7 @@ class Scope {
         for (var key in this.localCtx)
             if (this.localCtx.hasOwnProperty(key))
                 newLocal[key] = this.localCtx[key];
-        return new Scope(this.envCtx, newLocal, this.symbolParser)
+        return new Scope(this.envCtx, newLocal, this.symbolParser, this.env);
     }
 
 
@@ -58,12 +60,12 @@ class Scope {
 
         var value;
 
-        if(!path) path = '$self';
+        if (!path) path = '$self';
 
-        if(path[0] !== '$')
-        path = '$self.'+path;
+        if (path[0] !== '$')
+            path = '$self.' + path;
 
-        if(this.symbolParser.startsWith('$types', path)){
+        if (this.symbolParser.startsWith('$types', path)) {
             value = Seek.get(this.envCtx, path);
             return value.getSource();
         }
@@ -78,6 +80,12 @@ class Scope {
 
     applySymbols(tree) {
         return this.symbolParser.parse(tree, this);
+    }
+
+    parse(schema) {
+
+        return this.env.parse(new Tree(schema), this);
+
     }
 
 }

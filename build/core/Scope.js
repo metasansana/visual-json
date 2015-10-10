@@ -14,6 +14,10 @@ var _propertySeek = require('property-seek');
 
 var _propertySeek2 = _interopRequireDefault(_propertySeek);
 
+var _Tree = require('./Tree');
+
+var _Tree2 = _interopRequireDefault(_Tree);
+
 /**
  * Scope retains all the variable information during parsing.
  *
@@ -24,12 +28,13 @@ var _propertySeek2 = _interopRequireDefault(_propertySeek);
  */
 
 var Scope = (function () {
-    function Scope(envCtx, localCtx, symbolParser) {
+    function Scope(envCtx, localCtx, symbolParser, env) {
         _classCallCheck(this, Scope);
 
         this.envCtx = envCtx;
         this.localCtx = localCtx;
         this.symbolParser = symbolParser;
+        this.env = env;
     }
 
     _createClass(Scope, [{
@@ -42,7 +47,7 @@ var Scope = (function () {
         value: function clone() {
             var newLocal = {};
             for (var key in this.localCtx) if (this.localCtx.hasOwnProperty(key)) newLocal[key] = this.localCtx[key];
-            return new Scope(this.envCtx, newLocal, this.symbolParser);
+            return new Scope(this.envCtx, newLocal, this.symbolParser, this.env);
         }
     }, {
         key: 'replaceSelf',
@@ -98,6 +103,12 @@ var Scope = (function () {
         key: 'applySymbols',
         value: function applySymbols(tree) {
             return this.symbolParser.parse(tree, this);
+        }
+    }, {
+        key: 'parse',
+        value: function parse(schema) {
+
+            return this.env.parse(new _Tree2['default'](schema), this);
         }
     }]);
 

@@ -61,8 +61,9 @@ class Environment {
     getScope(self, locals) {
         return new Scope(this.envCtx, {
             $self: self,
+               this:self,
             $local: locals || {}
-        }, new SymbolParser());
+        }, new SymbolParser(),this);
     }
 
     parse(tree, scope, index) {

@@ -21,7 +21,7 @@ var OPERATORS = {
         return x === y;
     },
     '!=': function _(x, y) {
-        return x != y;
+        return x !== y;
     },
     '>': function _(x, y) {
         return x > y;
@@ -133,7 +133,7 @@ var SymbolParser = (function () {
         key: 'applyTemplate',
         value: function applyTemplate(key, template, scope, newKey, newTree) {
 
-            if (this.startsWith(this.SYMBOLS.TEMPLATE, key)) newTree[newKey] = template.replace(/\{\{([\w\$\.\-]*)}}/g, function (s, k) {
+            if (this.startsWith(this.SYMBOLS.TEMPLATE, key)) newTree[newKey] = template.replace(/\{([\w\$\.\-]*)}/g, function (s, k) {
                 return scope.resolve(k);
             });
         }
