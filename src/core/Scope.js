@@ -30,10 +30,13 @@ class Scope {
         return new Scope(this.envCtx, newLocal, this.symbolParser, this.env);
     }
 
-
     replaceSelf(self) {
         this.localCtx.$self = self;
         return this;
+    }
+
+    getSelf() {
+        return this.localCtx.$self;
     }
 
     /**

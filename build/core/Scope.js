@@ -56,6 +56,11 @@ var Scope = (function () {
             return this;
         }
     }, {
+        key: 'getSelf',
+        value: function getSelf() {
+            return this.localCtx.$self;
+        }
+    }, {
         key: 'set',
 
         /**

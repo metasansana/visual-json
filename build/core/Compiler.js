@@ -68,7 +68,16 @@ var Compiler = (function () {
             });
 
             tree.receiveSymbols(scope);
-            return this.env.getTypeByName(tree.get('type')).compile(tree, scope, this.env, index);
+            var type = tree.get('type');
+            var target;
+
+            if (type[0] === '!') {
+                target = scope.getSelf();
+            } else {
+                target = this.env.getTypeByName(type);
+            }
+
+            return target.compile(tree, scope, this.env, index);
         }
     }]);
 
