@@ -52,6 +52,11 @@ class Compiler {
         var type = tree.get('type');
         var target;
 
+if(!type) {
+console.log(tree);
+throw new Error('Object does not have a type!');
+}
+
         if (type[0] === '!') {
             target = scope.getSelf();
         } else {
