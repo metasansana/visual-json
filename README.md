@@ -3,8 +3,7 @@
 > Generate react.js powered uis from json.
 
 ##Status
-Experimental. Use at your own risk! Not ready for public production.
-
+Cancelled. Using JSON to model user interfaces was a terrible experience!
 
 ## Install
 
