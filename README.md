@@ -2,7 +2,7 @@
 
 > Generate react.js powered uis from json.
 
-##Status
+## Status
 Cancelled. Using JSON to model user interfaces was a terrible experience!
 
 ## Install
